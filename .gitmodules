@@ -1,0 +1,3 @@
+[submodule "deps/SpiderMonkey"]
+	path = deps/SpiderMonkey
+	url = https://github.com/ricardoquesada/Spidermonkey.git
