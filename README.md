@@ -10,6 +10,6 @@ As an example, if you want to support cocos2d-x in ARM64, you need to compile al
 
 ## Download
 
-  $ git clone 
-  $ cd cocos2d-x-dependencies
-  $ git submodule update --init
+    $ git clone https://github.com/cocos2d/cocos2d-x-dependencies.git
+    $ cd cocos2d-x-dependencies
+    $ git submodule update --init
