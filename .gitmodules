@@ -1,3 +1,6 @@
 [submodule "deps/SpiderMonkey"]
 	path = deps/SpiderMonkey
 	url = https://github.com/ricardoquesada/Spidermonkey.git
+[submodule "deps/fbx-conv"]
+	path = deps/fbx-conv
+	url = git@github.com:lvlonggame/fbx-conv.git
