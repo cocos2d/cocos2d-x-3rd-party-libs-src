@@ -231,6 +231,7 @@ test -z "$GPL" || add_make_enabled "GPL"
 # Checks
 #
 OS="${HOST#*-}" # strip architecture
+echo $OS
 case "${OS}" in
 	apple-darwin*)
 		if test -z "$BUILDFORIOS"
@@ -246,6 +247,7 @@ case "${OS}" in
 		add_make_enabled "HAVE_BSD"
 		;;
 	*android*)
+                echo "check android sdk"
 		check_android_sdk
 		add_make_enabled "HAVE_LINUX" "HAVE_ANDROID"
 		case "${HOST}" in
