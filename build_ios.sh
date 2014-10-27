@@ -3,8 +3,8 @@ set -e
 
 PLATFORM=OS
 VERBOSE=no
-SDK_VERSION=7.0
-SDK_MIN=5.1
+SDK_VERSION=8.1
+SDK_MIN=5.1.1
 ARCH=armv7
 
 usage()
@@ -36,193 +36,168 @@ info()
     echo "[${blue}info${normal}] $1"
 }
 
-info "Hello World"
 
-# while getopts "hvsk:a:" OPTION
-# do
-#      case $OPTION in
-#          h)
-#              usage
-#              exit 1
-#              ;;
-#          v)
-#              VERBOSE=yes
-#              ;;
-#          s)
-#              PLATFORM=Simulator
-#              ;;
-#          k)
-#              SDK_VERSION=$OPTARG
-#              ;;
-#          a)
-#              ARCH=$OPTARG
-#              ;;
-#          ?)
-#              usage
-#              exit 1
-#              ;;
-#      esac
-# done
-# shift $(($OPTIND - 1))
+while getopts "hvsk:a:" OPTION
+do
+     case $OPTION in
+         h)
+             usage
+             exit 1
+             ;;
+         v)
+             VERBOSE=yes
+             ;;
+         s)
+             PLATFORM=Simulator
+             ;;
+         k)
+             SDK_VERSION=$OPTARG
+             ;;
+         a)
+             ARCH=$OPTARG
+             ;;
+         ?)
+             usage
+             exit 1
+             ;;
+     esac
+done
 
-# if [ "x$1" != "x" ]; then
-#     usage
-#     exit 1
-# fi
+shift $(($OPTIND - 1))
 
-# out="/dev/null"
-# if [ "$VERBOSE" = "yes" ]; then
-#    out="/dev/stdout"
-# fi
 
-# info "Building libvlc for iOS"
+if [ "x$1" != "x" ]; then
+    usage
+    exit 1
+fi
 
-# if [ "$PLATFORM" = "Simulator" ]; then
-#     TARGET="${ARCH}-apple-darwin11"
-#     OPTIM="-O3 -g"
-# else
-#     TARGET="arm-apple-darwin11"
-#     OPTIM="-O3 -g"
-# fi
 
-# info "Using ${ARCH} with SDK version ${SDK_VERSION}"
+out="/dev/null"
+if [ "$VERBOSE" = "yes" ]; then
+   out="/dev/stdout"
+fi
 
-# THIS_SCRIPT_PATH=`pwd`/$0
+info "Building cocos2d-x third party libraries for iOS"
+
+if [ "$PLATFORM" = "Simulator" ]; then
+    TARGET="${ARCH}-apple-darwin14"
+    OPTIM="-O3 -g"
+else
+    TARGET="arm-apple-darwin14"
+    OPTIM="-O3 -g"
+fi
+
+info "Using ${ARCH} with SDK version ${SDK_VERSION}"
+
+THIS_SCRIPT_PATH=`pwd`/$0
 
 # spushd `dirname ${THIS_SCRIPT_PATH}`/../../..
-# VLCROOT=`pwd` # Let's make sure VLCROOT is an absolute path
+COCOSROOT=`pwd` # Let's make sure COCOSROOT is an absolute path
 # spopd
 
-# if test -z "$SDKROOT"
-# then
-#     SDKROOT=`xcode-select -print-path`/Platforms/iPhone${PLATFORM}.platform/Developer/SDKs/iPhone${PLATFORM}${SDK_VERSION}.sdk
-#     echo "SDKROOT not specified, assuming $SDKROOT"
-# fi
+if test -z "$SDKROOT"
+then
+    SDKROOT=`xcode-select -print-path`/Platforms/iPhone${PLATFORM}.platform/Developer/SDKs/iPhone${PLATFORM}${SDK_VERSION}.sdk
+    echo "SDKROOT not specified, assuming $SDKROOT"
+fi
 
-# if [ ! -d "${SDKROOT}" ]
-# then
-#     echo "*** ${SDKROOT} does not exist, please install required SDK, or set SDKROOT manually. ***"
-#     exit 1
-# fi
+if [ ! -d "${SDKROOT}" ]
+then
+    echo "*** ${SDKROOT} does not exist, please install required SDK, or set SDKROOT manually. ***"
+    exit 1
+fi
 
-# BUILDDIR="${VLCROOT}/build-ios-${PLATFORM}/${ARCH}"
+BUILDDIR="${COCOSROOT}/build-ios-${PLATFORM}/${ARCH}"
 
-# PREFIX="${VLCROOT}/install-ios-${PLATFORM}/${ARCH}"
+PREFIX="${COCOSROOT}/install-ios-${PLATFORM}/${ARCH}"
 
-# export PATH="${VLCROOT}/extras/tools/build/bin:${VLCROOT}/contrib/${TARGET}/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/usr/X11/bin"
+export PATH="/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/usr/X11/bin"
 
 # info "Building tools"
-# spushd "${VLCROOT}/extras/tools"
+# spushd "${COCOSROOT}/contrib/ios"
 # ./bootstrap
-# make && make .gas
+# make 
 # spopd
 
-# info "Building contrib for iOS in '${VLCROOT}/contrib/iPhone${PLATFORM}-${ARCH}'"
+info "Building contrib for iOS in '${COCOSROOT}/contrib/iPhone${PLATFORM}-${ARCH}'"
 
-# # The contrib will read the following
-# export AR="xcrun ar"
+# The contrib will read the following
+export AR="xcrun ar"
 
-# export RANLIB="xcrun ranlib"
-# export CC="xcrun clang"
-# export OBJC="xcrun clang"
-# export CXX="xcrun clang++"
-# export LD="xcrun ld"
-# export STRIP="xcrun strip"
+export RANLIB="xcrun ranlib"
+export CC="xcrun clang"
+export OBJC="xcrun clang"
+export CXX="xcrun clang++"
+export LD="xcrun ld"
+export STRIP="xcrun strip"
 
-# export PLATFORM=$PLATFORM
-# export SDK_VERSION=$SDK_VERSION
+export PLATFORM=$PLATFORM
+export SDK_VERSION=$SDK_VERSION
 
-# if [ "$PLATFORM" = "OS" ]; then
-# export CFLAGS="-isysroot ${SDKROOT} -arch ${ARCH} -miphoneos-version-min=${SDK_MIN} ${OPTIM}"
-# if [ "$ARCH" != "arm64" ]; then
-# export CFLAGS="${CFLAGS} -mcpu=cortex-a8"
-# fi
-# else
-# export CFLAGS="-isysroot ${SDKROOT} -arch ${ARCH} -miphoneos-version-min=${SDK_MIN} ${OPTIM}"
-# fi
+if [ "$PLATFORM" = "OS" ]; then
+export CFLAGS="-isysroot ${SDKROOT} -arch ${ARCH} -miphoneos-version-min=${SDK_MIN} ${OPTIM}"
+if [ "$ARCH" != "arm64" ]; then
+export CFLAGS="${CFLAGS} -mcpu=cortex-a8"
+fi
+else
+export CFLAGS="-isysroot ${SDKROOT} -arch ${ARCH} -miphoneos-version-min=${SDK_MIN} ${OPTIM}"
+fi
 
-# export CPP="xcrun cc -E"
-# export CXXCPP="xcrun c++ -E"
+export CPP="xcrun cc -E"
+export CXXCPP="xcrun c++ -E"
 
-# export BUILDFORIOS="yes"
+export BUILDFORIOS="yes"
 
-# if [ "$PLATFORM" = "Simulator" ]; then
-#     # Use the new ABI on simulator, else we can't build
-#     export OBJCFLAGS="-fobjc-abi-version=2 -fobjc-legacy-dispatch ${OBJCFLAGS}"
-# fi
+if [ "$PLATFORM" = "Simulator" ]; then
+    # Use the new ABI on simulator, else we can't build
+    export OBJCFLAGS="-fobjc-abi-version=2 -fobjc-legacy-dispatch ${OBJCFLAGS}"
+fi
 
-# export LDFLAGS="-L${SDKROOT}/usr/lib -arch ${ARCH} -isysroot ${SDKROOT} -miphoneos-version-min=${SDK_MIN}"
+export LDFLAGS="-L${SDKROOT}/usr/lib -arch ${ARCH} -isysroot ${SDKROOT} -miphoneos-version-min=${SDK_MIN}"
 
-# if [ "$PLATFORM" = "OS" ]; then
-#     EXTRA_CFLAGS="-arch ${ARCH}"
-# if [ "$ARCH" != "arm64" ]; then
-#     EXTRA_CFLAGS+=" -mcpu=cortex-a8"
-# fi
-#     EXTRA_LDFLAGS="-arch ${ARCH}"
-# else
-#     EXTRA_CFLAGS="-arch ${ARCH}"
-#     EXTRA_LDFLAGS="-arch ${ARCH}"
-# fi
+if [ "$PLATFORM" = "OS" ]; then
+    EXTRA_CFLAGS="-arch ${ARCH}"
+if [ "$ARCH" != "arm64" ]; then
+    EXTRA_CFLAGS+=" -mcpu=cortex-a8"
+fi
+    EXTRA_LDFLAGS="-arch ${ARCH}"
+else
+    EXTRA_CFLAGS="-arch ${ARCH}"
+    EXTRA_LDFLAGS="-arch ${ARCH}"
+fi
 
-# EXTRA_CFLAGS+=" -miphoneos-version-min=${SDK_MIN}"
-# EXTRA_LDFLAGS+=" -miphoneos-version-min=${SDK_MIN}"
+EXTRA_CFLAGS+=" -miphoneos-version-min=${SDK_MIN}"
+EXTRA_LDFLAGS+=" -miphoneos-version-min=${SDK_MIN}"
 
-# info "LD FLAGS SELECTED = '${LDFLAGS}'"
+info "LD FLAGS SELECTED = '${LDFLAGS}'"
 
-# spushd ${VLCROOT}/contrib
+spushd ${COCOSROOT}
 
-# echo ${VLCROOT}
-# mkdir -p "${VLCROOT}/contrib/iPhone${PLATFORM}-${ARCH}"
-# cd "${VLCROOT}/contrib/iPhone${PLATFORM}-${ARCH}"
+echo ${COCOSROOT}
+mkdir -p "${COCOSROOT}/contrib/iPhone${PLATFORM}-${ARCH}"
+cd "${COCOSROOT}/contrib/iPhone${PLATFORM}-${ARCH}"
 
-# if [ "$PLATFORM" = "OS" ]; then
-#     export AS="gas-preprocessor.pl ${CC}"
-#     export ASCPP="gas-preprocessor.pl ${CC}"
-#     export CCAS="gas-preprocessor.pl ${CC}"
-#     if [ "$ARCH" = "arm64" ]; then
-#         export GASPP_FIX_XCODE5=1
-#     fi
-# else
-#     export ASCPP="xcrun as"
-# fi
+## FIXME: do we need to replace Apple's gas?
+if [ "$PLATFORM" = "OS" ]; then
+    # export AS="gas-preprocessor.pl ${CC}"
+    # export ASCPP="gas-preprocessor.pl ${CC}"
+    # export CCAS="gas-preprocessor.pl ${CC}"
+    if [ "$ARCH" = "arm64" ]; then
+        export GASPP_FIX_XCODE5=1
+    fi
+else
+    export ASCPP="xcrun as"
+fi
 
-# ../bootstrap --build=x86_64-apple-darwin11 --host=${TARGET} --prefix=${VLCROOT}/contrib/${TARGET}-${ARCH} --disable-gpl \
-#     --disable-disc --disable-sout \
-#     --disable-sdl \
-#     --disable-SDL_image \
-#     --disable-iconv \
-#     --enable-zvbi \
-#     --disable-kate \
-#     --disable-caca \
-#     --disable-gettext \
-#     --disable-mpcdec \
-#     --disable-upnp \
-#     --disable-gme \
-#     --disable-tremor \
-#     --enable-vorbis \
-#     --disable-sidplay2 \
-#     --disable-samplerate \
-#     --disable-goom \
-#     --disable-vncserver \
-#     --disable-orc \
-#     --disable-schroedinger \
-#     --disable-libmpeg2 \
-#     --disable-chromaprint \
-#     --disable-mad \
-#     --enable-fribidi \
-#     --enable-libxml2 \
-#     --enable-freetype2 \
-#     --enable-ass \
-#     --disable-fontconfig \
-#     --disable-gpg-error \
-#     --disable-lua \
-#     --enable-taglib > ${out}
+../bootstrap --build=x86_64-apple-darwin14 --host=${TARGET} --prefix=${COCOSROOT}/contrib/${TARGET}-${ARCH} \
+    --disable-lua \
+    --enable-png > ${out}
 
-# echo "EXTRA_CFLAGS += ${EXTRA_CFLAGS}" >> config.mak
-# echo "EXTRA_LDFLAGS += ${EXTRA_LDFLAGS}" >> config.mak
-# make fetch
-# make
-# spopd
+echo "EXTRA_CFLAGS += ${EXTRA_CFLAGS}" >> config.mak
+echo "EXTRA_LDFLAGS += ${EXTRA_LDFLAGS}" >> config.mak
+make fetch
+make
+spopd
 
 # info "Bootstraping vlc"
 # pwd
