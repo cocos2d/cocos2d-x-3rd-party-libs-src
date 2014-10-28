@@ -18,7 +18,7 @@ png: libpng-$(PNG_VERSION).tar.xz .sum-png
 
 
 
-# DEPS_png = zlib $(DEPS_zlib)
+DEPS_png = zlib $(DEPS_zlib)
 
 .png: png
 	$(RECONF)
