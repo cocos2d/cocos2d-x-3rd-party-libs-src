@@ -80,10 +80,10 @@ fi
 info "Building cocos2d-x third party libraries for iOS"
 
 if [ "$PLATFORM" = "Simulator" ]; then
-    TARGET="${ARCH}-apple-darwin11"
+    TARGET="${ARCH}-apple-darwin14"
     OPTIM="-O3 -g"
 else
-    TARGET="arm-apple-darwin11"
+    TARGET="arm-apple-darwin14"
     OPTIM="-O3 -g"
 fi
 
@@ -190,7 +190,7 @@ else
 fi
 
 # # FIXME: add more convenient
-../bootstrap --build=x86_64-apple-darwin11 --host=${TARGET} --prefix=${COCOSROOT}/contrib/${TARGET}-${ARCH} \
+../bootstrap --build=x86_64-apple-darwin14 --host=${TARGET} --prefix=${COCOSROOT}/contrib/${TARGET}-${ARCH} \
     --disable-lua \
     --disable-freetype2 \
     --enable-png > ${out}

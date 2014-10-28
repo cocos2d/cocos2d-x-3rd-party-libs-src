@@ -1,5 +1,5 @@
 # PNG
-PNG_VERSION := 1.6.2
+PNG_VERSION := 1.6.12
 PNG_URL := $(SF)/libpng/libpng16/$(PNG_VERSION)/libpng-$(PNG_VERSION).tar.xz
 
 PKGS += png
@@ -18,10 +18,10 @@ png: libpng-$(PNG_VERSION).tar.xz .sum-png
 
 
 
-DEPS_png = zlib $(DEPS_zlib)
+# DEPS_png = zlib $(DEPS_zlib)
 
 .png: png
 	$(RECONF)
-	cd $< && $(HOSTVARS) ./configure $(HOSTCONF)
+	cd $< && $(HOSTVARS) ./configure  --enable-arm-neon=api $(HOSTCONF)
 	cd $< && $(MAKE) install
 	touch $@
