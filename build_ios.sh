@@ -80,10 +80,10 @@ fi
 info "Building cocos2d-x third party libraries for iOS"
 
 if [ "$PLATFORM" = "Simulator" ]; then
-    TARGET="${ARCH}-apple-darwin14"
+    TARGET="${ARCH}-apple-darwin11"
     OPTIM="-O3 -g"
 else
-    TARGET="arm-apple-darwin14"
+    TARGET="arm-apple-darwin11"
     OPTIM="-O3 -g"
 fi
 
@@ -116,7 +116,7 @@ export PATH="/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/usr/X11/bin"
 # info "Building tools"
 # spushd "${COCOSROOT}/contrib/ios"
 # ./bootstrap
-# make 
+# make
 # spopd
 
 info "Building contrib for iOS in '${COCOSROOT}/contrib/iPhone${PLATFORM}-${ARCH}'"
@@ -179,9 +179,9 @@ cd "${COCOSROOT}/contrib/iPhone${PLATFORM}-${ARCH}"
 
 ## FIXME: do we need to replace Apple's gas?
 if [ "$PLATFORM" = "OS" ]; then
-    # export AS="gas-preprocessor.pl ${CC}"
-    # export ASCPP="gas-preprocessor.pl ${CC}"
-    # export CCAS="gas-preprocessor.pl ${CC}"
+    export AS="gas-preprocessor.pl ${CC}"
+    export ASCPP="gas-preprocessor.pl ${CC}"
+    export CCAS="gas-preprocessor.pl ${CC}"
     if [ "$ARCH" = "arm64" ]; then
         export GASPP_FIX_XCODE5=1
     fi
@@ -189,8 +189,10 @@ else
     export ASCPP="xcrun as"
 fi
 
-../bootstrap --build=x86_64-apple-darwin14 --host=${TARGET} --prefix=${COCOSROOT}/contrib/${TARGET}-${ARCH} \
+# # FIXME: add more convenient
+../bootstrap --build=x86_64-apple-darwin11 --host=${TARGET} --prefix=${COCOSROOT}/contrib/${TARGET}-${ARCH} \
     --disable-lua \
+    --disable-freetype2 \
     --enable-png > ${out}
 
 echo "EXTRA_CFLAGS += ${EXTRA_CFLAGS}" >> config.mak
