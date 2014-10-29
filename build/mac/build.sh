@@ -13,11 +13,11 @@ MINIMAL_OSX_VERSION="10.6"
 OSX_VERSION=$(xcodebuild -showsdks | grep macosx | sort | tail -n 1 | awk '{print substr($NF,7)}')
 SDKROOT=`xcode-select -print-path`/Platforms/MacOSX.platform/Developer/SDKs/MacOSX$OSX_VERSION.sdk
 
-# TODO: configure to compile speficy 3rd party libraries
+# TODO: configure to compile specify 3rd party libraries
 OPTIONS="
     --disable-lua
     --enable-freetype2
-    --enable-png
+    --disable-png
 "
 
 usage()
@@ -87,7 +87,7 @@ export PATH="${cocos_root}/extras/tools/bin:$PATH"
 #
 info "Building static libraries"
 spushd "${cocos_root}/contrib"
-mkdir -p build && cd build
+mkdir -p "mac-${ARCH}" && cd "mac-${ARCH}"
 ../bootstrap ${OPTIONS} > $out
 
 #
