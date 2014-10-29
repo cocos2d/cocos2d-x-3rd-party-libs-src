@@ -8,6 +8,14 @@ SDK_VERSION=8.1
 SDK_MIN=6.0
 ARCH=armv7
 
+# TODO: configure to compile speficy 3rd party libraries
+OPTIONS="
+    --disable-lua
+    --enable-freetype2
+    --enable-png
+"
+
+
 usage()
 {
 cat << EOF
@@ -90,11 +98,9 @@ fi
 
 info "Using ${ARCH} with SDK version ${SDK_VERSION}"
 
-THIS_SCRIPT_PATH=`pwd`/$0
+THIS_SCRIPT_PATH=`pwd`
 
-# spushd `dirname ${THIS_SCRIPT_PATH}`/../../..
-COCOSROOT=`pwd` # Let's make sure COCOSROOT is an absolute path
-# spopd
+COCOSROOT=`pwd`/../..
 
 if test -z "$SDKROOT"
 then
@@ -114,11 +120,6 @@ PREFIX="${COCOSROOT}/install-ios-${PLATFORM}/${ARCH}"
 
 export PATH="/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/usr/X11/bin"
 
-# info "Building tools"
-# spushd "${COCOSROOT}/contrib/ios"
-# ./bootstrap
-# make
-# spopd
 
 info "Building contrib for iOS in '${COCOSROOT}/contrib/iPhone${PLATFORM}-${ARCH}'"
 
@@ -176,7 +177,7 @@ spushd ${COCOSROOT}
 
 echo ${COCOSROOT}
 mkdir -p "${COCOSROOT}/contrib/iPhone${PLATFORM}-${ARCH}"
-cd "${COCOSROOT}/contrib/iPhone${PLATFORM}-${ARCH}"
+spushd "${COCOSROOT}/contrib/iPhone${PLATFORM}-${ARCH}"
 
 ## FIXME: do we need to replace Apple's gas?
 if [ "$PLATFORM" = "OS" ]; then
@@ -190,10 +191,10 @@ else
     export ASCPP="xcrun as"
 fi
 
-../bootstrap --build=x86_64-apple-darwin14 --host=${TARGET} --prefix=${COCOSROOT}/contrib/${TARGET}-${ARCH} \
-    --disable-lua \
-    --disable-freetype2 \
-    --enable-png > ${out}
+../bootstrap ${OPTIONS} \
+        --build=x86_64-apple-darwin14 \
+        --host=${TARGET} \
+        --prefix=${COCOSROOT}/contrib/${TARGET}-${ARCH} > ${out}
 
 echo "EXTRA_CFLAGS += ${EXTRA_CFLAGS}" >> config.mak
 echo "EXTRA_LDFLAGS += ${EXTRA_LDFLAGS}" >> config.mak
