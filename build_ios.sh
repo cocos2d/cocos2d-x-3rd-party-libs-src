@@ -4,7 +4,8 @@ set -e
 PLATFORM=OS
 VERBOSE=no
 SDK_VERSION=8.1
-SDK_MIN=5.1.1
+# FIXME: why min deploy target can't use 5.1.1
+SDK_MIN=6.0
 ARCH=armv7
 
 usage()
@@ -80,10 +81,10 @@ fi
 info "Building cocos2d-x third party libraries for iOS"
 
 if [ "$PLATFORM" = "Simulator" ]; then
-    TARGET="${ARCH}-apple-darwin14"
+    TARGET="${ARCH}-apple-darwin"
     OPTIM="-O3 -g"
 else
-    TARGET="arm-apple-darwin14"
+    TARGET="arm-apple-darwin"
     OPTIM="-O3 -g"
 fi
 
@@ -189,7 +190,6 @@ else
     export ASCPP="xcrun as"
 fi
 
-# # FIXME: add more convenient
 ../bootstrap --build=x86_64-apple-darwin14 --host=${TARGET} --prefix=${COCOSROOT}/contrib/${TARGET}-${ARCH} \
     --disable-lua \
     --disable-freetype2 \
@@ -200,109 +200,3 @@ echo "EXTRA_LDFLAGS += ${EXTRA_LDFLAGS}" >> config.mak
 make fetch
 make
 spopd
-
-# info "Bootstraping vlc"
-# pwd
-# info "VLCROOT = ${VLCROOT}"
-# if ! [ -e ${VLCROOT}/configure ]; then
-#     ${VLCROOT}/bootstrap  > ${out}
-# fi
-
-# info "Bootstraping vlc finished"
-
-# if [ ".$PLATFORM" != ".Simulator" ]; then
-#     # FIXME - Do we still need this?
-#     export AVCODEC_CFLAGS="-I${PREFIX}/include "
-#     export AVCODEC_LIBS="-L${PREFIX}/lib -lavcodec -lavutil -lz"
-#     export AVFORMAT_CFLAGS="-I${PREFIX}/include"
-#     export AVFORMAT_LIBS="-L${PREFIX}/lib -lavcodec -lz -lavutil -lavformat"
-# fi
-
-# mkdir -p ${BUILDDIR}
-# spushd ${BUILDDIR}
-
-# info ">> --prefix=${PREFIX} --host=${TARGET}"
-
-# # Run configure only upon changes.
-# if [ "${VLCROOT}/configure" -nt config.log -o \
-#      "${THIS_SCRIPT_PATH}" -nt config.log ]; then
-# ${VLCROOT}/configure \
-#     --prefix="${PREFIX}" \
-#     --host="${TARGET}" \
-#     --with-contrib="${VLCROOT}/contrib/${TARGET}-${ARCH}" \
-#     --disable-debug \
-#     --enable-static \
-#     --disable-macosx \
-#     --disable-macosx-dialog-provider \
-#     --disable-macosx-qtkit \
-#     --disable-macosx-eyetv \
-#     --disable-macosx-vlc-app \
-#     --disable-macosx-avfoundation \
-#     --disable-audioqueue \
-#     --disable-shared \
-#     --enable-macosx-quartztext \
-#     --enable-avcodec \
-#     --enable-mkv \
-#     --enable-opus \
-#     --disable-sout \
-#     --disable-faad \
-#     --disable-lua \
-#     --disable-a52 \
-#     --enable-fribidi \
-#     --disable-qt --disable-skins2 \
-#     --disable-vcd \
-#     --disable-vlc \
-#     --disable-vlm \
-#     --disable-httpd \
-#     --disable-nls \
-#     --disable-glx \
-#     --disable-sse \
-#     --enable-neon \
-#     --disable-notify \
-#     --enable-live555 \
-#     --enable-realrtsp \
-#     --enable-dvbpsi \
-#     --enable-swscale \
-#     --disable-projectm \
-#     --enable-libass \
-#     --enable-libxml2 \
-#     --disable-goom \
-#     --disable-dvdread \
-#     --disable-dvdnav \
-#     --disable-bluray \
-#     --disable-linsys \
-#     --disable-libva \
-#     --disable-gme \
-#     --disable-tremor \
-#     --enable-vorbis \
-#     --disable-fluidsynth \
-#     --disable-jack \
-#     --disable-pulse \
-#     --disable-mtp \
-#     --enable-ogg \
-#     --enable-speex \
-#     --enable-theora \
-#     --enable-flac \
-#     --disable-screen \
-#     --enable-freetype \
-#     --enable-taglib \
-#     --disable-mmx \
-#     --disable-addonmanagermodules \
-#     --disable-mad > ${out} # MMX and SSE support requires llvm which is broken on Simulator
-# fi
-
-# CORE_COUNT=`sysctl -n machdep.cpu.core_count`
-# let MAKE_JOBS=$CORE_COUNT+1
-
-# info "Building libvlc"
-# make -j$MAKE_JOBS > ${out}
-
-# info "Installing libvlc"
-# make install > ${out}
-
-# find ${PREFIX}/lib/vlc/plugins -name *.a -type f -exec cp '{}' ${PREFIX}/lib/vlc/plugins \;
-# rm -rf "${PREFIX}/contribs"
-# cp -R "${VLCROOT}/contrib/${TARGET}-${ARCH}" "${PREFIX}/contribs"
-
-
-# popd

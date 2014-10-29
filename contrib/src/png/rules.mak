@@ -22,6 +22,6 @@ DEPS_png = zlib $(DEPS_zlib)
 
 .png: png
 	$(RECONF)
-	cd $< && $(HOSTVARS) ./configure  --enable-arm-neon=api $(HOSTCONF)
+	cd $< && $(HOSTVARS) ./configure $(HOSTCONF)
 	cd $< && $(MAKE) install
 	touch $@
