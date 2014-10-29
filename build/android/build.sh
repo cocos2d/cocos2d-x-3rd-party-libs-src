@@ -12,12 +12,14 @@ info()
 ANDROID_ABI="armeabi-v7a"
 ANDROID_API="android-19"
 ANDROID_GCC_VERSION=4.8
+ANDROID_ARCH=arm
 
 # TODO: configure to compile specify 3rd party libraries
 OPTIONS="
     --disable-lua
     --disable-freetype2
     --enable-png
+    --disable-zlib
 "
 
 usage()
@@ -79,6 +81,7 @@ toolchain_bin=
 if [ "${ANDROID_ABI}" = "x86" ]; then
     TARGET="i686-linux-android"
     toolchain_bin=${ANDROID_NDK}/toolchains/x86-${ANDROID_GCC_VERSION}/prebuilt/darwin-x86_64/bin
+    ANDROID_ARCH=x86
 else
     TARGET="arm-linux-androideabi"
     toolchain_bin=${ANDROID_NDK}/toolchains/${TARGET}-${ANDROID_GCC_VERSION}/prebuilt/darwin-x86_64/bin
@@ -102,6 +105,8 @@ cocos_root=`pwd`/../..
 
 export ANDROID_ABI
 export ANDROID_API
+export LDFLAGS="-L${ANDROID_NDK}/platforms/${ANDROID_API}/arch-${ANDROID_ARCH}/usr/lib"
+info "LD FLAGS SELECTED = '${LDFLAGS}'"
 
 export PATH="${toolchain_bin}:${cocos_root}/extras/tools/bin:$PATH"
 #
@@ -118,5 +123,5 @@ mkdir -p "Android-${ANDROID_ABI}" && cd "Android-${ANDROID_ABI}"
 # make
 #
 make fetch
-
+make list
 make
