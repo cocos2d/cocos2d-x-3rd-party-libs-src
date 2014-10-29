@@ -1,4 +1,4 @@
-# Main makefile for VLC 3rd party libraries ("contrib")
+# Main makefile for cocos2d-x 3rd party libraries ("contrib")
 # Copyright (C) 2003-2011 the VideoLAN team
 #
 # This file is under the same license as the vlc package.
@@ -23,8 +23,6 @@ VPATH := $(TARBALLS)
 # Common download locations
 GNU := http://ftp.gnu.org/gnu
 SF := http://heanet.dl.sourceforge.net/sourceforge
-VIDEOLAN := http://downloads.videolan.org/pub/videolan
-CONTRIB_VIDEOLAN := http://downloads.videolan.org/pub/contrib
 
 #
 # Machine-dependent variables
@@ -362,26 +360,6 @@ distclean: clean
 	$(RM) config.mak
 	unlink Makefile
 
-PREBUILT_URL=ftp://ftp.videolan.org/pub/videolan/contrib/$(HOST)/vlc-contrib-$(HOST)-latest.tar.bz2
-
-vlc-contrib-$(HOST)-latest.tar.bz2:
-	$(call download,$(PREBUILT_URL))
-
-prebuilt: vlc-contrib-$(HOST)-latest.tar.bz2
-	-$(UNPACK)
-	mv $(HOST) $(TOPDST)
-	cd $(TOPDST)/$(HOST) && $(SRC)/change_prefix.sh
-
-package: install
-	rm -Rf tmp/
-	mkdir -p tmp/
-	cp -r $(PREFIX) tmp/
-	# remove useless files
-	cd tmp/$(notdir $(PREFIX)); \
-		cd share; rm -Rf man doc gtk-doc info lua projectM gettext; cd ..; \
-		rm -Rf man sbin etc lib/lua lib/sidplay
-	cd tmp/$(notdir $(PREFIX)) && $(abspath $(SRC))/change_prefix.sh $(PREFIX) @@CONTRIB_PREFIX@@
-	(cd tmp && tar c $(notdir $(PREFIX))/) | bzip2 -c > ../vlc-contrib-$(HOST)-$(DATE).tar.bz2
 
 list:
 	@echo All packages:
