@@ -3,7 +3,7 @@ set -e
 
 PLATFORM=OS
 VERBOSE=no
-SDK_VERSION=8.1
+SDK_VERSION=$(xcodebuild -showsdks | grep iphoneos | sort | tail -n 1 | awk '{print substr($NF,9)}')
 # FIXME: why min deploy target can't use 5.1.1
 SDK_MIN=6.0
 ARCH=armv7
