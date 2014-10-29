@@ -93,6 +93,11 @@ CC :=  $(HOST)-gcc --sysroot=$(ANDROID_NDK)/platforms/$(ANDROID_API)/arch-$(PLAT
 CXX := $(HOST)-g++ --sysroot=$(ANDROID_NDK)/platforms/$(ANDROID_API)/arch-$(PLATFORM_SHORT_ARCH)
 endif
 
+ifdef HAVE_TIZEN
+CC := ${HOST}-gcc --sysroot=$(TIZEN_SDK)/platforms/mobile-2.3/rootstraps/mobile-2.3-device.core
+CXX := ${HOST}-g++ --sysroot=$(TIZEN_SDK)/platforms/mobile-2.3/rootstraps/mobile-2.3-device.core
+endif
+
 ifdef HAVE_MACOSX
 MIN_OSX_VERSION=10.6
 CC=xcrun cc

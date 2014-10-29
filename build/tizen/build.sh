@@ -1,0 +1,94 @@
+#!/bin/sh
+set -e
+
+info()
+{
+    local green="\033[1;32m"
+    local normal="\033[0m"
+    echo "[${green}build${normal}] $1"
+}
+
+
+# TODO: configure to compile specify 3rd party libraries
+OPTIONS="
+    --disable-lua
+    --disable-freetype2
+    --enable-png
+"
+
+usage()
+{
+cat << EOF
+usage: $0 [options]
+Build cocos2d-x 3rd party libraries for tizen
+OPTIONS:
+   -h            Show some help
+   -q            Be quiet
+EOF
+}
+
+spushd()
+{
+    pushd "$1" > /dev/null
+}
+
+spopd()
+{
+    popd > /dev/null
+}
+
+while getopts "hv" OPTION
+do
+     case $OPTION in
+         h)
+             usage
+             exit 1
+             ;;
+         q)
+             set +x
+             QUIET="yes"
+         ;;
+     esac
+done
+
+shift $(($OPTIND - 1))
+if [ "x$1" != "x" ]; then
+    usage
+    exit 1
+fi
+#
+# Various initialization
+#
+out="/dev/stdout"
+if [ "$QUIET" = "yes" ]; then
+    out="/dev/null"
+fi
+
+info "Building 3rd party libraries for the Mac OS X"
+cocos_root=`pwd`/../..
+
+# FIXME: we need a way to determine the toolchina address automatically
+toolchain_bin=${TIZEN_SDK}/tools/arm-linux-gnueabi-gcc-4.8/bin
+
+export PATH="${toolchain_bin}:${cocos_root}/extras/tools/bin:$PATH"
+TARGET="arm-linux-gnueabi"
+
+#
+# build 3rd party libraries
+#
+info "Building static libraries"
+spushd "${cocos_root}/contrib"
+mkdir -p "tizen-armv7-a" && cd "tizen-armv7-a"
+../bootstrap ${OPTIONS} \
+             --host=${TARGET} \
+             --prefix=${cocos_root}/contrib/${TARGET}-armv7a > $out
+
+#
+# make
+#
+core_count=`sysctl -n machdep.cpu.core_count`
+let jobs=$core_count+1
+info "Running make -j$jobs"
+make fetch
+make list
+make -j$jobs

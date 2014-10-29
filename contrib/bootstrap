@@ -196,6 +196,12 @@ check_android_sdk()
 	[ ${ANDROID_ABI} = "armeabi" -a -z "${NO_ARMV6}" ] && add_make_enabled "HAVE_ARMV6"
 }
 
+check_tizen_sdk()
+{
+    [ -z "${TIZEN_SDK}" ] && echo "You must set TIZEN_SDK environment variable" && exit 1
+    add_make "TIZEN_SDK := ${TIZEN_SDK}"
+}
+
 test -z "$PREFIX" || add_make "PREFIX := $PREFIX"
 # test -z "$BUILD_DISCS" || add_make_enabled "BUILD_DISCS"
 # test -z "$BUILD_ENCODERS" || add_make_enabled "BUILD_ENCODERS"
@@ -207,7 +213,7 @@ test -z "$PREFIX" || add_make "PREFIX := $PREFIX"
 # Checks
 #
 OS="${HOST#*-}" # strip architecture
-echo $OS
+echo "The host is $OS"
 case "${OS}" in
 	apple-darwin*)
 		if test -z "$BUILDFORIOS"
@@ -244,6 +250,11 @@ case "${OS}" in
 			;;
 		esac
 		;;
+        *gnu*)
+            echo "check Tizen SDK"
+            check_tizen_sdk
+            add_make_enabled "HAVE_TIZEN"
+            ;;
 	*linux*)
 		add_make_enabled "HAVE_LINUX"
 		;;
