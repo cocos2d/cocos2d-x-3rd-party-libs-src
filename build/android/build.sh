@@ -69,7 +69,7 @@ do
      esac
 done
 
-if [ "${ANDROID_ABI}" != "x86" ] && [ "${android_ABI}" != "armeabi-v7a" ] && [ "${ANDROID_ABI}" != "armeabi" ]; then
+if [ "${ANDROID_ABI}" != "x86" ] && [ "${ANDROID_ABI}" != "armeabi-v7a" ] && [ "${ANDROID_ABI}" != "armeabi" ]; then
     echo "You must specify the right Android Arch within {armeabi, armeabi-v7a, x86}"
     exit 1
 fi
