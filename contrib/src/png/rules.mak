@@ -17,6 +17,7 @@ $(TARBALLS)/libpng-$(PNG_VERSION).tar.xz:
 png: libpng-$(PNG_VERSION).tar.xz .sum-png
 	$(UNPACK)
 	$(MOVE)
+
 ifndef HAVE_ANDROID
 DEPS_png = zlib $(DEPS_zlib)
 endif
