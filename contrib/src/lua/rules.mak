@@ -24,14 +24,17 @@ ifdef HAVE_SOLARIS
 LUA_TARGET := solaris
 endif
 
+#FIXME: we don't want to use scripts to determine which libraries should be
+#       included, because there is bug in cross compile
+
 # Feel free to add autodetection if you need to...
-PKGS += lua
-ifeq ($(call need_pkg,"lua5.2"),)
-PKGS_FOUND += lua
-endif
-ifeq ($(call need_pkg,"lua5.1"),)
-PKGS_FOUND += lua
-endif
+# PKGS += lua
+# ifeq ($(call need_pkg,"lua5.2"),)
+# PKGS_FOUND += lua
+# endif
+# ifeq ($(call need_pkg,"lua5.1"),)
+# PKGS_FOUND += lua
+# endif
 
 $(TARBALLS)/lua-$(LUA_VERSION).tar.gz:
 	$(call download,$(LUA_URL))

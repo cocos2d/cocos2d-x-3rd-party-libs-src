@@ -2,12 +2,13 @@
 LIBICONV_VERSION=1.14
 LIBICONV_URL=$(GNU)/libiconv/libiconv-$(LIBICONV_VERSION).tar.gz
 
-PKGS += iconv
+#FIXME: we don't want to use scripts to determine which libraries should be included
+# PKGS += iconv
 # iconv cannot be detect with pkg-config, but it is mandated by POSIX.
 # Hard-code based on the operating system.
-ifndef HAVE_WIN32
-PKGS_FOUND += iconv
-endif
+# ifndef HAVE_WIN32
+# PKGS_FOUND += iconv
+# endif
 
 $(TARBALLS)/libiconv-$(LIBICONV_VERSION).tar.gz:
 	$(call download,$(LIBICONV_URL))

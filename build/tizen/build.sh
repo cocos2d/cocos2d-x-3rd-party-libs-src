@@ -1,5 +1,9 @@
 #!/bin/sh
 set -e
+set -x
+# FIXME: you must set TIZEN_SDK in your .bash_profile
+source ~/.bash_profile
+# export TIZEN_SDK=~/tizen-sdk/
 
 info()
 {
@@ -11,9 +15,10 @@ info()
 
 # TODO: configure to compile specify 3rd party libraries
 OPTIONS="
-    --disable-lua
-    --disable-freetype2
+    --enable-lua
+    --enable-freetype2
     --enable-png
+    --enable-tiff
 "
 
 usage()
@@ -24,6 +29,7 @@ Build cocos2d-x 3rd party libraries for tizen
 OPTIONS:
    -h            Show some help
    -q            Be quiet
+   -l            specify a library name (eg. png)
 EOF
 }
 
@@ -37,7 +43,7 @@ spopd()
     popd > /dev/null
 }
 
-while getopts "hv" OPTION
+while getopts "hvl:" OPTION
 do
      case $OPTION in
          h)
@@ -47,7 +53,10 @@ do
          q)
              set +x
              QUIET="yes"
-         ;;
+             ;;
+         l)
+             OPTIONS=--enable-$OPTARG
+             ;;
      esac
 done
 
@@ -69,6 +78,7 @@ cocos_root=`pwd`/../..
 
 # FIXME: we need a way to determine the toolchina address automatically
 toolchain_bin=${TIZEN_SDK}/tools/arm-linux-gnueabi-gcc-4.8/bin
+info $toolchain_bin
 
 export PATH="${toolchain_bin}:${cocos_root}/extras/tools/bin:$PATH"
 TARGET="arm-linux-gnueabi"
