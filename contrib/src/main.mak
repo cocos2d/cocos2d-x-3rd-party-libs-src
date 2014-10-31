@@ -1,4 +1,4 @@
-# Main makefile for VLC 3rd party libraries ("contrib")
+# Main makefile for cocos2d-x 3rd party libraries ("contrib")
 # Copyright (C) 2003-2011 the VideoLAN team
 #
 # This file is under the same license as the vlc package.
@@ -23,8 +23,6 @@ VPATH := $(TARBALLS)
 # Common download locations
 GNU := http://ftp.gnu.org/gnu
 SF := http://heanet.dl.sourceforge.net/sourceforge
-VIDEOLAN := http://downloads.videolan.org/pub/videolan
-CONTRIB_VIDEOLAN := http://downloads.videolan.org/pub/contrib
 
 #
 # Machine-dependent variables
@@ -93,6 +91,11 @@ endif
 ifdef HAVE_ANDROID
 CC :=  $(HOST)-gcc --sysroot=$(ANDROID_NDK)/platforms/$(ANDROID_API)/arch-$(PLATFORM_SHORT_ARCH)
 CXX := $(HOST)-g++ --sysroot=$(ANDROID_NDK)/platforms/$(ANDROID_API)/arch-$(PLATFORM_SHORT_ARCH)
+endif
+
+ifdef HAVE_TIZEN
+CC := ${HOST}-gcc --sysroot=$(TIZEN_SDK)/platforms/mobile-2.3/rootstraps/mobile-2.3-device.core
+CXX := ${HOST}-g++ --sysroot=$(TIZEN_SDK)/platforms/mobile-2.3/rootstraps/mobile-2.3-device.core
 endif
 
 ifdef HAVE_MACOSX
@@ -362,26 +365,6 @@ distclean: clean
 	$(RM) config.mak
 	unlink Makefile
 
-PREBUILT_URL=ftp://ftp.videolan.org/pub/videolan/contrib/$(HOST)/vlc-contrib-$(HOST)-latest.tar.bz2
-
-vlc-contrib-$(HOST)-latest.tar.bz2:
-	$(call download,$(PREBUILT_URL))
-
-prebuilt: vlc-contrib-$(HOST)-latest.tar.bz2
-	-$(UNPACK)
-	mv $(HOST) $(TOPDST)
-	cd $(TOPDST)/$(HOST) && $(SRC)/change_prefix.sh
-
-package: install
-	rm -Rf tmp/
-	mkdir -p tmp/
-	cp -r $(PREFIX) tmp/
-	# remove useless files
-	cd tmp/$(notdir $(PREFIX)); \
-		cd share; rm -Rf man doc gtk-doc info lua projectM gettext; cd ..; \
-		rm -Rf man sbin etc lib/lua lib/sidplay
-	cd tmp/$(notdir $(PREFIX)) && $(abspath $(SRC))/change_prefix.sh $(PREFIX) @@CONTRIB_PREFIX@@
-	(cd tmp && tar c $(notdir $(PREFIX))/) | bzip2 -c > ../vlc-contrib-$(HOST)-$(DATE).tar.bz2
 
 list:
 	@echo All packages:
@@ -427,6 +410,9 @@ ifdef HAVE_ANDROID
 # Set it to "" right away to short-circuit this behaviour
 	echo "set(CMAKE_CXX_SYSROOT_FLAG \"\")" >> $@
 	echo "set(CMAKE_C_SYSROOT_FLAG \"\")" >> $@
+endif
+ifdef HAVE_TIZEN
+	echo "set(CMAKE_SYSTEM_NAME Linux)" >> $@
 endif
 endif
 	echo "set(CMAKE_C_COMPILER $(CC))" >> $@

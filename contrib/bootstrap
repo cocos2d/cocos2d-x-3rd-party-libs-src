@@ -26,11 +26,6 @@ usage()
 	echo "  --prefix=PREFIX  install files in PREFIX"
 	echo "  --disable-FOO    configure to not build package FOO"
 	echo "  --enable-FOO     configure to build package FOO"
-	echo "  --disable-disc   configure to not build optical discs packages"
-	echo "  --disable-net    configure to not build networking packages"
-	echo "  --disable-sout   configure to not build stream output packages"
-	echo "  --enable-small   optimize libraries for size with slight speed decrease [DANGEROUS]"
-	echo "  --disable-gpl    configure to not build viral GPL code"
 }
 
 BUILD=
@@ -38,10 +33,6 @@ HOST=
 PREFIX=
 PKGS_ENABLE=
 PKGS_DISABLE=
-BUILD_ENCODERS="1"
-BUILD_NETWORK="1"
-BUILD_DISCS="1"
-GPL="1"
 
 if test ! -f "../../contrib/src/main.mak"
 then
@@ -64,21 +55,6 @@ do
 			;;
 		--prefix=*)
 			PREFIX="${1#--prefix=}"
-			;;
-		--disable-disc)
-			BUILD_DISCS=
-			;;
-		--disable-net)
-			BUILD_NETWORK=
-			;;
-		--disable-sout)
-			BUILD_ENCODERS=
-			;;
-		--enable-small)
-			ENABLE_SMALL=1
-			;;
-		--disable-gpl)
-			GPL=
 			;;
 		--disable-*)
 			PKGS_DISABLE="${PKGS_DISABLE} ${1#--disable-}"
@@ -220,18 +196,24 @@ check_android_sdk()
 	[ ${ANDROID_ABI} = "armeabi" -a -z "${NO_ARMV6}" ] && add_make_enabled "HAVE_ARMV6"
 }
 
+check_tizen_sdk()
+{
+    [ -z "${TIZEN_SDK}" ] && echo "You must set TIZEN_SDK environment variable" && exit 1
+    add_make "TIZEN_SDK := ${TIZEN_SDK}"
+}
+
 test -z "$PREFIX" || add_make "PREFIX := $PREFIX"
-test -z "$BUILD_DISCS" || add_make_enabled "BUILD_DISCS"
-test -z "$BUILD_ENCODERS" || add_make_enabled "BUILD_ENCODERS"
-test -z "$BUILD_NETWORK" || add_make_enabled "BUILD_NETWORK"
-test -z "$ENABLE_SMALL" || add_make_enabled "ENABLE_SMALL"
-test -z "$GPL" || add_make_enabled "GPL"
+# test -z "$BUILD_DISCS" || add_make_enabled "BUILD_DISCS"
+# test -z "$BUILD_ENCODERS" || add_make_enabled "BUILD_ENCODERS"
+# test -z "$BUILD_NETWORK" || add_make_enabled "BUILD_NETWORK"
+# test -z "$ENABLE_SMALL" || add_make_enabled "ENABLE_SMALL"
+# test -z "$GPL" || add_make_enabled "GPL"
 
 #
 # Checks
 #
 OS="${HOST#*-}" # strip architecture
-echo $OS
+echo "The host is $OS"
 case "${OS}" in
 	apple-darwin*)
 		if test -z "$BUILDFORIOS"
@@ -268,6 +250,11 @@ case "${OS}" in
 			;;
 		esac
 		;;
+        *gnu*)
+            echo "check Tizen SDK"
+            check_tizen_sdk
+            add_make_enabled "HAVE_TIZEN"
+            ;;
 	*linux*)
 		add_make_enabled "HAVE_LINUX"
 		;;
@@ -291,14 +278,12 @@ Run "make" to start compilation.
 
 Other targets:
  * make install      same as "make"
- * make prebuilt     fetch and install prebuilt binaries
  * make list         list packages
  * make fetch        fetch required source tarballs
  * make fetch-all    fetch all source tarballs
  * make distclean    clean everything and undo bootstrap
  * make mostlyclean  clean everything except source tarballs
  * make clean        clean everything
- * make package      prepare prebuilt packages
 EOF
 
 mkdir -p ../../contrib/tarballs || exit $?

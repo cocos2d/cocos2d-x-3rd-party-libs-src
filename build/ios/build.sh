@@ -1,21 +1,32 @@
 #!/bin/sh
 set -e
+set -x
 
 PLATFORM=OS
 VERBOSE=no
-SDK_VERSION=8.1
-SDK_MIN=5.1.1
+SDK_VERSION=$(xcodebuild -showsdks | grep iphoneos | sort | tail -n 1 | awk '{print substr($NF,9)}')
+# FIXME: why min deploy target can't use 5.1.1
+SDK_MIN=6.0
 ARCH=armv7
+
+# TODO: configure to compile speficy 3rd party libraries
+OPTIONS="
+    --enable-lua
+    --enable-freetype2
+    --enable-png
+"
+
 
 usage()
 {
 cat << EOF
-usage: $0 [-s] [-k sdk]
+usage: $0 [-s] [-k sdk] [-a arch] [-l libname]
 
 OPTIONS
    -k <sdk version>      Specify which sdk to use ('xcodebuild -showsdks', current: ${SDK_VERSION})
    -s            Build for simulator
    -a <arch>     Specify which arch to use (current: ${ARCH})
+   -l <libname>  Specify which static library to build
 EOF
 }
 
@@ -37,7 +48,7 @@ info()
 }
 
 
-while getopts "hvsk:a:" OPTION
+while getopts "hvsk:a:l:" OPTION
 do
      case $OPTION in
          h)
@@ -55,6 +66,9 @@ do
              ;;
          a)
              ARCH=$OPTARG
+             ;;
+         l)
+             OPTIONS=--enable-$OPTARG
              ;;
          ?)
              usage
@@ -80,20 +94,18 @@ fi
 info "Building cocos2d-x third party libraries for iOS"
 
 if [ "$PLATFORM" = "Simulator" ]; then
-    TARGET="${ARCH}-apple-darwin14"
+    TARGET="${ARCH}-apple-darwin"
     OPTIM="-O3 -g"
 else
-    TARGET="arm-apple-darwin14"
+    TARGET="arm-apple-darwin"
     OPTIM="-O3 -g"
 fi
 
 info "Using ${ARCH} with SDK version ${SDK_VERSION}"
 
-THIS_SCRIPT_PATH=`pwd`/$0
+THIS_SCRIPT_PATH=`pwd`
 
-# spushd `dirname ${THIS_SCRIPT_PATH}`/../../..
-COCOSROOT=`pwd` # Let's make sure COCOSROOT is an absolute path
-# spopd
+COCOSROOT=`pwd`/../..
 
 if test -z "$SDKROOT"
 then
@@ -113,11 +125,6 @@ PREFIX="${COCOSROOT}/install-ios-${PLATFORM}/${ARCH}"
 
 export PATH="/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/usr/X11/bin"
 
-# info "Building tools"
-# spushd "${COCOSROOT}/contrib/ios"
-# ./bootstrap
-# make
-# spopd
 
 info "Building contrib for iOS in '${COCOSROOT}/contrib/iPhone${PLATFORM}-${ARCH}'"
 
@@ -175,7 +182,7 @@ spushd ${COCOSROOT}
 
 echo ${COCOSROOT}
 mkdir -p "${COCOSROOT}/contrib/iPhone${PLATFORM}-${ARCH}"
-cd "${COCOSROOT}/contrib/iPhone${PLATFORM}-${ARCH}"
+spushd "${COCOSROOT}/contrib/iPhone${PLATFORM}-${ARCH}"
 
 ## FIXME: do we need to replace Apple's gas?
 if [ "$PLATFORM" = "OS" ]; then
@@ -189,120 +196,14 @@ else
     export ASCPP="xcrun as"
 fi
 
-# # FIXME: add more convenient
-../bootstrap --build=x86_64-apple-darwin14 --host=${TARGET} --prefix=${COCOSROOT}/contrib/${TARGET}-${ARCH} \
-    --disable-lua \
-    --disable-freetype2 \
-    --enable-png > ${out}
+../bootstrap ${OPTIONS} \
+        --build=x86_64-apple-darwin14 \
+        --host=${TARGET} \
+        --prefix=${COCOSROOT}/contrib/${TARGET}-${ARCH} > ${out}
 
 echo "EXTRA_CFLAGS += ${EXTRA_CFLAGS}" >> config.mak
 echo "EXTRA_LDFLAGS += ${EXTRA_LDFLAGS}" >> config.mak
 make fetch
+make list
 make
 spopd
-
-# info "Bootstraping vlc"
-# pwd
-# info "VLCROOT = ${VLCROOT}"
-# if ! [ -e ${VLCROOT}/configure ]; then
-#     ${VLCROOT}/bootstrap  > ${out}
-# fi
-
-# info "Bootstraping vlc finished"
-
-# if [ ".$PLATFORM" != ".Simulator" ]; then
-#     # FIXME - Do we still need this?
-#     export AVCODEC_CFLAGS="-I${PREFIX}/include "
-#     export AVCODEC_LIBS="-L${PREFIX}/lib -lavcodec -lavutil -lz"
-#     export AVFORMAT_CFLAGS="-I${PREFIX}/include"
-#     export AVFORMAT_LIBS="-L${PREFIX}/lib -lavcodec -lz -lavutil -lavformat"
-# fi
-
-# mkdir -p ${BUILDDIR}
-# spushd ${BUILDDIR}
-
-# info ">> --prefix=${PREFIX} --host=${TARGET}"
-
-# # Run configure only upon changes.
-# if [ "${VLCROOT}/configure" -nt config.log -o \
-#      "${THIS_SCRIPT_PATH}" -nt config.log ]; then
-# ${VLCROOT}/configure \
-#     --prefix="${PREFIX}" \
-#     --host="${TARGET}" \
-#     --with-contrib="${VLCROOT}/contrib/${TARGET}-${ARCH}" \
-#     --disable-debug \
-#     --enable-static \
-#     --disable-macosx \
-#     --disable-macosx-dialog-provider \
-#     --disable-macosx-qtkit \
-#     --disable-macosx-eyetv \
-#     --disable-macosx-vlc-app \
-#     --disable-macosx-avfoundation \
-#     --disable-audioqueue \
-#     --disable-shared \
-#     --enable-macosx-quartztext \
-#     --enable-avcodec \
-#     --enable-mkv \
-#     --enable-opus \
-#     --disable-sout \
-#     --disable-faad \
-#     --disable-lua \
-#     --disable-a52 \
-#     --enable-fribidi \
-#     --disable-qt --disable-skins2 \
-#     --disable-vcd \
-#     --disable-vlc \
-#     --disable-vlm \
-#     --disable-httpd \
-#     --disable-nls \
-#     --disable-glx \
-#     --disable-sse \
-#     --enable-neon \
-#     --disable-notify \
-#     --enable-live555 \
-#     --enable-realrtsp \
-#     --enable-dvbpsi \
-#     --enable-swscale \
-#     --disable-projectm \
-#     --enable-libass \
-#     --enable-libxml2 \
-#     --disable-goom \
-#     --disable-dvdread \
-#     --disable-dvdnav \
-#     --disable-bluray \
-#     --disable-linsys \
-#     --disable-libva \
-#     --disable-gme \
-#     --disable-tremor \
-#     --enable-vorbis \
-#     --disable-fluidsynth \
-#     --disable-jack \
-#     --disable-pulse \
-#     --disable-mtp \
-#     --enable-ogg \
-#     --enable-speex \
-#     --enable-theora \
-#     --enable-flac \
-#     --disable-screen \
-#     --enable-freetype \
-#     --enable-taglib \
-#     --disable-mmx \
-#     --disable-addonmanagermodules \
-#     --disable-mad > ${out} # MMX and SSE support requires llvm which is broken on Simulator
-# fi
-
-# CORE_COUNT=`sysctl -n machdep.cpu.core_count`
-# let MAKE_JOBS=$CORE_COUNT+1
-
-# info "Building libvlc"
-# make -j$MAKE_JOBS > ${out}
-
-# info "Installing libvlc"
-# make install > ${out}
-
-# find ${PREFIX}/lib/vlc/plugins -name *.a -type f -exec cp '{}' ${PREFIX}/lib/vlc/plugins \;
-# rm -rf "${PREFIX}/contribs"
-# cp -R "${VLCROOT}/contrib/${TARGET}-${ARCH}" "${PREFIX}/contribs"
-
-
-# popd
