@@ -1,5 +1,6 @@
 #!/bin/sh
 set -e
+set -x
 
 info()
 {
@@ -15,9 +16,9 @@ SDKROOT=`xcode-select -print-path`/Platforms/MacOSX.platform/Developer/SDKs/MacO
 
 # TODO: configure to compile specify 3rd party libraries
 OPTIONS="
-    --disable-lua
+    --enable-lua
     --enable-freetype2
-    --disable-png
+    --enable-png
 "
 
 usage()
@@ -30,6 +31,7 @@ OPTIONS:
    -q            Be quiet
    -k <sdk>      Use the specified sdk (default: $SDKROOT)
    -a <arch>     Use the specified arch (default: $ARCH)
+   -l <libname>  Use the specified library name
 EOF
 }
 spushd()
@@ -40,7 +42,7 @@ spopd()
 {
     popd > /dev/null
 }
-while getopts "hvk:a:" OPTION
+while getopts "hvk:a:l:" OPTION
 do
      case $OPTION in
          h)
@@ -50,13 +52,16 @@ do
          q)
              set +x
              QUIET="yes"
-         ;;
+             ;;
          a)
              ARCH=$OPTARG
-         ;;
+             ;;
+         l)
+             OPTIONS=--enable-$OPTARG
+             ;;
          k)
              SDKROOT=$OPTARG
-         ;;
+             ;;
      esac
 done
 shift $(($OPTIND - 1))
@@ -75,9 +80,10 @@ fi
 info "Building 3rd party libraries for the Mac OS X"
 cocos_root=`pwd`/../..
 
-export CC="xcrun clang"
-export CXX="xcrun clang++"
-export OBJC="xcrun clang"
+# FIXME: on MacOSX, we don't need to set the CC/CXX compiler indicators
+# export CC="xcrun clang"
+# export CXX="xcrun clang++"
+# export OBJC="xcrun clang"
 export OSX_VERSION
 export SDKROOT
 export PATH="${cocos_root}/extras/tools/bin:$PATH"
@@ -88,14 +94,15 @@ export PATH="${cocos_root}/extras/tools/bin:$PATH"
 info "Building static libraries"
 spushd "${cocos_root}/contrib"
 mkdir -p "mac-${ARCH}" && cd "mac-${ARCH}"
-../bootstrap ${OPTIONS} > $out
+../bootstrap ${OPTIONS}  > $out
 
 #
 # make
 #
+# FIXME: Can't use parallax make,
 core_count=`sysctl -n machdep.cpu.core_count`
 let jobs=$core_count+1
 info "Running make -j$jobs"
 make fetch
 make list
-make -j$jobs
+make

@@ -10,11 +10,10 @@ OPENSSL_URL := https://www.openssl.org/source/openssl-$(OPENSSL_VERSION).tar.gz
 # PKGS_FOUND += openssl
 # endif
 
-# ifeq ($(shell uname),Darwin) # openssl tries to use libtool on Darwin
-# ifdef HAVE_CROSS_COMPILE
-# ZLIB_CONFIG_VARS=CHOST=$(HOST)
-# endif
-# endif
+ifeq ($(shell uname),Darwin)
+OPENSSL_CONFIG_VARS=darwin64-x86_64-cc
+endif
+
 
 $(TARBALLS)/openssl-$(OPENSSL_VERSION).tar.gz:
 	$(call download,$(OPENSSL_URL))
@@ -26,7 +25,6 @@ openssl: openssl-$(OPENSSL_VERSION).tar.gz .sum-openssl
 	$(MOVE)
 
 .openssl: openssl
-	cd $< && $(HOSTVARS) ./config  no-shared --prefix=$(PREFIX)
-	cd $< && $(MAKE) $(HOSTVARS)
+	cd $< && $(HOSTVARS) ./Configure $(OPENSSL_CONFIG_VARS)  --prefix=$(PREFIX) --openssldir=$(PREFIX)
 	cd $< && $(MAKE) install
 	touch $@
