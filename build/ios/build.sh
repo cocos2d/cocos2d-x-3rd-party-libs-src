@@ -1,5 +1,6 @@
 #!/bin/sh
 set -e
+set -x
 
 PLATFORM=OS
 VERBOSE=no
@@ -10,7 +11,7 @@ ARCH=armv7
 
 # TODO: configure to compile speficy 3rd party libraries
 OPTIONS="
-    --disable-lua
+    --enable-lua
     --enable-freetype2
     --enable-png
 "
@@ -19,12 +20,13 @@ OPTIONS="
 usage()
 {
 cat << EOF
-usage: $0 [-s] [-k sdk]
+usage: $0 [-s] [-k sdk] [-a arch] [-l libname]
 
 OPTIONS
    -k <sdk version>      Specify which sdk to use ('xcodebuild -showsdks', current: ${SDK_VERSION})
    -s            Build for simulator
    -a <arch>     Specify which arch to use (current: ${ARCH})
+   -l <libname>  Specify which static library to build
 EOF
 }
 
@@ -46,7 +48,7 @@ info()
 }
 
 
-while getopts "hvsk:a:" OPTION
+while getopts "hvsk:a:l:" OPTION
 do
      case $OPTION in
          h)
@@ -64,6 +66,9 @@ do
              ;;
          a)
              ARCH=$OPTARG
+             ;;
+         l)
+             OPTIONS=--enable-$OPTARG
              ;;
          ?)
              usage
