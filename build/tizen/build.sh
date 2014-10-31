@@ -100,9 +100,10 @@ mkdir -p "tizen-armv7-a" && cd "tizen-armv7-a"
 #
 # make
 #
-core_count=`sysctl -n machdep.cpu.core_count`
-let jobs=$core_count+1
-info "Running make -j$jobs"
+## FIXME:  some 3rd party libraries doesn't support parallel build, like openssl. so we just disable the feature here
+# core_count=`sysctl -n machdep.cpu.core_count`
+# let jobs=$core_count+1
+# info "Running make -j$jobs"
 make fetch
 make list
-make -j$jobs
+make

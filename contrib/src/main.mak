@@ -411,6 +411,9 @@ ifdef HAVE_ANDROID
 	echo "set(CMAKE_CXX_SYSROOT_FLAG \"\")" >> $@
 	echo "set(CMAKE_C_SYSROOT_FLAG \"\")" >> $@
 endif
+ifdef HAVE_TIZEN
+	echo "set(CMAKE_SYSTEM_NAME Linux)" >> $@
+endif
 endif
 	echo "set(CMAKE_C_COMPILER $(CC))" >> $@
 	echo "set(CMAKE_CXX_COMPILER $(CXX))" >> $@

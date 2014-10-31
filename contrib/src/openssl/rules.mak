@@ -14,6 +14,14 @@ ifeq ($(shell uname),Darwin)
 OPENSSL_CONFIG_VARS=darwin64-x86_64-cc
 endif
 
+ifdef HAVE_TIZEN
+OPENSSL_COMPILER=os/compiler:arm-linux-gnueabi-
+OPENSSL_ECFLAGS = -fPIC
+endif
+
+ifdef HAVE_ANDROID
+OPENSSL_COMPILER=os/compiler:$(HOST)
+endif
 
 $(TARBALLS)/openssl-$(OPENSSL_VERSION).tar.gz:
 	$(call download,$(OPENSSL_URL))
@@ -25,6 +33,6 @@ openssl: openssl-$(OPENSSL_VERSION).tar.gz .sum-openssl
 	$(MOVE)
 
 .openssl: openssl
-	cd $< && $(HOSTVARS) ./Configure $(OPENSSL_CONFIG_VARS)  --prefix=$(PREFIX) --openssldir=$(PREFIX)
+	cd $< && $(HOSTVARS) CFLAGS="$(CFLAGS) $(OPENSSL_ECFLAGS)" ./Configure $(OPENSSL_CONFIG_VARS)  --prefix=$(PREFIX) --openssldir=$(PREFIX) $(OPENSSL_COMPILER)
 	cd $< && $(MAKE) install
 	touch $@
