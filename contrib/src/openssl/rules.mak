@@ -16,7 +16,6 @@ endif
 
 ifdef HAVE_TIZEN
 OPENSSL_COMPILER=os/compiler:arm-linux-gnueabi-
-OPENSSL_ECFLAGS = -fPIC
 endif
 
 ifdef HAVE_ANDROID
@@ -36,6 +35,6 @@ endif
 	$(MOVE)
 
 .openssl: openssl
-	cd $< && $(HOSTVARS) CFLAG="$(CFLAG) $(OPENSSL_ECFLAGS)" ./Configure $(OPENSSL_CONFIG_VARS)  --prefix=$(PREFIX) --openssldir=$(PREFIX) $(OPENSSL_COMPILER)
+	cd $< && $(HOSTVARS)  ./Configure $(OPENSSL_CONFIG_VARS)  --prefix=$(PREFIX) $(OPENSSL_COMPILER)
 	cd $< && $(MAKE) install
 	touch $@
