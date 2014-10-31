@@ -21,6 +21,6 @@ DEPS_websockets = zlib $(DEPS_zlib)
 DEPS_websockets = openssl $(DEPS_openssl)
 
 .websockets: websockets .zlib .openssl toolchain.cmake
-	cd $< && $(HOSTVARS) CFLAGS="$(CFLAGS) $(EX_ECFLAGS)" $(CMAKE) -DCMAKE_BUILD_TYPE=Release -DLIBWEBSOCKETS_LIBRARIES=websocket
+	cd $< && $(HOSTVARS) CFLAGS="$(CFLAGS) $(EX_ECFLAGS)" $(CMAKE) -DCMAKE_BUILD_TYPE=Release
 	cd $< && $(MAKE) install
 	touch $@

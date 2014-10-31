@@ -30,9 +30,12 @@ $(TARBALLS)/openssl-$(OPENSSL_VERSION).tar.gz:
 
 openssl: openssl-$(OPENSSL_VERSION).tar.gz .sum-openssl
 	$(UNPACK)
+ifdef HAVE_TIZEN
+	$(APPLY) $(SRC)/openssl/tizen.patch
+endif
 	$(MOVE)
 
 .openssl: openssl
-	cd $< && $(HOSTVARS) CFLAGS="$(CFLAGS) $(OPENSSL_ECFLAGS)" ./Configure $(OPENSSL_CONFIG_VARS)  --prefix=$(PREFIX) --openssldir=$(PREFIX) $(OPENSSL_COMPILER)
+	cd $< && $(HOSTVARS) CFLAG="$(CFLAG) $(OPENSSL_ECFLAGS)" ./Configure $(OPENSSL_CONFIG_VARS)  --prefix=$(PREFIX) --openssldir=$(PREFIX) $(OPENSSL_COMPILER)
 	cd $< && $(MAKE) install
 	touch $@
