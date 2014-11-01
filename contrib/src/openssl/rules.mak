@@ -30,6 +30,9 @@ ifeq ($(IOS_ARCH),i386)
 OPENSSL_CONFIG_VARS="BSD-generic32"
 endif
 
+ifeq ($(IOS_ARCH),arm64)
+OPENSSL_CONFIG_VARS="BSD-generic64"
+endif
 
 $(TARBALLS)/openssl-$(OPENSSL_VERSION).tar.gz:
 	$(call download,$(OPENSSL_URL))

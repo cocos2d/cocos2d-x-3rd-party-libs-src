@@ -121,7 +121,7 @@ fi
 
 BUILDDIR="${COCOSROOT}/build-ios-${PLATFORM}/${ARCH}"
 
-PREFIX="${COCOSROOT}/install-ios-${PLATFORM}/${ARCH}"
+PREFIX="${COCOSROOT}/contrib/install-ios-${PLATFORM}/${ARCH}"
 
 export PATH="/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/usr/X11/bin"
 
@@ -196,10 +196,12 @@ else
     export ASCPP="xcrun as"
 fi
 
+
+
 ../bootstrap ${OPTIONS} \
         --build=x86_64-apple-darwin14 \
         --host=${TARGET} \
-        --prefix=${COCOSROOT}/contrib/${TARGET}-${ARCH} > ${out}
+        --prefix=${PREFIX} > ${out}
 
 echo "EXTRA_CFLAGS += ${EXTRA_CFLAGS}" >> config.mak
 echo "EXTRA_LDFLAGS += ${EXTRA_LDFLAGS}" >> config.mak
