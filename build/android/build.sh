@@ -1,5 +1,6 @@
 #!/bin/sh
 set -e
+set -x
 
 info()
 {
@@ -17,10 +18,10 @@ ANDROID_ARCH=arm
 
 # TODO: configure to compile specify 3rd party libraries
 OPTIONS="
-    --disable-lua
-    --disable-freetype2
+    --enable-lua
+    --enable-freetype2
     --enable-png
-    --disable-zlib
+    --enable-zlib
 "
 
 usage()
@@ -34,6 +35,7 @@ OPTIONS:
    -k <sdk>      Use the specified Android API level (default: $ANDROID_API)
    -a <arch>     Use the specified arch (default: $ANDROID_ABI)
    -n <version>  Use the gcc version(default: $ANDROID_GCC_VERSION)
+   -l <libname>  Use the specified library name
 EOF
 }
 
@@ -47,7 +49,7 @@ spopd()
     popd > /dev/null
 }
 
-while getopts "hvk:a:" OPTION
+while getopts "hvk:a:l:" OPTION
 do
      case $OPTION in
          h)
@@ -57,16 +59,19 @@ do
          q)
              set +x
              QUIET="yes"
-         ;;
+             ;;
          a)
              ANDROID_ABI=$OPTARG
-         ;;
+             ;;
          k)
              ANDROID_API=$OPTARG
-         ;;
+             ;;
          n)
              ANDROID_GCC_VERSION=$OPTARG
-         ;;
+             ;;
+         l)
+             OPTIONS=--enable-$OPTARG
+             ;;
      esac
 done
 
@@ -106,8 +111,8 @@ cocos_root=`pwd`/../..
 
 export ANDROID_ABI
 export ANDROID_API
-export LDFLAGS="-L${ANDROID_NDK}/platforms/${ANDROID_API}/arch-${ANDROID_ARCH}/usr/lib"
-info "LD FLAGS SELECTED = '${LDFLAGS}'"
+# export LDFLAGS="-L${ANDROID_NDK}/platforms/${ANDROID_API}/arch-${ANDROID_ARCH}/usr/lib"
+# info "LD FLAGS SELECTED = '${LDFLAGS}'"
 
 export PATH="${toolchain_bin}:${cocos_root}/extras/tools/bin:$PATH"
 #
