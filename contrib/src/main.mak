@@ -408,6 +408,7 @@ ifdef HAVE_CROSS_COMPILE
 ifdef HAVE_ANDROID
 # cmake will overwrite our --sysroot with a native (host) one on Darwin
 # Set it to "" right away to short-circuit this behaviour
+	echo "set(CMAKE_SYSTEM_NAME Linux)" >> $@
 	echo "set(CMAKE_CXX_SYSROOT_FLAG \"\")" >> $@
 	echo "set(CMAKE_C_SYSROOT_FLAG \"\")" >> $@
 endif
