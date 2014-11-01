@@ -10,11 +10,19 @@ $(TARBALLS)/libwebsockets-1.3-chrome37-firefox30.zip:
 
 websockets: libwebsockets-1.3-chrome37-firefox30.zip .sum-websockets
 	$(UNPACK)
+ifdef HAVE_ANDROID
+	$(APPLY) $(SRC)/websockets/websocket_android.patch
+endif
 	$(MOVE)
 
 ifdef HAVE_TIZEN
 EX_ECFLAGS = -fPIC
 endif
+
+#FIXME: we need to pass __ANDROID__ to cflags
+# ifdef HAVE_ANDROID
+# EX_ECFLAGS = -D__ANDROID__
+# endif
 
 DEPS_websockets = zlib $(DEPS_zlib)
 
