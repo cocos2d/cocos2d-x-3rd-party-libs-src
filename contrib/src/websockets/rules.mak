@@ -10,17 +10,23 @@ $(TARBALLS)/libwebsockets-1.3-chrome37-firefox30.zip:
 
 websockets: libwebsockets-1.3-chrome37-firefox30.zip .sum-websockets
 	$(UNPACK)
+ifdef HAVE_ANDROID
+	$(APPLY) $(SRC)/websockets/websocket_android.patch
+endif
 	$(MOVE)
 
 ifdef HAVE_TIZEN
 EX_ECFLAGS = -fPIC
 endif
 
+#FIXME: we need to pass __ANDROID__ to cflags
+# ifdef HAVE_ANDROID
+# EX_ECFLAGS = -D__ANDROID__
+# endif
+
 DEPS_websockets = zlib $(DEPS_zlib)
 
-DEPS_websockets = openssl $(DEPS_openssl)
-
-.websockets: websockets .zlib .openssl toolchain.cmake
-	cd $< && $(HOSTVARS) CFLAGS="$(CFLAGS) $(EX_ECFLAGS)" $(CMAKE) -DCMAKE_BUILD_TYPE=Release
-	cd $< && $(MAKE) install
+.websockets: websockets .zlib toolchain.cmake
+	cd $< && $(HOSTVARS) CFLAGS="$(CFLAGS) $(EX_ECFLAGS)" $(CMAKE) -DCMAKE_BUILD_TYPE=Release -DLWS_WITH_SSL=0 -DLWS_WITHOUT_TEST_PING=1
+	cd $< && $(MAKE) VERBOSE=1 install
 	touch $@

@@ -13,8 +13,11 @@ curl: curl-$(CURL_VERSION).tar.gz .sum-curl
 	$(UPDATE_AUTOCONFIG)
 	$(MOVE)
 
+DEPS_curl = zlib $(DEPS_zlib)
 
-.curl: curl
+DEPS_curl = openssl $(DEPS_openssl)
+
+.curl: curl .zlib .openssl
 	cd $< && $(HOSTVARS) ./configure $(HOSTCONF) \
 		--with-ssl \
 		--with-zlib \

@@ -83,9 +83,8 @@ info $toolchain_bin
 export PATH="${toolchain_bin}:${cocos_root}/extras/tools/bin:$PATH"
 TARGET="arm-linux-gnueabi"
 
-# FIXME: If the Tizen sdk is changeing, the version number might need also be changed
-export LDFLAGS="-L${TIZEN_SDK}/platforms/mobile-2.3/rootstraps/mobile-2.3-device.core/usr/lib"
-info "LD FLAGS SELECTED = '${LDFLAGS}'"
+# export LDFLAGS="-L${TIZEN_SDK}/platforms/mobile-2.3/rootstraps/mobile-2.3-device.core/usr/lib"
+# info "LD FLAGS SELECTED = '${LDFLAGS}'"
 
 #
 # build 3rd party libraries
