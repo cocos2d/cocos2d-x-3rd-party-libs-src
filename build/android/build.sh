@@ -132,9 +132,13 @@ info "Building static libraries"
 spushd "${cocos_root}/contrib"
 mkdir -p "Android-${ANDROID_ABI}" && cd "Android-${ANDROID_ABI}"
 
+
 ../bootstrap ${OPTIONS} \
              --host=${TARGET} \
              --prefix=${cocos_root}/contrib/${TARGET}-${ANDROID_ABI}> $out
+
+echo "ANDROID_ARCH := ${CFLAGS}" >> config.mak
+
 #
 # make
 #

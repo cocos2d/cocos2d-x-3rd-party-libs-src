@@ -53,5 +53,8 @@ ifdef HAVE_IOS
 	cd $< && perl -i -pe "s|^CC= xcrun clang|CC= xcrun cc -arch ${IOS_ARCH} -miphoneos-version-min=6.0 |g" Makefile
 	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= -isysroot ${IOS_SDK} |g" Makefile
 endif
+ifdef HAVE_ANDROID
+	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= ${ANDROID_ARCH} |g" Makefile
+endif
 	cd $< && $(MAKE) install
 	touch $@
