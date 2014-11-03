@@ -10,11 +10,7 @@ SDK_MIN=6.0
 ARCH=armv7
 
 # TODO: configure to compile speficy 3rd party libraries
-OPTIONS="
-    --enable-lua
-    --enable-freetype2
-    --enable-png
-"
+OPTIONS=""
 
 
 usage()
@@ -76,6 +72,13 @@ do
              ;;
      esac
 done
+
+if test -z "$OPTIONS"
+then
+    echo "You must specify a OPTIONS parameter."
+    usage
+    exit 1
+fi
 
 shift $(($OPTIND - 1))
 

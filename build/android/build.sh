@@ -17,12 +17,7 @@ ANDROID_GCC_VERSION=4.8
 ANDROID_ARCH=arm
 
 # TODO: configure to compile specify 3rd party libraries
-OPTIONS="
-    --enable-lua
-    --enable-freetype2
-    --enable-png
-    --enable-zlib
-"
+OPTIONS=""
 
 usage()
 {
@@ -74,6 +69,13 @@ do
              ;;
      esac
 done
+
+if test -z "$OPTIONS"
+then
+    echo "You must specify a OPTIONS parameter."
+    usage
+    exit 1
+fi
 
 if [ "${ANDROID_ABI}" != "x86" ] && [ "${ANDROID_ABI}" != "armeabi-v7a" ] && [ "${ANDROID_ABI}" != "armeabi" ]; then
     echo "You must specify the right Android Arch within {armeabi, armeabi-v7a, x86}"
