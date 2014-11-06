@@ -4,11 +4,11 @@ library_name=png
 top_dir=$current_dir/../..
 
 cd $current_dir
-mkdir -p $library_name/prebuilt/tizen/arm/
-mkdir -p $library_name/include/tizen/
+mkdir -p $library_name/prebuilt/arm/
+mkdir -p $library_name/include/
 
-cp $top_dir/contrib/arm-linux-gnueabi-armv7a/lib/lib${library_name}.a $library_name/prebuilt/tizen/arm/
-cp $top_dir/contrib/arm-linux-gnueabi-armv7a/include/$library_name*.h  $library_name/include/tizen/
+cp $top_dir/contrib/arm-linux-gnueabi-armv7a/lib/lib${library_name}.a $library_name/prebuilt/arm/
+cp $top_dir/contrib/arm-linux-gnueabi-armv7a/include/$library_name*.h  $library_name/include/
 
 echo "cleaning up"
 rm -rf $top_dir/contrib/arm-linux-gnueabi-armv7a/
