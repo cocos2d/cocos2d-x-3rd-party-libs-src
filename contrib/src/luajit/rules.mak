@@ -19,6 +19,6 @@ endif
 
 .luajit: luajit
 	cd $< && perl -i -pe "s|/usr/local|$(PREFIX)|g" Makefile
-	cd $< && $(MAKE) CC=$(config_var)
+	cd $< && $(MAKE) HOST_CC="$(CC)" HOST_CFLAGS="$(CFLAGS)"
 	cd $< && $(MAKE) install
 	touch $@
