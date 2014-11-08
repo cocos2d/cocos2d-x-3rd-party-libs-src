@@ -10,6 +10,9 @@ $(TARBALLS)/luajit-$(LUAJIT_VERSION).tar.gz:
 
 luajit: luajit-$(LUAJIT_VERSION).tar.gz .sum-luajit
 	$(UNPACK)
+ifeq ($(LUAJIT_VERSION),2.0.1)
+	$(APPLY) $(SRC)/luajit/v2.0.1_hotfix1.patch
+endif
 	$(MOVE)
 
 ifeq ($(IOS_ARCH),armv7)
