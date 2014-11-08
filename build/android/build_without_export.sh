@@ -118,7 +118,7 @@ export ANDROID_API
 
 export PATH="${toolchain_bin}:${cocos_root}/extras/tools/bin:$PATH"
 if [ "$ANDROID_ABI" = "armeabi-v7a" ]; then
-    export CFLAGS="-march=armv7-a -mfloat-abi=softfp -mfpu=vfpv3-d16 -mthumb -Os -DNDEBUG -fomit-frame-pointer -fno-strict-aliasing -DANDROID  -Wa,--noexecstack -Wformat -Werror=format-security  "
+    CFLAGS="-march=armv7-a -mfloat-abi=softfp -mfpu=vfpv3-d16 -mthumb -Os -DNDEBUG -fomit-frame-pointer -fno-strict-aliasing -DANDROID  -Wa,--noexecstack -Wformat -Werror=format-security  "
 elif [ "$ANDROID_ABI" = "armeabi" ]; then
     CFLAGS="-ffunction-sections -funwind-tables -fstack-protector -no-canonical-prefixes  -march=armv5te -mtune=xscale -msoft-float -mthumb -Os -DNDEBUG -fomit-frame-pointer -fno-strict-aliasing -DANDROID  -Wa,--noexecstack -Wformat -Werror=format-security"
 else

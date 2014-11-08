@@ -2,7 +2,7 @@ current_dir=`pwd`
 library_name=luajit
 # build for armv7
 arch=armv7
-./build_without_config.sh -a $arch -l $library_name
+./build_without_export.sh -a $arch -l $library_name
 top_dir=$current_dir/../..
 
 cd $current_dir

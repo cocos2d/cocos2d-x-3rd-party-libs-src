@@ -113,8 +113,11 @@ cocos_root=`pwd`/../..
 
 export ANDROID_ABI
 export ANDROID_API
-# export LDFLAGS="-L${ANDROID_NDK}/platforms/${ANDROID_API}/arch-${ANDROID_ARCH}/usr/lib"
-# info "LD FLAGS SELECTED = '${LDFLAGS}'"
+
+if [ "$ANDROID_ABI" = "armeabi-v7a" ]; then
+export LDFLAGS="-march=armv7-a -Wl,--fix-cortex-a8"
+fi
+info "LD FLAGS SELECTED = '${LDFLAGS}'"
 
 export PATH="${toolchain_bin}:${cocos_root}/extras/tools/bin:$PATH"
 if [ "$ANDROID_ABI" = "armeabi-v7a" ]; then
