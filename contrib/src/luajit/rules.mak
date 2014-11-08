@@ -25,8 +25,18 @@ LUAJIT_TARGET_FLAGS="-arch armv7s -isysroot $(IOS_SDK)"
 LUAJIT_HOST_CC="gcc -m32 -arch i386"
 endif
 
+ifdef HAVE_ANDROID
+NDKF=--sysroot=$(ANDROID_NDK)/platforms/$(ANDROID_API)/arch-$(PLATFORM_SHORT_ARCH)
+ifeq ($(ANDROID_ABI),armeabi-v7a)
+LUAJIT_LDFLAGS="-march=armv7-a -Wl,--fix-cortex-a8"
+endif
+endif
+
 
 .luajit: luajit
+ifdef HAVE_ANDROID
+	cd $< && $(MAKE) HOST_CC="gcc -m32" CROSS=$(HOST)- TARGET_SYS=Linux TARGET_FLAGS="${ANDROID_ARCH} ${NDKF}" TARGET_LDFLAGS=$(LUAJIT_LDFLAGS)
+endif
 ifdef HAVE_MACOSX
 	cd $< && $(MAKE) HOST_CC="$(CC)" HOST_CFLAGS="$(CFLAGS)"
 endif
