@@ -12,13 +12,31 @@ luajit: luajit-$(LUAJIT_VERSION).tar.gz .sum-luajit
 	$(UNPACK)
 	$(MOVE)
 
-
-ifdef HAVE_MACOSX
-config_var="gcc -m64 -O3 -DNDEBUG -arch x86_64"
+ifeq ($(IOS_ARCH),armv7)
+LUAJIT_TARGET_FLAGS="-arch armv7 -isysroot $(IOS_SDK)"
+LUAJIT_HOST_CC="gcc -m32 -arch i386"
 endif
 
+ifeq ($(IOS_ARCH),armv7s)
+LUAJIT_TARGET_FLAGS="-arch armv7s -isysroot $(IOS_SDK)"
+LUAJIT_HOST_CC="gcc -m32 -arch i386"
+endif
+
+
 .luajit: luajit
-	cd $< && perl -i -pe "s|/usr/local|$(PREFIX)|g" Makefile
+ifdef HAVE_MACOSX
 	cd $< && $(MAKE) HOST_CC="$(CC)" HOST_CFLAGS="$(CFLAGS)"
-	cd $< && $(MAKE) install
+endif
+ifdef HAVE_IOS
+ifeq ($(IOS_ARCH),armv7)
+	cd $< && make HOST_CC=$(LUAJIT_HOST_CC) TARGET_FLAGS=$(LUAJIT_TARGET_FLAGS) TARGET=arm TARGET_SYS=iOS
+endif
+ifeq ($(IOS_ARCH),armv7s)
+	cd $< && make HOST_CC=$(LUAJIT_HOST_CC) TARGET_FLAGS=$(LUAJIT_TARGET_FLAGS) TARGET=arm TARGET_SYS=iOS
+endif
+ifeq ($(IOS_ARCH),i386)
+	cd $< && make CC="gcc -m32 -arch i386"
+endif
+endif
+	cd $< && make install PREFIX=$(PREFIX)
 	touch $@
