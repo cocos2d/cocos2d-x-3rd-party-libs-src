@@ -18,7 +18,7 @@ rm -rf $top_dir/contrib/iPhoneOS-$arch
 
 # build for i386
 arch=i386
-./build_without_config.sh -a $arch -l $library_name
+./build_without_export.sh -a $arch -l $library_name
 top_dir=$current_dir/../..
 
 cd $current_dir
@@ -37,10 +37,12 @@ rm -rf $top_dir/contrib/iPhoneOS-$arch
 LIPO="xcrun -sdk iphoneos lipo"
 STRIP="xcrun -sdk iphoneos strip"
 
-$LIPO -create $library_name/prebuilt/libluajit-armv7.a $library_name/prebuilt/libluajit-i386.a -output $library_name/prebuilt/libluajit.a
+$LIPO -create $library_name/prebuilt/lib$library_name-armv7.a \
+      $library_name/prebuilt/lib$library_name-i386.a \
+      -output $library_name/prebuilt/libluajit.a
 
-rm $library_name/prebuilt/libluajit-armv7.a
-rm $library_name/prebuilt/libluajit-i386.a
+rm $library_name/prebuilt/lib$library_name-armv7.a
+rm $library_name/prebuilt/lib$library_name-i386.a
 
 #remove debugging info
 $STRIP -S $library_name/prebuilt/libluajit.a
