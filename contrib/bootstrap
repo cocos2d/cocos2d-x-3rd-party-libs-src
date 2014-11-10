@@ -250,14 +250,14 @@ case "${OS}" in
 			;;
 		esac
 		;;
+	*linux*)
+		add_make_enabled "HAVE_LINUX"
+		;;
         *gnu*)
             echo "check Tizen SDK"
             check_tizen_sdk
             add_make_enabled "HAVE_TIZEN"
             ;;
-	*linux*)
-		add_make_enabled "HAVE_LINUX"
-		;;
 	*mingw*)
 		add_make_enabled "HAVE_WIN32"
 		;;
