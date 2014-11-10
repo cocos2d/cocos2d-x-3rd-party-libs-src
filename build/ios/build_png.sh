@@ -71,16 +71,16 @@ $LIPO -create $library_name/prebuilt/lib$library_name-armv7.a \
       $library_name/prebuilt/lib$library_name-i386.a \
       $library_name/prebuilt/lib$library_name-arm64.a \
       $library_name/prebuilt/lib$library_name-x86_64.a \
-      -output $library_name/prebuilt/libluajit.a
+      -output $library_name/prebuilt/lib$library_name.a
 
-# rm $library_name/prebuilt/lib$library_name-armv7.a
-# rm $library_name/prebuilt/lib$library_name-i386.a
-# rm $library_name/prebuilt/lib$library_name-arm64.a
-# rm $library_name/prebuilt/lib$library_name-x86_64.a
+rm $library_name/prebuilt/lib$library_name-armv7.a
+rm $library_name/prebuilt/lib$library_name-i386.a
+rm $library_name/prebuilt/lib$library_name-arm64.a
+rm $library_name/prebuilt/lib$library_name-x86_64.a
 
 
 #remove debugging info
-$STRIP -S $library_name/prebuilt/libluajit.a
-$LIPO -info $library_name/prebuilt/libluajit.a
+$STRIP -S $library_name/prebuilt/lib$library_name.a
+$LIPO -info $library_name/prebuilt/lib$library_name.a
 
 
