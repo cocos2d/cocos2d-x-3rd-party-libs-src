@@ -26,9 +26,7 @@ As an example, if you want to support cocos2d-x in ARM64, you need to compile al
 
 ## Prerequisite
 ### For Mac users
-- You should install the latest version of XCode.  You should also install the `Command Line Tools` bundled with XCode.
-
-- You should install Git 1.8+, CMake 2.8+ and M4 1.4+.
+- If you want to use these scripts, you should install Git 1.8+, CMake 2.8+ and M4 1.4+.
 If you are a Homebrew user, you could simply run the following commands to install these tools:
 
 ```cpp
@@ -37,6 +35,12 @@ brew install cmake
 brew install m4
 ```
 
+- If you want to build static libraries for iOS and Mac, you should install the latest version of XCode.  You should also install the `Command Line Tools` bundled with XCode.
+
+
+- If you want to build static libraries for Android, you should install [NDK](https://developer.android.com/tools/sdk/ndk/index.html). NDK r9d is required at the moment and you should also specify the ANDROID_NDK environment variable in your bash configure file.
+
+- If you want to build static libraries for Tizen, you should download and install [Tizen SDK](https://developer.tizen.org/downloads/tizen-sdk). And you should also add a environment variable named `TIZEN_SDK` in your bash configure file.
 
 ### For Linux users
 xxx need to improve the document here later.
