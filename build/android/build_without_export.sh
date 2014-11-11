@@ -113,19 +113,16 @@ cocos_root=`pwd`/../..
 
 export ANDROID_ABI
 export ANDROID_API
-
-if [ "$ANDROID_ABI" = "armeabi-v7a" ]; then
-export LDFLAGS="-march=armv7-a -Wl,--fix-cortex-a8"
-fi
-info "LD FLAGS SELECTED = '${LDFLAGS}'"
+# export LDFLAGS="-L${ANDROID_NDK}/platforms/${ANDROID_API}/arch-${ANDROID_ARCH}/usr/lib"
+# info "LD FLAGS SELECTED = '${LDFLAGS}'"
 
 export PATH="${toolchain_bin}:${cocos_root}/extras/tools/bin:$PATH"
 if [ "$ANDROID_ABI" = "armeabi-v7a" ]; then
-    export CFLAGS="-march=armv7-a -mfloat-abi=softfp -mfpu=vfpv3-d16 -mthumb -Os -g -DNDEBUG -fomit-frame-pointer -fno-strict-aliasing -DANDROID  -Wa,--noexecstack -Wformat -Werror=format-security  "
+    CFLAGS="-march=armv7-a -mfloat-abi=softfp -mfpu=vfpv3-d16 -mthumb -Os -DNDEBUG -fomit-frame-pointer -fno-strict-aliasing -DANDROID  -Wa,--noexecstack -Wformat -Werror=format-security  "
 elif [ "$ANDROID_ABI" = "armeabi" ]; then
-    export CFLAGS="-ffunction-sections -funwind-tables -fstack-protector -no-canonical-prefixes  -march=armv5te -mtune=xscale -msoft-float -mthumb -Os -g -DNDEBUG -fomit-frame-pointer -fno-strict-aliasing -DANDROID  -Wa,--noexecstack -Wformat -Werror=format-security"
+    CFLAGS="-ffunction-sections -funwind-tables -fstack-protector -no-canonical-prefixes  -march=armv5te -mtune=xscale -msoft-float -mthumb -Os -DNDEBUG -fomit-frame-pointer -fno-strict-aliasing -DANDROID  -Wa,--noexecstack -Wformat -Werror=format-security"
 else
-    export CFLAGS="-ffunction-sections -funwind-tables -fstack-protector -fPIC -no-canonical-prefixes -O2 -g -DNDEBUG -fomit-frame-pointer -fstrict-aliasing -DANDROID  -Wa,--noexecstack -Wformat -Werror=format-security"
+    CFLAGS="-ffunction-sections -funwind-tables -fstack-protector -fPIC -no-canonical-prefixes -O2 -DNDEBUG -fomit-frame-pointer -fstrict-aliasing -DANDROID  -Wa,--noexecstack -Wformat -Werror=format-security"
 fi
 
 info "CFLAGS is ${CFLAGS}"

@@ -143,6 +143,7 @@ check_ios_sdk()
       exit 1
    fi
    add_make "IOS_SDK=${SDKROOT}"
+   add_make "IOS_TOOLCHAIN=${SDKROOT}/../../usr/bin/"
 }
 
 check_macosx_sdk()

@@ -131,55 +131,12 @@ export PATH="/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/usr/X11/bin"
 
 info "Building contrib for iOS in '${COCOSROOT}/contrib/iPhone${PLATFORM}-${ARCH}'"
 
-# The contrib will read the following
-export AR="xcrun ar"
-
-export RANLIB="xcrun ranlib"
-export CC="xcrun clang"
-export OBJC="xcrun clang"
-export CXX="xcrun clang++"
-export LD="xcrun ld"
-export STRIP="xcrun strip"
-
 export PLATFORM=$PLATFORM
 export SDK_VERSION=$SDK_VERSION
 
-if [ "$PLATFORM" = "OS" ]; then
-export CFLAGS="-isysroot ${SDKROOT} -arch ${ARCH} -miphoneos-version-min=${SDK_MIN} ${OPTIM}"
-if [ "$ARCH" != "arm64" ]; then
-export CFLAGS="${CFLAGS} -mcpu=cortex-a8"
-fi
-else
-export CFLAGS="-isysroot ${SDKROOT} -arch ${ARCH} -miphoneos-version-min=${SDK_MIN} ${OPTIM}"
-fi
-
-export CPP="xcrun cc -E"
-export CXXCPP="xcrun c++ -E"
 
 export BUILDFORIOS="yes"
 
-if [ "$PLATFORM" = "Simulator" ]; then
-    # Use the new ABI on simulator, else we can't build
-    export OBJCFLAGS="-fobjc-abi-version=2 -fobjc-legacy-dispatch ${OBJCFLAGS}"
-fi
-
-export LDFLAGS="-L${SDKROOT}/usr/lib -arch ${ARCH} -isysroot ${SDKROOT} -miphoneos-version-min=${SDK_MIN}"
-
-if [ "$PLATFORM" = "OS" ]; then
-    EXTRA_CFLAGS="-arch ${ARCH}"
-if [ "$ARCH" != "arm64" ]; then
-    EXTRA_CFLAGS+=" -mcpu=cortex-a8"
-fi
-    EXTRA_LDFLAGS="-arch ${ARCH}"
-else
-    EXTRA_CFLAGS="-arch ${ARCH}"
-    EXTRA_LDFLAGS="-arch ${ARCH}"
-fi
-
-EXTRA_CFLAGS+=" -miphoneos-version-min=${SDK_MIN}"
-EXTRA_LDFLAGS+=" -miphoneos-version-min=${SDK_MIN}"
-
-info "LD FLAGS SELECTED = '${LDFLAGS}'"
 
 spushd ${COCOSROOT}
 
@@ -198,7 +155,6 @@ if [ "$PLATFORM" = "OS" ]; then
 else
     export ASCPP="xcrun as"
 fi
-
 
 
 ../bootstrap ${OPTIONS} \

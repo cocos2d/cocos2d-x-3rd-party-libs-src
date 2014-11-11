@@ -1,0 +1,13 @@
+diff --git a/Makefile.am b/Makefile.am
+index a2cd2c1..fe569b2 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -1,7 +1,7 @@
+ # Makefile.am:
+ #   Source file for Makefile.in (and hence Makefile)
+ #
+-
++AUTOMAKE_OPTIONS=subdir-objects
+ PNGLIB_BASENAME= libpng@PNGLIB_MAJOR@@PNGLIB_MINOR@
+ 
+ ACLOCAL_AMFLAGS = -I scripts

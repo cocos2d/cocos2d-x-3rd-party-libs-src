@@ -20,6 +20,10 @@ ifdef HAVE_TIZEN
 EX_ECFLAGS = -fPIC
 endif
 
+ifdef HAVE_WIN32
+extra_makefile=-fwin32/Makefile.gcc
+endif
+
 $(TARBALLS)/zlib-$(ZLIB_VERSION).tar.gz:
 	$(call download,$(ZLIB_URL))
 
@@ -30,6 +34,11 @@ zlib: zlib-$(ZLIB_VERSION).tar.gz .sum-zlib
 	$(MOVE)
 
 .zlib: zlib
+ifndef HAVE_WIN32
 	cd $< && $(HOSTVARS) $(ZLIB_CONFIG_VARS) CFLAGS="$(CFLAGS) $(EX_ECFLAGS)" ./configure --prefix=$(PREFIX) --static
 	cd $< && $(MAKE) install
+endif
+ifdef HAVE_WIN32
+	cd $< && make -fwin32/Makefile.gcc BINARY_PATH=$(PREFIX)/bin INCLUDE_PATH=$(PREFIX)/include LIBRARY_PATH=$(PREFIX)/lib install
+endif
 	touch $@

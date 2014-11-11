@@ -15,11 +15,7 @@ OSX_VERSION=$(xcodebuild -showsdks | grep macosx | sort | tail -n 1 | awk '{prin
 SDKROOT=`xcode-select -print-path`/Platforms/MacOSX.platform/Developer/SDKs/MacOSX$OSX_VERSION.sdk
 
 # TODO: configure to compile specify 3rd party libraries
-OPTIONS="
-    --enable-lua
-    --enable-freetype2
-    --enable-png
-"
+OPTIONS="" 
 
 usage()
 {
@@ -64,7 +60,16 @@ do
              ;;
      esac
 done
+
+if test -z "$OPTIONS"
+then
+    echo "You must specify a OPTIONS parameter."
+    usage
+    exit 1
+fi
+
 shift $(($OPTIND - 1))
+
 if [ "x$1" != "x" ]; then
     usage
     exit 1

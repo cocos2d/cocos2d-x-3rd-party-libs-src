@@ -2,7 +2,7 @@
 set -e
 set -x
 # FIXME: you must set TIZEN_SDK in your .bash_profile
-source ~/.bash_profile
+# source ~/.bash_profile
 # export TIZEN_SDK=~/tizen-sdk/
 
 info()
@@ -14,12 +14,7 @@ info()
 
 
 # TODO: configure to compile specify 3rd party libraries
-OPTIONS="
-    --enable-lua
-    --enable-freetype2
-    --enable-png
-    --enable-tiff
-"
+OPTIONS=""
 
 usage()
 {
@@ -59,6 +54,13 @@ do
              ;;
      esac
 done
+
+if test -z "$OPTIONS"
+then
+    echo "You must specify a OPTIONS parameter."
+    usage
+    exit 1
+fi
 
 shift $(($OPTIND - 1))
 if [ "x$1" != "x" ]; then
