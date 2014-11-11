@@ -10,7 +10,7 @@ info()
 }
 
 # TODO: You must set your ANDROID_NDK path in .bash_profile
-source ~/.bash_profile
+# source ~/.bash_profile
 ANDROID_ABI="armeabi-v7a"
 ANDROID_API="android-19"
 ANDROID_GCC_VERSION=4.8

@@ -2,7 +2,7 @@
 set -e
 set -x
 # FIXME: you must set TIZEN_SDK in your .bash_profile
-source ~/.bash_profile
+# source ~/.bash_profile
 # export TIZEN_SDK=~/tizen-sdk/
 
 info()
