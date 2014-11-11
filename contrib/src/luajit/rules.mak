@@ -14,7 +14,7 @@ ifeq ($(LUAJIT_VERSION),2.0.1)
 	$(APPLY) $(SRC)/luajit/v2.0.1_hotfix1.patch
 endif
 	$(MOVE)
-
+#FIXME: arm64 is not supported
 ifeq ($(IOS_ARCH),armv7)
 LUAJIT_TARGET_FLAGS="-arch armv7 -isysroot $(IOS_SDK)"
 LUAJIT_HOST_CC="gcc -m32 -arch i386"

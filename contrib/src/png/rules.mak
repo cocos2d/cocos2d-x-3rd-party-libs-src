@@ -14,6 +14,7 @@ $(TARBALLS)/libpng-$(PNG_VERSION).tar.xz:
 
 .sum-png: libpng-$(PNG_VERSION).tar.xz
 
+
 png: libpng-$(PNG_VERSION).tar.xz .sum-png
 	$(UNPACK)
 	$(MOVE)
