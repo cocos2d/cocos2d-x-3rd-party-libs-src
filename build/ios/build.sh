@@ -175,8 +175,6 @@ do
     library_name=$lib
     archive_name=$lib
     current_dir=`pwd`
-    mkdir -p $library_name/prebuilt/
-    mkdir -p $library_name/include/
     top_dir=$current_dir/../..
 
     build_script_name="build_ios.sh"
@@ -187,6 +185,9 @@ do
     if [ $lib = "zlib" ]; then
         archive_name=z
     fi
+
+    mkdir -p $archive_name/prebuilt/
+    mkdir -p $archive_name/include/
 
     for arch in "${build_arches[@]}"
     do
@@ -211,9 +212,9 @@ do
         echo "build $arch for $lib"
         $top_dir/contrib/$build_script_name $is_simulator -a $arch -l $library_name
 
-        cp $top_dir/contrib/$install_library_path/$arch/lib/lib$archive_name.a $library_name/prebuilt/lib$archive_name-$arch.a
+        cp $top_dir/contrib/$install_library_path/$arch/lib/lib$archive_name.a $archive_name/prebuilt/lib$archive_name-$arch.a
         # FIXME: some archive names have some postfix in it.
-        cp $top_dir/contrib/$install_library_path/$arch/lib/lib$archive_name*.a $library_name/prebuilt/lib$archive_name-$arch.a
+        cp $top_dir/contrib/$install_library_path/$arch/lib/lib$archive_name*.a $archive_name/prebuilt/lib$archive_name-$arch.a
 
 
         if [ $lib = "curl" ]; then
@@ -249,7 +250,7 @@ do
         # rm -rf $top_dir/contrib/$build_library_path-$arch
     done
 
-    create_fat_library $library_name
+    create_fat_library $archive_name
 
     if [ $lib = "curl" ]; then
         create_fat_library ssl
