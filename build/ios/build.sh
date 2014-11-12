@@ -207,8 +207,8 @@ fi
         --host=${TARGET} \
         --prefix=${PREFIX} > ${out}
 
-echo "EXTRA_CFLAGS += ${EXTRA_CFLAGS}" >> config.mak
-echo "EXTRA_LDFLAGS += ${EXTRA_LDFLAGS}" >> config.mak
+echo "EXTRA_CFLAGS = ${EXTRA_CFLAGS}" >> config.mak
+echo "EXTRA_LDFLAGS = ${EXTRA_LDFLAGS}" >> config.mak
 echo "IOS_ARCH := ${ARCH}" >> config.mak
 make fetch
 make list
