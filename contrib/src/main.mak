@@ -106,8 +106,8 @@ AR=xcrun ar
 LD=xcrun ld
 STRIP=xcrun strip
 RANLIB=xcrun ranlib
-EXTRA_CFLAGS += -isysroot $(MACOSX_SDK) -mmacosx-version-min=$(MIN_OSX_VERSION) -DMACOSX_DEPLOYMENT_TARGET=$(MIN_OSX_VERSION)
-EXTRA_LDFLAGS += -Wl,-syslibroot,$(MACOSX_SDK) -mmacosx-version-min=$(MIN_OSX_VERSION) -isysroot $(MACOSX_SDK) -DMACOSX_DEPLOYMENT_TARGET=$(MIN_OSX_VERSION)
+# EXTRA_CFLAGS += -isysroot $(MACOSX_SDK) -mmacosx-version-min=$(MIN_OSX_VERSION) -DMACOSX_DEPLOYMENT_TARGET=$(MIN_OSX_VERSION)
+# EXTRA_LDFLAGS += -Wl,-syslibroot,$(MACOSX_SDK) -mmacosx-version-min=$(MIN_OSX_VERSION) -isysroot $(MACOSX_SDK) -DMACOSX_DEPLOYMENT_TARGET=$(MIN_OSX_VERSION)
 ifeq ($(ARCH),x86_64)
 EXTRA_CFLAGS += -m64 -O3 -DNDEBUG
 EXTRA_LDFLAGS += -m64 -O3 -DNDEBUG
@@ -141,8 +141,8 @@ AR=xcrun ar
 LD=xcrun ld
 STRIP=xcrun strip
 RANLIB=xcrun ranlib
-EXTRA_CFLAGS += $(CFLAGS)
-EXTRA_LDFLAGS += $(LDFLAGS)
+# EXTRA_CFLAGS += $(CFLAGS)
+# EXTRA_LDFLAGS += $(LDFLAGS)
 endif
 
 ifdef HAVE_WIN32
