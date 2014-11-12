@@ -8,6 +8,7 @@ SDK_VERSION=$(xcodebuild -showsdks | grep iphoneos | sort | tail -n 1 | awk '{pr
 # FIXME: why min deploy target can't use 5.1.1
 SDK_MIN=6.0
 ARCH=armv7
+BUILD_MODe=release
 
 # TODO: configure to compile speficy 3rd party libraries
 OPTIONS=""
@@ -16,13 +17,14 @@ OPTIONS=""
 usage()
 {
 cat << EOF
-usage: $0 [-s] [-k sdk] [-a arch] [-l libname]
+usage: $0 [-s] [-k sdk] [-a arch] [-l libname] [-m build mode]
 
 OPTIONS
    -k <sdk version>      Specify which sdk to use ('xcodebuild -showsdks', current: ${SDK_VERSION})
    -s            Build for simulator
    -a <arch>     Specify which arch to use (current: ${ARCH})
    -l <libname>  Specify which static library to build
+   -m <build mode> Specify release or debug mode(current: ${BUILD_MODE})
 EOF
 }
 
@@ -44,7 +46,7 @@ info()
 }
 
 
-while getopts "hvsk:a:l:" OPTION
+while getopts "hvsk:a:l:m:" OPTION
 do
      case $OPTION in
          h)
@@ -65,6 +67,8 @@ do
              ;;
          l)
              OPTIONS=--enable-$OPTARG
+             ;;
+         m)  BUILD_MODE=$OPTARG
              ;;
          ?)
              usage
@@ -98,10 +102,16 @@ info "Building cocos2d-x third party libraries for iOS"
 
 if [ "$PLATFORM" = "Simulator" ]; then
     TARGET="${ARCH}-apple-darwin"
-    OPTIM="-O3 -g"
 else
     TARGET="arm-apple-darwin"
-    OPTIM="-O3 -g"
+fi
+
+if [ $BUILD_MODE = "release" ]; then
+    OPTIM="-O3"
+fi
+
+if [ $BUILD_MODE = "debug" ]; then
+    OPTIM="-O0 -g"
 fi
 
 info "Using ${ARCH} with SDK version ${SDK_VERSION}"

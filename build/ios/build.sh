@@ -210,7 +210,7 @@ do
         fi
 
         echo "build $arch for $lib"
-        $top_dir/contrib/$build_script_name $is_simulator -a $arch -l $library_name
+        $top_dir/contrib/$build_script_name $is_simulator -a $arch -l $library_name -m $build_mode
 
         cp $top_dir/contrib/$install_library_path/$arch/lib/lib$archive_name.a $archive_name/prebuilt/lib$archive_name-$arch.a
         # FIXME: some archive names have some postfix in it.
@@ -246,8 +246,8 @@ do
         # TODO: add more header files decides here
 
         echo "cleaning up"
-        # rm -rf $top_dir/contrib/$install_library_path
-        # rm -rf $top_dir/contrib/$build_library_path-$arch
+        rm -rf $top_dir/contrib/$install_library_path
+        rm -rf $top_dir/contrib/$build_library_path-$arch
     done
 
     create_fat_library $archive_name
