@@ -220,8 +220,13 @@ do
         if [ $lib = "curl" ]; then
             mkdir -p ssl/prebuilt/
             cp $top_dir/contrib/$install_library_path/$arch/lib/libssl.a ssl/prebuilt/libssl-$arch.a
+
             mkdir -p crypto/prebuilt/
             cp $top_dir/contrib/$install_library_path/$arch/lib/libcrypto.a crypto/prebuilt/libcrypto-$arch.a
+
+            echo "copying libz..."
+            mkdir -p z/prebuilt/
+            cp $top_dir/contrib/$install_library_path/$arch/lib/libz.a z/prebuilt/libz-$arch.a
         fi
 
         if [ $lib = "png" ]; then
@@ -255,6 +260,7 @@ do
     if [ $lib = "curl" ]; then
         create_fat_library ssl
         create_fat_library crypto
+        create_fat_library z
     fi
 
     if [ $lib = "png" ]; then
