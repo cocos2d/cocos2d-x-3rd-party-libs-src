@@ -52,6 +52,28 @@ while [ "$1" != "" ]; do
     shift
 done
 
+if test -z "$build_arches"
+then
+    echo "You must speficy a valid arch option"
+    usage
+    exit 1
+fi
+
+if test -z "$build_library"
+then
+    echo "You must specify a valid library option"
+    usage
+    exit 1
+fi
+
+if test -z "$build_mode"
+then
+    echo "You must specify a valid mode option"
+    usage
+    exit 1
+fi
+
+
 function contains() {
     local n=$#
     local value=${!n}
@@ -65,8 +87,8 @@ function contains() {
         return 1
 }
 
-all_arches=("armv7" "arm64" "i386" "x86_64")
-all_libraries=("png" "zlib")
+all_arches=("armv7" "arm64" "i386" "x86_64" "armv7s")
+all_libraries=("png" "zlib" "lua" "luajit" "websockets" "curl" "box2d" "chipmunk" "freetype2" "jpeg" "protobuf" "tiff" "webp")
 
 # TODO: we only build a fat library with armv7, arm64, i386 and x86_64 arch. If you want to build armv7s into the fat lib, please add it into the following array.
 if [ $build_arches = "all" ]; then
@@ -77,7 +99,7 @@ fi
 
 if [ $build_library = "all" ]; then
     # TODO: more libraries need to be added here
-    declare -a build_library=("png" "zlib")
+    declare -a build_library=("png" "zlib" "lua" "luajit" "websockets" "curl" "box2d" "chipmunk" "freetype2" "jpeg" "protobuf" "tiff" "webp")
 else
     build_library=(${build_library//,/ })
 fi
@@ -120,102 +142,83 @@ if [ $build_mode != "release" ] && [ $build_mode != "debug" ]; then
 fi
 
 
-for arch in "${build_arches[@]}"
-do
-    echo $arch
-done
 
+function create_fat_library()
+{
+    library_name=$1
+    #strip & create fat library
+    LIPO="xcrun -sdk iphoneos lipo"
+    STRIP="xcrun -sdk iphoneos strip"
+
+    if [ -f $library_name/prebuilt/lib$library_name.a ]; then
+        echo "removing old fat library..."
+        rm $library_name/prebuilt/lib$library_name.a
+    fi
+
+    all_static_libs=$(find $library_name/prebuilt -type f)
+
+    echo "create fat library lib$library_name for $all_static_libs"
+    $LIPO -create  $all_static_libs \
+          -output $library_name/prebuilt/lib$library_name.a
+
+    rm $all_static_libs
+
+    # remove debugging info
+    $STRIP -S $library_name/prebuilt/lib$library_name.a
+    $LIPO -info $library_name/prebuilt/lib$library_name.a
+}
+
+# build all the libraries for different arches
 for lib in "${build_library[@]}"
 do
-    echo $lib
+    library_name=$lib
+    current_dir=`pwd`
+    mkdir -p $library_name/prebuilt/
+    mkdir -p $library_name/include/
+    top_dir=$current_dir/../..
+
+    build_script_name="build_ios.sh"
+    if [ $lib = "luajit" ]; then
+        build_script_name="build_ios_without_export.sh"
+    fi
+
+    for arch in "${build_arches[@]}"
+    do
+        #skip certain arch libraries
+        if [ $lib = "luajit" ] && [ $arch = "arm64" ]; then
+            continue
+        fi
+
+        if [ $lib = "luajit" ] && [ $arch = "x86_64" ]; then
+            continue
+        fi
+
+        is_simulator=""
+        install_library_path="install-ios-OS"
+        build_library_path="iPhoneOS"
+        if [ $arch = "i386" ] || [ $arch = "x86_64" ];then
+            is_simulator="-s"
+            install_library_path="install-ios-Simulator"
+            build_library_path="iPhoneSimulator"
+        fi
+
+        echo "build $arch for $lib"
+        $top_dir/contrib/$build_script_name $is_simulator -a $arch -l $library_name
+
+        cp $top_dir/contrib/$install_library_path/$arch/lib/lib$library_name.a $library_name/prebuilt/lib$library_name-$arch.a
+        cp $top_dir/contrib/$install_library_path/$arch/lib/lib$library_name*.a $library_name/prebuilt/lib$library_name-$arch.a
+        if [ "$(ls -A $library_name/include/)" ];then
+            echo "Header files are already exists. No need to copy..."
+        else
+            echo "Copying needed heder files"
+            cp -r $top_dir/contrib/$install_library_path/$arch/include/*.*  $library_name/include/
+        fi
+
+        echo "cleaning up"
+        rm -rf $top_dir/contrib/$install_library_path
+        rm -rf $top_dir/contrib/$build_library_path-$arch
+    done
+
+    create_fat_library $library_name
+
 done
-
-echo "build mode is $build_mode"
-
-exit
-
-
-current_dir=`pwd`
-library_name=png
-rm -rf $library_name
-# build for armv7
-arch=armv7
-./build.sh -a $arch -l $library_name
-top_dir=$current_dir/../..
-
-cd $current_dir
-mkdir -p $library_name/prebuilt/
-mkdir -p $library_name/include/
-
-cp $top_dir/contrib/install-ios-OS/$arch/lib/lib$library_name.a $library_name/prebuilt/lib$library_name-$arch.a
-cp -r $top_dir/contrib/install-ios-Os/$arch/include/png*.h  $library_name/include/
-
-echo "cleaning up"
-rm -rf $top_dir/contrib/install-ios-OS
-rm -rf $top_dir/contrib/iPhoneOS-$arch
-
-# build for i386
-arch=i386
-./build.sh -s -a $arch -l $library_name
-top_dir=$current_dir/../..
-
-cd $current_dir
-mkdir -p $library_name/prebuilt/
-mkdir -p $library_name/include/
-
-cp $top_dir/contrib/install-ios-Simulator/$arch/lib/lib${library_name}.a $library_name/prebuilt/lib$library_name-$arch.a
-
-echo "cleaning up"
-rm -rf $top_dir/contrib/install-ios-Simulator
-rm -rf $top_dir/contrib/iPhoneSimulator-$arch
-
-#build for x86_64
-arch=x86_64
-./build.sh -s -a $arch -l $library_name
-top_dir=$current_dir/../..
-
-cd $current_dir
-mkdir -p $library_name/prebuilt/
-mkdir -p $library_name/include/
-
-cp $top_dir/contrib/install-ios-Simulator/$arch/lib/lib${library_name}.a $library_name/prebuilt/lib$library_name-$arch.a
-
-echo "cleaning up"
-rm -rf $top_dir/contrib/install-ios-Simulator/
-rm -rf $top_dir/contrib/iPhoneSimulator-$arch
-
-#build for arm64
-arch=arm64
-./build.sh -a $arch -l $library_name
-top_dir=$current_dir/../..
-
-cd $current_dir
-mkdir -p $library_name/prebuilt/
-mkdir -p $library_name/include/
-
-cp $top_dir/contrib/install-ios-OS/$arch/lib/lib${library_name}.a $library_name/prebuilt/lib$library_name-$arch.a
-
-echo "cleaning up"
-rm -rf $top_dir/contrib/install-ios-OS
-rm -rf $top_dir/contrib/iPhoneOS-$arch
-
-
-#strip & create fat library
-LIPO="xcrun -sdk iphoneos lipo"
-STRIP="xcrun -sdk iphoneos strip"
-
-$LIPO -create $library_name/prebuilt/lib$library_name-armv7.a \
-      $library_name/prebuilt/lib$library_name-i386.a \
-      $library_name/prebuilt/lib$library_name-arm64.a \
-      $library_name/prebuilt/lib$library_name-x86_64.a \
-      -output $library_name/prebuilt/lib$library_name.a
-
-rm $library_name/prebuilt/lib$library_name-armv7.a
-rm $library_name/prebuilt/lib$library_name-i386.a
-rm $library_name/prebuilt/lib$library_name-arm64.a
-rm $library_name/prebuilt/lib$library_name-x86_64.a
-
-
-#remove debugging info
-$STRIP -S $library_name/prebuilt/lib$library_name.a
-$LIPO -info $library_name/prebuilt/lib$library_name.a

@@ -108,7 +108,7 @@ info "Using ${ARCH} with SDK version ${SDK_VERSION}"
 
 THIS_SCRIPT_PATH=`pwd`
 
-COCOSROOT=`pwd`/../
+COCOSROOT=`pwd`/../..
 
 if test -z "$SDKROOT"
 then
