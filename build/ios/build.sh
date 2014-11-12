@@ -155,7 +155,7 @@ function create_fat_library()
         rm $library_name/prebuilt/lib$library_name.a
     fi
 
-    all_static_libs=$(find $library_name/prebuilt -type f)
+    all_static_libs=$(find $library_name/prebuilt -type f -name "lib$library_name-*.a")
 
     echo "create fat library lib$library_name for $all_static_libs"
     $LIPO -create  $all_static_libs \
@@ -168,10 +168,12 @@ function create_fat_library()
     $LIPO -info $library_name/prebuilt/lib$library_name.a
 }
 
+
 # build all the libraries for different arches
 for lib in "${build_library[@]}"
 do
     library_name=$lib
+    archive_name=$lib
     current_dir=`pwd`
     mkdir -p $library_name/prebuilt/
     mkdir -p $library_name/include/
@@ -180,6 +182,10 @@ do
     build_script_name="build_ios.sh"
     if [ $lib = "luajit" ]; then
         build_script_name="build_ios_without_export.sh"
+    fi
+
+    if [ $lib = "zlib" ]; then
+        archive_name=z
     fi
 
     for arch in "${build_arches[@]}"
@@ -205,20 +211,53 @@ do
         echo "build $arch for $lib"
         $top_dir/contrib/$build_script_name $is_simulator -a $arch -l $library_name
 
-        cp $top_dir/contrib/$install_library_path/$arch/lib/lib$library_name.a $library_name/prebuilt/lib$library_name-$arch.a
-        cp $top_dir/contrib/$install_library_path/$arch/lib/lib$library_name*.a $library_name/prebuilt/lib$library_name-$arch.a
-        if [ "$(ls -A $library_name/include/)" ];then
-            echo "Header files are already exists. No need to copy..."
-        else
-            echo "Copying needed heder files"
-            cp -r $top_dir/contrib/$install_library_path/$arch/include/*.*  $library_name/include/
+        cp $top_dir/contrib/$install_library_path/$arch/lib/lib$archive_name.a $library_name/prebuilt/lib$archive_name-$arch.a
+        # FIXME: some archive names have some postfix in it.
+        cp $top_dir/contrib/$install_library_path/$arch/lib/lib$archive_name*.a $library_name/prebuilt/lib$archive_name-$arch.a
+
+
+        if [ $lib = "curl" ]; then
+            mkdir -p ssl/prebuilt/
+            cp $top_dir/contrib/$install_library_path/$arch/lib/libssl.a ssl/prebuilt/libssl-$arch.a
+            mkdir -p crypto/prebuilt/
+            cp $top_dir/contrib/$install_library_path/$arch/lib/libcrypto.a crypto/prebuilt/libcrypto-$arch.a
         fi
 
+        if [ $lib = "png" ]; then
+            echo "copying libz..."
+            mkdir -p z/prebuilt/
+            cp $top_dir/contrib/$install_library_path/$arch/lib/libz.a z/prebuilt/libz-$arch.a
+        fi
+
+        echo "Copying needed heder files"
+        if [ $lib = "png" ]; then
+            cp  $top_dir/contrib/$install_library_path/$arch/include/png*.h  $library_name/include/
+        fi
+
+        if [ $lib = "luajit" ]; then
+            cp -r $top_dir/contrib/$install_library_path/$arch/include/luajit-2.0/  $library_name/include/
+        fi
+
+        if [ $lib = "curl" ]; then
+            cp -r $top_dir/contrib/$install_library_path/$arch/include/curl/  $library_name/include/
+        fi
+
+        # TODO: add more header files decides here
+
         echo "cleaning up"
-        rm -rf $top_dir/contrib/$install_library_path
-        rm -rf $top_dir/contrib/$build_library_path-$arch
+        # rm -rf $top_dir/contrib/$install_library_path
+        # rm -rf $top_dir/contrib/$build_library_path-$arch
     done
 
     create_fat_library $library_name
+
+    if [ $lib = "curl" ]; then
+        create_fat_library ssl
+        create_fat_library crypto
+    fi
+
+    if [ $lib = "png" ]; then
+        create_fat_library z
+    fi
 
 done
