@@ -8,6 +8,7 @@ SDK_VERSION=$(xcodebuild -showsdks | grep iphoneos | sort | tail -n 1 | awk '{pr
 # FIXME: why min deploy target can't use 5.1.1
 SDK_MIN=6.0
 ARCH=armv7
+BUILD_MODE=release
 
 # TODO: configure to compile speficy 3rd party libraries
 OPTIONS=""
@@ -16,13 +17,14 @@ OPTIONS=""
 usage()
 {
 cat << EOF
-usage: $0 [-s] [-k sdk] [-a arch] [-l libname]
+usage: $0 [-s] [-k sdk] [-a arch] [-l libname] [-m biuld mode]
 
 OPTIONS
    -k <sdk version>      Specify which sdk to use ('xcodebuild -showsdks', current: ${SDK_VERSION})
    -s            Build for simulator
    -a <arch>     Specify which arch to use (current: ${ARCH})
    -l <libname>  Specify which static library to build
+   -m <build mode> Specify release or debug mode(current: ${BUILD_MODE})
 EOF
 }
 
@@ -44,7 +46,7 @@ info()
 }
 
 
-while getopts "hvsk:a:l:" OPTION
+while getopts "hvsk:a:l:m:" OPTION
 do
      case $OPTION in
          h)
@@ -65,6 +67,8 @@ do
              ;;
          l)
              OPTIONS=--enable-$OPTARG
+             ;;
+         m)  BUILD_MODE=$OPTARG
              ;;
          ?)
              usage
@@ -98,17 +102,23 @@ info "Building cocos2d-x third party libraries for iOS"
 
 if [ "$PLATFORM" = "Simulator" ]; then
     TARGET="${ARCH}-apple-darwin"
-    OPTIM="-O3 -g"
 else
     TARGET="arm-apple-darwin"
-    OPTIM="-O3 -g"
+fi
+
+if [ $BUILD_MODE = "release" ]; then
+    OPTIM="-O3 -DNDEBUG"
+fi
+
+if [ $BUILD_MODE = "debug" ]; then
+    OPTIM="-O0 -g -DDEBUG"
 fi
 
 info "Using ${ARCH} with SDK version ${SDK_VERSION}"
 
 THIS_SCRIPT_PATH=`pwd`
 
-COCOSROOT=`pwd`/../..
+COCOSROOT=`pwd`/../../
 
 if test -z "$SDKROOT"
 then
@@ -122,8 +132,6 @@ then
     exit 1
 fi
 
-BUILDDIR="${COCOSROOT}/build-ios-${PLATFORM}/${ARCH}"
-
 PREFIX="${COCOSROOT}/contrib/install-ios-${PLATFORM}/${ARCH}"
 
 export PATH="/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/usr/X11/bin"
@@ -131,12 +139,56 @@ export PATH="/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/usr/X11/bin"
 
 info "Building contrib for iOS in '${COCOSROOT}/contrib/iPhone${PLATFORM}-${ARCH}'"
 
+# The contrib will read the following
+export AR="xcrun ar"
+
+export RANLIB="xcrun ranlib"
+export CC="xcrun clang"
+export OBJC="xcrun clang"
+export CXX="xcrun clang++"
+export LD="xcrun ld"
+export STRIP="xcrun strip"
+
 export PLATFORM=$PLATFORM
 export SDK_VERSION=$SDK_VERSION
 
+if [ "$PLATFORM" = "OS" ]; then
+export CFLAGS="-isysroot ${SDKROOT} -arch ${ARCH} -miphoneos-version-min=${SDK_MIN} ${OPTIM}"
+if [ "$ARCH" != "arm64" ]; then
+export CFLAGS="${CFLAGS} -mcpu=cortex-a8"
+fi
+else
+export CFLAGS="-isysroot ${SDKROOT} -arch ${ARCH} -miphoneos-version-min=${SDK_MIN} ${OPTIM}"
+fi
+
+export CPP="xcrun cc -E"
+export CXXCPP="xcrun c++ -E"
 
 export BUILDFORIOS="yes"
 
+if [ "$PLATFORM" = "Simulator" ]; then
+    # Use the new ABI on simulator, else we can't build
+    export OBJCFLAGS="-fobjc-abi-version=2 -fobjc-legacy-dispatch ${OBJCFLAGS}"
+fi
+
+export LDFLAGS="-L${SDKROOT}/usr/lib -arch ${ARCH} -isysroot ${SDKROOT} -miphoneos-version-min=${SDK_MIN}"
+
+EXTRA_CFLAGS=""
+# if [ "$PLATFORM" = "OS" ]; then
+#     EXTRA_CFLAGS="-arch ${ARCH}"
+# if [ "$ARCH" != "arm64" ]; then
+#     EXTRA_CFLAGS+=" -mcpu=cortex-a8"
+# fi
+#     EXTRA_LDFLAGS="-arch ${ARCH}"
+# else
+#     EXTRA_CFLAGS="-arch ${ARCH}"
+#     EXTRA_LDFLAGS="-arch ${ARCH}"
+# fi
+
+# EXTRA_CFLAGS+=" -miphoneos-version-min=${SDK_MIN}"
+# EXTRA_LDFLAGS+=" -miphoneos-version-min=${SDK_MIN}"
+
+info "LD FLAGS SELECTED = '${LDFLAGS}'"
 
 spushd ${COCOSROOT}
 
@@ -157,14 +209,17 @@ else
 fi
 
 
+
 ../bootstrap ${OPTIONS} \
         --build=x86_64-apple-darwin14 \
         --host=${TARGET} \
         --prefix=${PREFIX} > ${out}
 
-echo "EXTRA_CFLAGS += ${EXTRA_CFLAGS}" >> config.mak
-echo "EXTRA_LDFLAGS += ${EXTRA_LDFLAGS}" >> config.mak
+echo "EXTRA_CFLAGS = ${EXTRA_CFLAGS}" >> config.mak
+echo "EXTRA_LDFLAGS = ${EXTRA_LDFLAGS}" >> config.mak
 echo "IOS_ARCH := ${ARCH}" >> config.mak
+echo "BUILD_MODE := ${BUILD_MODE}" >> config.mak
+
 make fetch
 make list
 make

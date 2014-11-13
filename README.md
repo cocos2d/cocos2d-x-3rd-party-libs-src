@@ -11,7 +11,7 @@ As an example, if you want to support cocos2d-x in ARM64, you need to compile al
 
 - We use MacOSX to build all the static libraries for iOS, Android, Mac and Tizen.
 
-- We use Windows to build all the static libraries for Win32.
+- We use Windows to build all the static libraries for Win32, WP8 and WinRT.
 
 - We use Ubuntu to build all the static libraries for Linux.
 
@@ -30,6 +30,7 @@ As an example, if you want to support cocos2d-x in ARM64, you need to compile al
 If you are a Homebrew user, you could simply run the following commands to install these tools:
 
 ```cpp
+brew update
 brew install git
 brew install cmake
 brew install m4
@@ -61,39 +62,35 @@ pacman -S libtool
 ```
 
 ## How to use
+We have one build script for each platform, they are under `build/platform{ios/mac/android/tizen}` directory.
+
+All of them share the same usage:
+
+```
+./build.sh --libs=param1 --arch=param2 --mode=param3
+```
+
+- param1:
+    - use `all` to build all the 3rd party libraries, it will take you a very long time.
+    - use comma separated library names, for example, `png,lua,jpeg/webp`,  no space between the comma.
+
+- param2:
+    - use `all` to build all the supported arches. For iOS, they are "armv7, arm64, i386, x86_64", for Android, they are "armeabi, armeabi-v7a, x86, arm64", for Mac, they are "x86_64", for Tizen, they are "armv7"
+    - use comma separated arch name, for example, `armv7, arm64`, no space between the comma.
+
+- param3:
+    - release:  Build library on release mode. This is the default option. We use `-O3 -DNDEBUG` flags to build release library.
+    - debug:  Build library on debug mode. we use `-O0 -g -DDEBUG` flag to build debug library.
+
 ### For iOS Platform
-For building libpng fat library:
+For building libpng fat library with all arch x86_64, i386, armv7, arm64 on release mode:
 
 ```cpp
 cd build/ios
-./build_png.sh
+./build.sh --libs=png
 ```
 
-Or you can also use `build.sh` script build each static library for different arch.
-The usage would be:
-
-```cpp
-usage: $0 [-s] [-k sdk] [-a arch] [-l libname]
-
-OPTIONS
-   -k <sdk version>      Specify which sdk to use ('xcodebuild -showsdks', current: 8.1)
-   -s            Build for simulator
-   -a <arch>     Specify which arch to use (current: armv7)
-   -l <libname>  Specify which static library to build
-```
-
-If you want to build *websockets* with *i386* arch, you could use the following command:
-
-```cpp
-cd build/ios
-./build.sh -s -a i386 -l websockets (Don't forget the -s option, it is stand for simulator, if you omit it, it will give you errors.)
-```
-
-In this way, you can only build one arch a time, if you want to build a fat library, please use `build_xxx.sh` instead.(xxx is the library name, we will follow this conversion throughout this document.)
-
-If you use `build_xxx.sh` to build static libraries, all the generated `header files` and `.a files` are under the folder named as `xxx`.
-
-Let's give png as an example, after you run `./build_png.sh`, it will generate a folder named `png`:
+After running this command, it will generate a folder named `png`:
 
 The folder structure would be:
 
@@ -105,45 +102,21 @@ The folder structure would be:
 
 All the other libraries share the same folder structure.
 
+For building libpng fat library with arch armv7 and arm64 on debug mode:
+
+```cpp
+cd build/ios
+./build.sh --libs=png --arch=armv7,arm64 --mode=debug
+```
+
 ### For Android Platform
-For building libpng with armeabi, armeabi-v7a and x86 arch, you can do it like this:
-
-```cpp
-cd build/android
-./build_png.sh
-```
-Or you can also use `build.sh` script build each static library for different arch.
-The usage would be:
-
-```cpp
-   -k <sdk>      Use the specified Android API level (default: android-19)
-   -a <arch>     Use the specified arch (default: armeabi-v7a)
-   -n <version>  Use the gcc version(default: 4.8)
-   -l <libname>  Use the specified library name
-EOF
-```
-
-If you want to build a `curl` library with `armeabi` arch support, you can do it like this:
-
-```cpp
-cd build/android
-./build.sh -a armeabi -l curl
-```
+xxx document will be update later.
 
 ### For Mac
-For building libpng x86_64 arch library:
+xxx document will be update later.
 
-```cpp
-cd build/mac
-./build_png.sh
-```
 ### For Tizen
-For building libpng armv7 arch library:
-
-```cpp
-cd build/tizen
-./build_png.sh
-```
+xxx document will be update later.
 
 ### For Linux
 xxx After testing these scripts on Linux, document will be update.
@@ -152,11 +125,12 @@ xxx After testing these scripts on Linux, document will be update.
 xxx we need to improve the script to add debug and release options.
 
 ## How to do build clean?
-If you use `./build_xxx.sh` to build static libraries, there is no need to do clean. After generating the static library, script will delete the intermediate files.
+If you use `./build.sh` to build static libraries, there is no need to do clean. After generating the static library, script will delete the intermediate files.
 
-If you use `./build.sh` manually, you should delete the folders generated in src folder.
 
 ## How to upgrade a existing library
 If you find a 3rd party library has some critical bug fix, you might need to update it.
 You can following the [README](./contrib/src/README) file to do this job.
 
+## How to add new 3rd party libraries
+Please refer to [README](./contrib/src/README)

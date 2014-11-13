@@ -1,215 +1,270 @@
 #!/bin/sh
-set -e
-set -x
 
-PLATFORM=OS
-VERBOSE=no
-SDK_VERSION=$(xcodebuild -showsdks | grep iphoneos | sort | tail -n 1 | awk '{print substr($NF,9)}')
-# FIXME: why min deploy target can't use 5.1.1
-SDK_MIN=6.0
-ARCH=armv7
+#
+# A script to build static library for iOS
+#
 
-# TODO: configure to compile speficy 3rd party libraries
-OPTIONS=""
+build_arches="all"
+build_mode="release"
+build_library="all"
 
-
-usage()
+function usage()
 {
-cat << EOF
-usage: $0 [-s] [-k sdk] [-a arch] [-l libname]
-
-OPTIONS
-   -k <sdk version>      Specify which sdk to use ('xcodebuild -showsdks', current: ${SDK_VERSION})
-   -s            Build for simulator
-   -a <arch>     Specify which arch to use (current: ${ARCH})
-   -l <libname>  Specify which static library to build
-EOF
-}
-
-spushd()
-{
-    pushd "$1" 2>&1> /dev/null
-}
-
-spopd()
-{
-    popd 2>&1> /dev/null
-}
-
-info()
-{
-    local blue="\033[1;34m"
-    local normal="\033[0m"
-    echo "[${blue}info${normal}] $1"
+    echo "You should follow the instructions here to build static library for iOS"
+    echo "If you want to build a fat, you should pass 'all' to --arch parameter."
+    echo ""
+    echo "Sample:"
+    echo "./bulid.sh --arch=armv7,arm64 --mode=debug"
+    echo "You must seperate each arch with comma, otherwise it won't parse correctly. No whitespace is allowed between two arch types."
+    echo ""
+    echo "./build_png.sh"
+    echo "\t-h --help"
+    echo "\t--libs=[all | png,lua,tiff,jpeg,webp,zlib,websockets,luajit,freetype2,curl,chipmunk,box2d]"
+    echo "\t--arch=[all | armv7,arm64,i386,x86_64]"
+    echo "\t--mode=[release | debug]"
+    echo ""
 }
 
 
-while getopts "hvsk:a:l:" OPTION
-do
-     case $OPTION in
-         h)
-             usage
-             exit 1
-             ;;
-         v)
-             VERBOSE=yes
-             ;;
-         s)
-             PLATFORM=Simulator
-             ;;
-         k)
-             SDK_VERSION=$OPTARG
-             ;;
-         a)
-             ARCH=$OPTARG
-             ;;
-         l)
-             OPTIONS=--enable-$OPTARG
-             ;;
-         ?)
-             usage
-             exit 1
-             ;;
-     esac
+while [ "$1" != "" ]; do
+    PARAM=`echo $1 | awk -F= '{print $1}'`
+    VALUE=`echo $1 | awk -F= '{print $2}'`
+    case $PARAM in
+        -h | --help)
+            usage
+            exit
+            ;;
+        --libs)
+            build_library=$VALUE
+            ;;
+        --arch)
+            build_arches=$VALUE
+            ;;
+        --mode)
+            build_mode=$VALUE
+            ;;
+        *)
+            echo "ERROR: unknown parameter \"$PARAM\""
+            usage
+            exit 1
+            ;;
+    esac
+    shift
 done
 
-if test -z "$OPTIONS"
+if test -z "$build_arches"
 then
-    echo "You must specify a OPTIONS parameter."
+    echo "You must speficy a valid arch option"
     usage
     exit 1
 fi
 
-shift $(($OPTIND - 1))
+if test -z "$build_library"
+then
+    echo "You must specify a valid library option"
+    usage
+    exit 1
+fi
 
-
-if [ "x$1" != "x" ]; then
+if test -z "$build_mode"
+then
+    echo "You must specify a valid mode option"
     usage
     exit 1
 fi
 
 
-out="/dev/null"
-if [ "$VERBOSE" = "yes" ]; then
-   out="/dev/stdout"
-fi
+function contains() {
+    local n=$#
+    local value=${!n}
+    for ((i=1;i < $#;i++)) {
+            if [ "${!i}" == "${value}" ]; then
+                echo "y"
+                return 0
+            fi
+        }
+        echo "n"
+        return 1
+}
 
-info "Building cocos2d-x third party libraries for iOS"
+all_arches=("armv7" "arm64" "i386" "x86_64" "armv7s")
+all_libraries=("png" "zlib" "lua" "luajit" "websockets" "curl" "box2d" "chipmunk" "freetype2" "jpeg" "protobuf" "tiff" "webp")
 
-if [ "$PLATFORM" = "Simulator" ]; then
-    TARGET="${ARCH}-apple-darwin"
-    OPTIM="-O3 -g"
+# TODO: we only build a fat library with armv7, arm64, i386 and x86_64 arch. If you want to build armv7s into the fat lib, please add it into the following array.
+if [ $build_arches = "all" ]; then
+    declare -a build_arches=("armv7" "arm64" "i386" "x86_64")
 else
-    TARGET="arm-apple-darwin"
-    OPTIM="-O3 -g"
+    build_arches=(${build_arches//,/ })
 fi
 
-info "Using ${ARCH} with SDK version ${SDK_VERSION}"
-
-THIS_SCRIPT_PATH=`pwd`
-
-COCOSROOT=`pwd`/../..
-
-if test -z "$SDKROOT"
-then
-    SDKROOT=`xcode-select -print-path`/Platforms/iPhone${PLATFORM}.platform/Developer/SDKs/iPhone${PLATFORM}${SDK_VERSION}.sdk
-    echo "SDKROOT not specified, assuming $SDKROOT"
-fi
-
-if [ ! -d "${SDKROOT}" ]
-then
-    echo "*** ${SDKROOT} does not exist, please install required SDK, or set SDKROOT manually. ***"
-    exit 1
-fi
-
-BUILDDIR="${COCOSROOT}/build-ios-${PLATFORM}/${ARCH}"
-
-PREFIX="${COCOSROOT}/contrib/install-ios-${PLATFORM}/${ARCH}"
-
-export PATH="/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/usr/X11/bin"
-
-
-info "Building contrib for iOS in '${COCOSROOT}/contrib/iPhone${PLATFORM}-${ARCH}'"
-
-# The contrib will read the following
-export AR="xcrun ar"
-
-export RANLIB="xcrun ranlib"
-export CC="xcrun clang"
-export OBJC="xcrun clang"
-export CXX="xcrun clang++"
-export LD="xcrun ld"
-export STRIP="xcrun strip"
-
-export PLATFORM=$PLATFORM
-export SDK_VERSION=$SDK_VERSION
-
-if [ "$PLATFORM" = "OS" ]; then
-export CFLAGS="-isysroot ${SDKROOT} -arch ${ARCH} -miphoneos-version-min=${SDK_MIN} ${OPTIM}"
-if [ "$ARCH" != "arm64" ]; then
-export CFLAGS="${CFLAGS} -mcpu=cortex-a8"
-fi
+if [ $build_library = "all" ]; then
+    # TODO: more libraries need to be added here
+    declare -a build_library=("png" "zlib" "lua" "luajit" "websockets" "curl" "box2d" "chipmunk" "freetype2" "jpeg" "protobuf" "tiff" "webp")
 else
-export CFLAGS="-isysroot ${SDKROOT} -arch ${ARCH} -miphoneos-version-min=${SDK_MIN} ${OPTIM}"
+    build_library=(${build_library//,/ })
 fi
 
-export CPP="xcrun cc -E"
-export CXXCPP="xcrun c++ -E"
+#check invalid arch type
+function check_invalid_arch_type()
+{
+    for arch in "${build_arches[@]}"
+    do
+        echo "checking ${arch} is in ${all_arches[@]}"
+        if [ $(contains "${all_arches[@]}" $arch) == "n" ]; then
+            echo "Invalid arch! Only ${all_arches[@]} is acceptable."
+            exit 1
+        fi
+    done
+}
 
-export BUILDFORIOS="yes"
+check_invalid_arch_type
 
-if [ "$PLATFORM" = "Simulator" ]; then
-    # Use the new ABI on simulator, else we can't build
-    export OBJCFLAGS="-fobjc-abi-version=2 -fobjc-legacy-dispatch ${OBJCFLAGS}"
+#check invalid library name
+function check_invalid_library_name()
+{
+    for lib in "${build_library[@]}"
+    do
+        echo "checking ${lib} is in ${all_libraries[@]}"
+        if [ $(contains "${all_libraries[@]}" $lib) == "n" ]; then
+            echo "Invalid library names! Only ${all_libraries[@]} is acceptable!"
+            exit 1
+        fi
+    done
+}
+
+check_invalid_library_name
+
+#check invalid build mode, only debug and release is acceptable
+if [ $build_mode != "release" ] && [ $build_mode != "debug" ]; then
+    echo "invalid build mode, only: debug and release is acceptabl"
+    usage
+    exit
 fi
 
-export LDFLAGS="-L${SDKROOT}/usr/lib -arch ${ARCH} -isysroot ${SDKROOT} -miphoneos-version-min=${SDK_MIN}"
 
-if [ "$PLATFORM" = "OS" ]; then
-    EXTRA_CFLAGS="-arch ${ARCH}"
-if [ "$ARCH" != "arm64" ]; then
-    EXTRA_CFLAGS+=" -mcpu=cortex-a8"
-fi
-    EXTRA_LDFLAGS="-arch ${ARCH}"
-else
-    EXTRA_CFLAGS="-arch ${ARCH}"
-    EXTRA_LDFLAGS="-arch ${ARCH}"
-fi
 
-EXTRA_CFLAGS+=" -miphoneos-version-min=${SDK_MIN}"
-EXTRA_LDFLAGS+=" -miphoneos-version-min=${SDK_MIN}"
+function create_fat_library()
+{
+    library_name=$1
+    #strip & create fat library
+    LIPO="xcrun -sdk iphoneos lipo"
+    STRIP="xcrun -sdk iphoneos strip"
 
-info "LD FLAGS SELECTED = '${LDFLAGS}'"
-
-spushd ${COCOSROOT}
-
-echo ${COCOSROOT}
-mkdir -p "${COCOSROOT}/contrib/iPhone${PLATFORM}-${ARCH}"
-spushd "${COCOSROOT}/contrib/iPhone${PLATFORM}-${ARCH}"
-
-## FIXME: do we need to replace Apple's gas?
-if [ "$PLATFORM" = "OS" ]; then
-    export AS="gas-preprocessor.pl ${CC}"
-    export ASCPP="gas-preprocessor.pl ${CC}"
-    export CCAS="gas-preprocessor.pl ${CC}"
-    if [ "$ARCH" = "arm64" ]; then
-        export GASPP_FIX_XCODE5=1
+    if [ -f $library_name/prebuilt/lib$library_name.a ]; then
+        echo "removing old fat library..."
+        rm $library_name/prebuilt/lib$library_name.a
     fi
-else
-    export ASCPP="xcrun as"
-fi
+
+    all_static_libs=$(find $library_name/prebuilt -type f -name "lib$library_name-*.a")
+
+    echo "create fat library lib$library_name for $all_static_libs"
+    $LIPO -create  $all_static_libs \
+          -output $library_name/prebuilt/lib$library_name.a
+
+    rm $all_static_libs
+
+    # remove debugging info
+    $STRIP -S $library_name/prebuilt/lib$library_name.a
+    $LIPO -info $library_name/prebuilt/lib$library_name.a
+}
 
 
+# build all the libraries for different arches
+for lib in "${build_library[@]}"
+do
+    library_name=$lib
+    archive_name=$lib
+    current_dir=`pwd`
+    top_dir=$current_dir/../..
 
-../bootstrap ${OPTIONS} \
-        --build=x86_64-apple-darwin14 \
-        --host=${TARGET} \
-        --prefix=${PREFIX} > ${out}
+    build_script_name="build_ios.sh"
+    if [ $lib = "luajit" ]; then
+        build_script_name="build_ios_without_export.sh"
+    fi
 
-echo "EXTRA_CFLAGS += ${EXTRA_CFLAGS}" >> config.mak
-echo "EXTRA_LDFLAGS += ${EXTRA_LDFLAGS}" >> config.mak
-echo "IOS_ARCH := ${ARCH}" >> config.mak
-make fetch
-make list
-make
-spopd
+    if [ $lib = "zlib" ]; then
+        archive_name=z
+    fi
+
+    mkdir -p $archive_name/prebuilt/
+    mkdir -p $archive_name/include/
+
+    for arch in "${build_arches[@]}"
+    do
+        #skip certain arch libraries
+        if [ $lib = "luajit" ] && [ $arch = "arm64" ]; then
+            continue
+        fi
+
+        if [ $lib = "luajit" ] && [ $arch = "x86_64" ]; then
+            continue
+        fi
+
+        is_simulator=""
+        install_library_path="install-ios-OS"
+        build_library_path="iPhoneOS"
+        if [ $arch = "i386" ] || [ $arch = "x86_64" ];then
+            is_simulator="-s"
+            install_library_path="install-ios-Simulator"
+            build_library_path="iPhoneSimulator"
+        fi
+
+        echo "build $arch for $lib"
+        $top_dir/contrib/$build_script_name $is_simulator -a $arch -l $library_name -m $build_mode
+
+        cp $top_dir/contrib/$install_library_path/$arch/lib/lib$archive_name.a $archive_name/prebuilt/lib$archive_name-$arch.a
+        # FIXME: some archive names have some postfix in it.
+        cp $top_dir/contrib/$install_library_path/$arch/lib/lib$archive_name*.a $archive_name/prebuilt/lib$archive_name-$arch.a
+
+
+        if [ $lib = "curl" ]; then
+            mkdir -p ssl/prebuilt/
+            cp $top_dir/contrib/$install_library_path/$arch/lib/libssl.a ssl/prebuilt/libssl-$arch.a
+
+            mkdir -p crypto/prebuilt/
+            cp $top_dir/contrib/$install_library_path/$arch/lib/libcrypto.a crypto/prebuilt/libcrypto-$arch.a
+
+            echo "copying libz..."
+            mkdir -p z/prebuilt/
+            cp $top_dir/contrib/$install_library_path/$arch/lib/libz.a z/prebuilt/libz-$arch.a
+        fi
+
+        if [ $lib = "png" ]; then
+            echo "copying libz..."
+            mkdir -p z/prebuilt/
+            cp $top_dir/contrib/$install_library_path/$arch/lib/libz.a z/prebuilt/libz-$arch.a
+        fi
+
+        echo "Copying needed heder files"
+        if [ $lib = "png" ]; then
+            cp  $top_dir/contrib/$install_library_path/$arch/include/png*.h  $library_name/include/
+        fi
+
+        if [ $lib = "luajit" ]; then
+            cp -r $top_dir/contrib/$install_library_path/$arch/include/luajit-2.0/  $library_name/include/
+        fi
+
+        if [ $lib = "curl" ]; then
+            cp -r $top_dir/contrib/$install_library_path/$arch/include/curl/  $library_name/include/
+        fi
+
+        # TODO: add more header files decides here
+
+        echo "cleaning up"
+        rm -rf $top_dir/contrib/$install_library_path
+        rm -rf $top_dir/contrib/$build_library_path-$arch
+    done
+
+    create_fat_library $archive_name
+
+    if [ $lib = "curl" ]; then
+        create_fat_library ssl
+        create_fat_library crypto
+        create_fat_library z
+    fi
+
+    if [ $lib = "png" ]; then
+        create_fat_library z
+    fi
+
+done
