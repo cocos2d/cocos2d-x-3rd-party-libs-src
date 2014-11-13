@@ -284,8 +284,9 @@ do
         # TODO: add more header files decides here
 
         echo "cleaning up"
-        # rm -rf $top_dir/contrib/$install_library_path
-        # rm -rf $top_dir/contrib/$build_library_path-$arch
+        # FIXME: uncomment it for debug purpose
+        rm -rf $top_dir/contrib/$install_library_path
+        rm -rf $top_dir/contrib/$build_library_path-$arch
     done
 
     create_fat_library $archive_name
