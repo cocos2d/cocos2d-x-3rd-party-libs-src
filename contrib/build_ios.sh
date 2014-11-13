@@ -219,6 +219,7 @@ echo "EXTRA_CFLAGS = ${EXTRA_CFLAGS}" >> config.mak
 echo "EXTRA_LDFLAGS = ${EXTRA_LDFLAGS}" >> config.mak
 echo "IOS_ARCH := ${ARCH}" >> config.mak
 echo "BUILD_MODE := ${BUILD_MODE}" >> config.mak
+echo "OPTIM := ${OPTIM}" >> config.mak
 
 make fetch
 make list

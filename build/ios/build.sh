@@ -88,7 +88,7 @@ function contains() {
 }
 
 all_arches=("armv7" "arm64" "i386" "x86_64" "armv7s")
-all_libraries=("png" "zlib" "lua" "luajit" "websockets" "curl" "box2d" "chipmunk" "freetype2" "jpeg" "protobuf" "tiff" "webp")
+all_libraries=("png" "zlib" "lua" "luajit" "websockets" "curl" "freetype2" "jpeg"  "tiff" "webp")
 
 # TODO: we only build a fat library with armv7, arm64, i386 and x86_64 arch. If you want to build armv7s into the fat lib, please add it into the following array.
 if [ $build_arches = "all" ]; then
@@ -99,7 +99,7 @@ fi
 
 if [ $build_library = "all" ]; then
     # TODO: more libraries need to be added here
-    declare -a build_library=("png" "zlib" "lua" "luajit" "websockets" "curl" "box2d" "chipmunk" "freetype2" "jpeg" "protobuf" "tiff" "webp")
+    declare -a build_library=("png" "zlib" "lua" "luajit" "websockets" "curl" "freetype2" "jpeg" "tiff" "webp")
 else
     build_library=(${build_library//,/ })
 fi
@@ -163,8 +163,8 @@ function create_fat_library()
 
     rm $all_static_libs
 
-    # remove debugging info
-    $STRIP -S $library_name/prebuilt/lib$library_name.a
+    # remove debugging info don't strip
+    # $STRIP -S $library_name/prebuilt/lib$library_name.a
     $LIPO -info $library_name/prebuilt/lib$library_name.a
 }
 
@@ -184,6 +184,10 @@ do
 
     if [ $lib = "zlib" ]; then
         archive_name=z
+    fi
+
+    if [ $lib = "freetype2" ]; then
+        archive_name=freetype
     fi
 
     mkdir -p $archive_name/prebuilt/
@@ -229,7 +233,7 @@ do
             cp $top_dir/contrib/$install_library_path/$arch/lib/libz.a z/prebuilt/libz-$arch.a
         fi
 
-        if [ $lib = "png" ]; then
+        if [ $lib = "png" ] || [ $lib = "freetype2" ];  then
             echo "copying libz..."
             mkdir -p z/prebuilt/
             cp $top_dir/contrib/$install_library_path/$arch/lib/libz.a z/prebuilt/libz-$arch.a
@@ -237,22 +241,26 @@ do
 
         echo "Copying needed heder files"
         if [ $lib = "png" ]; then
-            cp  $top_dir/contrib/$install_library_path/$arch/include/png*.h  $library_name/include/
+            cp  $top_dir/contrib/$install_library_path/$arch/include/png*.h  $archive_name/include/
         fi
 
         if [ $lib = "luajit" ]; then
-            cp -r $top_dir/contrib/$install_library_path/$arch/include/luajit-2.0/  $library_name/include/
+            cp -r $top_dir/contrib/$install_library_path/$arch/include/luajit-2.0/  $archive_name/include/
         fi
 
         if [ $lib = "curl" ]; then
-            cp -r $top_dir/contrib/$install_library_path/$arch/include/curl/  $library_name/include/
+            cp -r $top_dir/contrib/$install_library_path/$arch/include/curl/  $archive_name/include/
+        fi
+
+        if [ $lib = "freetype2" ]; then
+            cp -r $top_dir/contrib/$install_library_path/$arch/include/freetype2  $archive_name/include
         fi
 
         # TODO: add more header files decides here
 
         echo "cleaning up"
-        rm -rf $top_dir/contrib/$install_library_path
-        rm -rf $top_dir/contrib/$build_library_path-$arch
+        # rm -rf $top_dir/contrib/$install_library_path
+        # rm -rf $top_dir/contrib/$build_library_path-$arch
     done
 
     create_fat_library $archive_name
@@ -260,10 +268,9 @@ do
     if [ $lib = "curl" ]; then
         create_fat_library ssl
         create_fat_library crypto
-        create_fat_library z
     fi
 
-    if [ $lib = "png" ]; then
+    if [ $lib = "png" ] || [ $lib = "curl" ] || [ $lib = "freetype2" ]; then
         create_fat_library z
     fi
 

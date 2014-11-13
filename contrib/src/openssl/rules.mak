@@ -50,15 +50,10 @@ endif
 	cd $< && $(HOSTVARS)  ./Configure $(OPENSSL_CONFIG_VARS)  --prefix=$(PREFIX) $(OPENSSL_COMPILER)
 ifdef HAVE_IOS
 	cd $< && perl -i -pe "s|^CC= xcrun clang|CC= xcrun cc -arch ${IOS_ARCH} -miphoneos-version-min=6.0 |g" Makefile
-ifeq ($(BUILD_MODE),release)
-	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= -isysroot ${IOS_SDK} -O3 -DNDEBUG |g" Makefile
-endif
-ifeq ($(BUILD_MODE),debug)
-	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= -isysroot ${IOS_SDK} -O0 -g -DNDEBUG |g" Makefile
-endif
+	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= -isysroot ${IOS_SDK} ${OPTIM} |g" Makefile
 endif
 ifdef HAVE_ANDROID
-	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= ${ANDROID_ARCH} -O3 |g" Makefile
+	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= ${ANDROID_ARCH} ${OPTIM} |g" Makefile
 endif
 	cd $< && $(MAKE) install
 	touch $@
