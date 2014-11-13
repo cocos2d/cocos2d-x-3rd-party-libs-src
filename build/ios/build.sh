@@ -234,7 +234,7 @@ do
             cp $top_dir/contrib/$install_library_path/$arch/lib/libz.a z/prebuilt/libz-$arch.a
         fi
 
-        if [ $lib = "png" ] || [ $lib = "freetype2" ];  then
+        if [ $lib = "png" ] || [ $lib = "freetype2" ] || [ $lib = "websockets" ];  then
             echo "copying libz..."
             mkdir -p z/prebuilt/
             cp $top_dir/contrib/$install_library_path/$arch/lib/libz.a z/prebuilt/libz-$arch.a
@@ -265,6 +265,22 @@ do
             cp -r $top_dir/contrib/$install_library_path/$arch/include/j*.h  $archive_name/include/
         fi
 
+        if [ $lib = "tiff" ]; then
+            cp -r $top_dir/contrib/$install_library_path/$arch/include/tif*.h  $archive_name/include/
+        fi
+
+        if [ $lib = "webp" ]; then
+            cp -r $top_dir/contrib/$install_library_path/$arch/include/webp/  $archive_name/include/
+        fi
+
+        if [ $lib = "websockets" ]; then
+            cp -r $top_dir/contrib/$install_library_path/$arch/include/libwebsockets.h  $archive_name/include/
+        fi
+
+        if [ $lib = "zlib" ]; then
+            cp -r $top_dir/contrib/$install_library_path/$arch/include/z*.h  $archive_name/include/
+        fi
+
         # TODO: add more header files decides here
 
         echo "cleaning up"
@@ -279,7 +295,7 @@ do
         create_fat_library crypto
     fi
 
-    if [ $lib = "png" ] || [ $lib = "curl" ] || [ $lib = "freetype2" ]; then
+    if [ $lib = "png" ] || [ $lib = "curl" ] || [ $lib = "freetype2" ] || [ $lib = "websockets" ]; then
         create_fat_library z
     fi
 
