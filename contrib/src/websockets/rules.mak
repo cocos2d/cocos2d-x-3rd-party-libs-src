@@ -27,6 +27,6 @@ endif
 DEPS_websockets = zlib $(DEPS_zlib)
 
 .websockets: websockets .zlib toolchain.cmake
-	cd $< && $(HOSTVARS) CFLAGS="$(CFLAGS) $(EX_ECFLAGS)" $(CMAKE) -DCMAKE_BUILD_TYPE=Release -DLWS_WITH_SSL=0 -DLWS_WITHOUT_TEST_PING=1
+	cd $< && $(HOSTVARS) CFLAGS="$(CFLAGS) $(EX_ECFLAGS)" $(CMAKE) -DLWS_WITH_SSL=0 -DLWS_WITHOUT_TEST_PING=1
 	cd $< && $(MAKE) VERBOSE=1 install
 	touch $@

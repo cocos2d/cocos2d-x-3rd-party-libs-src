@@ -174,19 +174,6 @@ fi
 export LDFLAGS="-L${SDKROOT}/usr/lib -arch ${ARCH} -isysroot ${SDKROOT} -miphoneos-version-min=${SDK_MIN}"
 
 EXTRA_CFLAGS=""
-# if [ "$PLATFORM" = "OS" ]; then
-#     EXTRA_CFLAGS="-arch ${ARCH}"
-# if [ "$ARCH" != "arm64" ]; then
-#     EXTRA_CFLAGS+=" -mcpu=cortex-a8"
-# fi
-#     EXTRA_LDFLAGS="-arch ${ARCH}"
-# else
-#     EXTRA_CFLAGS="-arch ${ARCH}"
-#     EXTRA_LDFLAGS="-arch ${ARCH}"
-# fi
-
-# EXTRA_CFLAGS+=" -miphoneos-version-min=${SDK_MIN}"
-# EXTRA_LDFLAGS+=" -miphoneos-version-min=${SDK_MIN}"
 
 info "LD FLAGS SELECTED = '${LDFLAGS}'"
 
@@ -219,6 +206,7 @@ echo "EXTRA_CFLAGS = ${EXTRA_CFLAGS}" >> config.mak
 echo "EXTRA_LDFLAGS = ${EXTRA_LDFLAGS}" >> config.mak
 echo "IOS_ARCH := ${ARCH}" >> config.mak
 echo "BUILD_MODE := ${BUILD_MODE}" >> config.mak
+echo "OPTIM := ${OPTIM}" >> config.mak
 
 make fetch
 make list

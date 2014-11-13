@@ -18,7 +18,7 @@ DEPS_curl = zlib $(DEPS_zlib)
 DEPS_curl = openssl $(DEPS_openssl)
 
 .curl: curl .zlib .openssl
-	cd $< && $(HOSTVARS) ./configure $(HOSTCONF) \
+	cd $< && $(HOSTVARS_PIC) ./configure $(HOSTCONF) \
 		--with-ssl \
 		--with-zlib \
 	cd $< && $(MAKE)

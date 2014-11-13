@@ -17,12 +17,12 @@ endif
 
 #FIXME: arm64 is not supported
 ifeq ($(IOS_ARCH),armv7)
-LUAJIT_TARGET_FLAGS="-arch armv7 -isysroot $(IOS_SDK)"
+LUAJIT_TARGET_FLAGS="-arch armv7 -isysroot $(IOS_SDK) $(OPTIM)"
 LUAJIT_HOST_CC="gcc -m32 -arch i386"
 endif
 
 ifeq ($(IOS_ARCH),armv7s)
-LUAJIT_TARGET_FLAGS="-arch armv7s -isysroot $(IOS_SDK)"
+LUAJIT_TARGET_FLAGS="-arch armv7s -isysroot $(IOS_SDK) $(OPTIM)"
 LUAJIT_HOST_CC="gcc -m32 -arch i386"
 endif
 
@@ -36,7 +36,7 @@ endif
 
 .luajit: luajit
 ifdef HAVE_ANDROID
-	cd $< && $(MAKE) HOST_CC="gcc -m32" CROSS=$(HOST)- TARGET_SYS=Linux TARGET_FLAGS="${ANDROID_ARCH} ${NDKF}" TARGET_LDFLAGS=$(LUAJIT_LDFLAGS)
+	cd $< && $(MAKE) HOST_CC="gcc -m32 $(OPTIM)" CROSS=$(HOST)- TARGET_SYS=Linux TARGET_FLAGS="${ANDROID_ARCH} ${NDKF}" TARGET_LDFLAGS=$(LUAJIT_LDFLAGS)
 endif
 ifdef HAVE_MACOSX
 	cd $< && $(MAKE) HOST_CC="$(CC)" HOST_CFLAGS="$(CFLAGS)"
@@ -49,7 +49,7 @@ ifeq ($(IOS_ARCH),armv7s)
 	cd $< && make HOST_CC=$(LUAJIT_HOST_CC) TARGET_FLAGS=$(LUAJIT_TARGET_FLAGS) TARGET=arm TARGET_SYS=iOS
 endif
 ifeq ($(IOS_ARCH),i386)
-	cd $< && make CC="gcc -m32 -arch i386"
+	cd $< && make CC="gcc -m32 -arch i386 $(OPTIM)"
 endif
 endif
 	cd $< && make install PREFIX=$(PREFIX)
