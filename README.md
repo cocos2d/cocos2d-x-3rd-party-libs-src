@@ -74,18 +74,21 @@ All of them share the same usage:
     - use `all` to build all the 3rd party libraries, it will take you a very long time.
     - use comma separated library names, for example, `png,lua,jpeg/webp`,  no space between the comma.
 
+- param2:
+    - use `all` to build all the supported arches. For iOS, they are "armv7, arm64, i386, x86_64", for Android, they are "armeabi, armeabi-v7a, x86, arm64", for Mac, they are "x86_64", for Tizen, they are "armv7"
+    - use comma separated arch name, for example, `armv7, arm64`, no space between the comma.
+
+- param3:
+    - release:  Build library on release mode. This is the default option. We use `-O3 -DNDEBUG` flags to build release library.
+    - debug:  Build library on debug mode. we use `-O0 -g -DDEBUG` flag to build debug library.
 
 ### For iOS Platform
-
-
-For building libpng fat library:
+For building libpng fat library with all arch x86_64, i386, armv7, arm64 on release mode:
 
 ```cpp
 cd build/ios
 ./build.sh --libs=png
 ```
-
-This command will build a fat library with arch i386, x86_64, armv7 and arm64 on release mode.
 
 After running this command, it will generate a folder named `png`:
 
@@ -98,6 +101,13 @@ The folder structure would be:
 ```
 
 All the other libraries share the same folder structure.
+
+For building libpng fat library with arch armv7 and arm64 on debug mode:
+
+```cpp
+cd build/ios
+./build.sh --libs=png --arch=armv7,arm64 --mode=debug
+```
 
 ### For Android Platform
 xxx document will be update later.
