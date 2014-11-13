@@ -204,6 +204,7 @@ do
             continue
         fi
 
+
         is_simulator=""
         install_library_path="install-ios-OS"
         build_library_path="iPhoneOS"
@@ -248,12 +249,20 @@ do
             cp -r $top_dir/contrib/$install_library_path/$arch/include/luajit-2.0/  $archive_name/include/
         fi
 
+        if [ $lib = "lua" ]; then
+            cp -r $top_dir/contrib/$install_library_path/$arch/include/l*.h*  $archive_name/include/
+        fi
+
         if [ $lib = "curl" ]; then
             cp -r $top_dir/contrib/$install_library_path/$arch/include/curl/  $archive_name/include/
         fi
 
         if [ $lib = "freetype2" ]; then
             cp -r $top_dir/contrib/$install_library_path/$arch/include/freetype2  $archive_name/include
+        fi
+
+        if [ $lib = "jpeg" ]; then
+            cp -r $top_dir/contrib/$install_library_path/$arch/include/j*.h  $archive_name/include/
         fi
 
         # TODO: add more header files decides here

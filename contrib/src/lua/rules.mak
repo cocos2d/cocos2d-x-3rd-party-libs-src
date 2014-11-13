@@ -51,14 +51,12 @@ lua: lua-$(LUA_VERSION).tar.gz .sum-lua
 ifdef HAVE_DARWIN_OS
 	(cd $(UNPACK_DIR) && \
 	sed -e 's%gcc%$(CC)%' \
-		-e 's%LDFLAGS=%LDFLAGS=$(EXTRA_CFLAGS) $(EXTRA_LDFLAGS)%' \
+		-e 's%LDFLAGS=%LDFLAGS=$(LDFLAGS)%' \
+		-e 's%CFLAGS= -O2 -Wall $(MYCFLAGS)%CFLAGS=$(MYCFLAGS)%' \
+		-e 's%MYCFLAGS=%MYCFLAGS=$(CFLAGS)%' \
 		-i.orig src/Makefile)
 endif
-ifdef HAVE_SOLARIS
-	(cd $(UNPACK_DIR) && \
-	sed -e 's%LIBS="-ldl"$$%LIBS="-ldl" MYLDFLAGS="$(EXTRA_LDFLAGS)"%' \
-		-i.orig src/Makefile)
-endif
+
 ifdef HAVE_WIN32
 	cd $(UNPACK_DIR) && sed -i.orig -e 's/lua luac/lua.exe luac.exe/' Makefile
 endif
@@ -70,7 +68,7 @@ endif
 	$(MOVE)
 
 .lua: lua
-	cd $< && $(HOSTVARS_PIC) $(MAKE) $(LUA_TARGET)
+	cd $< && $(HOSTVARS_PIC) $(MAKE) VERBOS=1 $(LUA_TARGET)
 ifdef HAVE_WIN32
 	cd $</src && $(HOSTVARS) $(MAKE) liblua.a
 endif
