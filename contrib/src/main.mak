@@ -106,13 +106,13 @@ AR=xcrun ar
 LD=xcrun ld
 STRIP=xcrun strip
 RANLIB=xcrun ranlib
-# EXTRA_CFLAGS += -isysroot $(MACOSX_SDK) -mmacosx-version-min=$(MIN_OSX_VERSION) -DMACOSX_DEPLOYMENT_TARGET=$(MIN_OSX_VERSION)
-# EXTRA_LDFLAGS += -Wl,-syslibroot,$(MACOSX_SDK) -mmacosx-version-min=$(MIN_OSX_VERSION) -isysroot $(MACOSX_SDK) -DMACOSX_DEPLOYMENT_TARGET=$(MIN_OSX_VERSION)
+EXTRA_CFLAGS += -isysroot $(MACOSX_SDK) -mmacosx-version-min=$(MIN_OSX_VERSION) -DMACOSX_DEPLOYMENT_TARGET=$(MIN_OSX_VERSION)
+EXTRA_LDFLAGS += -Wl,-syslibroot,$(MACOSX_SDK) -mmacosx-version-min=$(MIN_OSX_VERSION) -isysroot $(MACOSX_SDK) -DMACOSX_DEPLOYMENT_TARGET=$(MIN_OSX_VERSION)
 ifeq ($(ARCH),x86_64)
-EXTRA_CFLAGS += -m64
+EXTRA_CFLAGS += -m64 $(OPTIM)
 EXTRA_LDFLAGS += -m64
 else
-EXTRA_CFLAGS += -m32
+EXTRA_CFLAGS += -m32 $(OPTIM)
 EXTRA_LDFLAGS += -m32
 endif
 
@@ -141,8 +141,6 @@ AR=xcrun ar
 LD=xcrun ld
 STRIP=xcrun strip
 RANLIB=xcrun ranlib
-# EXTRA_CFLAGS += $(CFLAGS)
-# EXTRA_LDFLAGS += $(LDFLAGS)
 endif
 
 ifdef HAVE_WIN32
@@ -151,21 +149,21 @@ HAVE_MINGW_W64 := 1
 endif
 endif
 
-ifdef HAVE_SOLARIS
-ifeq ($(ARCH),x86_64)
-EXTRA_CFLAGS += -m64
-EXTRA_LDFLAGS += -m64
-else
-EXTRA_CFLAGS += -m32
-EXTRA_LDFLAGS += -m32
-endif
-endif
+# ifdef HAVE_SOLARIS
+# ifeq ($(ARCH),x86_64)
+# EXTRA_CFLAGS += -m64
+# EXTRA_LDFLAGS += -m64
+# else
+# EXTRA_CFLAGS += -m32
+# EXTRA_LDFLAGS += -m32
+# endif
+# endif
 
 cppcheck = $(shell $(CC) $(CFLAGS) -E -dM - < /dev/null | grep -E $(1))
 
 EXTRA_CFLAGS += -I$(PREFIX)/include
-CPPFLAGS := $(CPPFLAGS) $(CFLAGS)
 CFLAGS := $(CFLAGS) $(EXTRA_CFLAGS)
+CPPFLAGS := $(CPPFLAGS) $(CFLAGS)
 CXXFLAGS := $(CXXFLAGS) $(CFLAGS)
 EXTRA_LDFLAGS += -L$(PREFIX)/lib
 LDFLAGS := $(LDFLAGS) $(EXTRA_LDFLAGS)
