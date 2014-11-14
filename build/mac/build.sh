@@ -291,6 +291,10 @@ do
             cp -r $top_dir/contrib/$install_library_path/$arch/include/z*.h  $archive_name/include/
         fi
 
+        if [ $lib = "glfw" ];then
+            cp -r $top_dir/contrib/$install_library_path/$arch/include/GLFW  $archive_name/include
+        fi
+
         # TODO: add more header files decides here
 
         echo "cleaning up"
