@@ -53,7 +53,7 @@ In order to run these scripts, you should install [msys2](http://msys2.github.io
 
 After that, you should also install the following dependencies:
 
-```cpp
+```
 pacman -S gcc
 pacman -S make
 pacman -S autoconf
@@ -69,12 +69,12 @@ We have one build script for each platform, they are under `build/platform{ios/m
 All of them share the same usage:
 
 ```
-./build.sh --libs=param1 --arch=param2 --mode=param3
+./build.sh --libs=param1 --arch=param2 --mode=param3 --list
 ```
 
 - param1:
     - use `all` to build all the 3rd party libraries, it will take you a very long time.
-    - use comma separated library names, for example, `png,lua,jpeg/webp`,  no space between the comma.
+    - use comma separated library names, for example, `png,lua,jpeg,webp`,  no space between the comma.
 
 - param2:
     - use `all` to build all the supported arches. For iOS, they are "armv7, arm64, i386, x86_64", for Android, they are "armeabi, armeabi-v7a, x86, arm64", for Mac, they are "x86_64", for Tizen, they are "armv7"
@@ -84,10 +84,13 @@ All of them share the same usage:
     - release:  Build library on release mode. This is the default option. We use `-O3 -DNDEBUG` flags to build release library.
     - debug:  Build library on debug mode. we use `-O0 -g -DDEBUG` flag to build debug library.
 
+- list:
+    - Use these option to list all the supported libraries.
+
 ### For iOS Platform
 For building libpng fat library with all arch x86_64, i386, armv7, arm64 on release mode:
 
-```cpp
+```
 cd build/ios
 ./build.sh --libs=png
 ```
