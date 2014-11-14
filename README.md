@@ -3,9 +3,12 @@ cocos2d-x 3rd party libs
 
 This repository includes the source code of the 3rd party libraries (binary) that are bundled with cocos2d-x.
 
-This repository is needed for cocos2d-x developers and/or people who want to port cocos2d-x to other platforms.
+This repository is needed for cocos2d-x developers and/or people who want to:
 
-As an example, if you want to support cocos2d-x in ARM64, you need to compile all these libraries for ARM64.
+* generate a updated version of a certain library (eg: upgrade libpng 1.2.2 to 1.2.14)
+* port cocos2d-x to other platforms (eg: port it to Android ARM64, or Xbox One, etc)
+* generate DEBUG versions of all the 3rd party library
+
 
 **Note:**
 
@@ -15,21 +18,19 @@ As an example, if you want to support cocos2d-x in ARM64, you need to compile al
 
 - We use Ubuntu to build all the static libraries for Linux.
 
-- Other platforms is not tested which means if you use Windows or Linux to build static libraries for Android, it might be failed.
-
+Other configuration were not tested. Compiling the Android binaries from a Linux
+or Windows machine were not tested, so we don't know if it works or not.
 
 ## Download
 
     $ git clone https://github.com/cocos2d/cocos2d-x-3rd-party-libs-src.git
-    $ cd cocos2d-x-dependencies
-    $ git submodule update --init
 
 ## Prerequisite
 ### For Mac users
 - If you want to use these scripts, you should install Git 1.8+, CMake 2.8+ and M4 1.4+.
 If you are a Homebrew user, you could simply run the following commands to install these tools:
 
-```cpp
+```
 brew update
 brew install git
 brew install cmake
@@ -104,7 +105,7 @@ All the other libraries share the same folder structure.
 
 For building libpng fat library with arch armv7 and arm64 on debug mode:
 
-```cpp
+```
 cd build/ios
 ./build.sh --libs=png --arch=armv7,arm64 --mode=debug
 ```
