@@ -35,6 +35,7 @@ brew update
 brew install git
 brew install cmake
 brew install m4
+brew install autoconf
 ```
 
 - If you want to build static libraries for iOS and Mac, you should install the latest version of XCode.  You should also install the `Command Line Tools` bundled with XCode.
