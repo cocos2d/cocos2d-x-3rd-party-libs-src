@@ -47,7 +47,7 @@ lua: lua-$(LUA_VERSION).tar.gz .sum-lua
 	$(APPLY) $(SRC)/lua/no-dylibs.patch
 	$(APPLY) $(SRC)/lua/luac-32bits.patch
 	$(APPLY) $(SRC)/lua/no-localeconv.patch
-	$(APPLY) $(SRC)/lua/lua-ios-support.patch
+	$(APPLY) $(SRC)/lua/lua-macosx-support.patch
 ifdef HAVE_DARWIN_OS
 	(cd $(UNPACK_DIR) && \
 	sed -e 's%gcc%$(CC)%' \
