@@ -39,7 +39,7 @@ ifdef HAVE_ANDROID
 	cd $< && $(MAKE) HOST_CC="gcc -m32 $(OPTIM)" CROSS=$(HOST)- TARGET_SYS=Linux TARGET_FLAGS="${ANDROID_ARCH} ${NDKF}" TARGET_LDFLAGS=$(LUAJIT_LDFLAGS)
 endif
 ifdef HAVE_MACOSX
-	cd $< && $(MAKE) HOST_CC="$(CC)" HOST_CFLAGS="$(CFLAGS)"
+	cd $< && $(HOSTVARS_PIC) $(MAKE) HOST_CC="$(CC)" HOST_CFLAGS="$(CFLAGS)"
 endif
 ifdef HAVE_IOS
 ifeq ($(IOS_ARCH),armv7)
