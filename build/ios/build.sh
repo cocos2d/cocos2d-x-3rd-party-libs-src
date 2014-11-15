@@ -11,17 +11,36 @@ build_library="all"
 function usage()
 {
     echo "You should follow the instructions here to build static library for iOS"
-    echo "If you want to build a fat, you should pass 'all' to --arch parameter."
-    echo ""
-    echo "Sample:"
-    echo "./bulid.sh --arch=armv7,arm64 --mode=debug"
-    echo "You must seperate each arch with comma, otherwise it won't parse correctly. No whitespace is allowed between two arch types."
     echo ""
     echo "./build_png.sh"
-    echo "\t-h --help"
-    echo "\t--libs=[all | png,lua,tiff,jpeg,webp,zlib,websockets,luajit,freetype2,curl,chipmunk,box2d]"
-    echo "\t--arch=[all | armv7,arm64,i386,x86_64]"
-    echo "\t--mode=[release | debug]"
+    echo "\t[-h --help]  "
+    echo "\t--libs=[all | png,lua,tiff,jpeg,webp,zlib etc]"
+    echo "\t[--arch | -a]=[all | armv7,arm64,i386,x86_64 etc]"
+    echo "\t[--mode | -m]=[release | debug]"
+    echo "\t[--list | -l]"
+    echo ""
+    echo "Sample:"
+    echo "\t./bulid.sh --libs=png --arch=armv7,arm64 --mode=debug"
+    echo ""
+}
+
+function list_all_supported_libraries()
+{
+
+    # TODO: we need to update the supported libraries and version when we upgrade libraries
+    echo "Supported libraries and versions:"
+    echo "\t"
+    echo "\tcurl 7.26.0"
+    echo "\tfreetype 2.5.3"
+    echo "\tjpeg 9.0"
+    echo "\tlua 1.5.4"
+    echo "\tluajit 2.0.1"
+    echo "\topenssl 1.0.1.j"
+    echo "\tlibpng 1.6.2"
+    echo "\ttiff 4.0.3"
+    echo "\twebp 0.4.2"
+    echo "\twebsockets 1.3"
+    echo "\tzlib 1.2.8"
     echo ""
 }
 
@@ -30,18 +49,22 @@ while [ "$1" != "" ]; do
     PARAM=`echo $1 | awk -F= '{print $1}'`
     VALUE=`echo $1 | awk -F= '{print $2}'`
     case $PARAM in
-        -h | --help)
+        --help | -h)
             usage
             exit
             ;;
         --libs)
             build_library=$VALUE
             ;;
-        --arch)
+        --arch | -a)
             build_arches=$VALUE
             ;;
-        --mode)
+        --mode | -m)
             build_mode=$VALUE
+            ;;
+        --list | -l)
+            list_all_supported_libraries
+            exit
             ;;
         *)
             echo "ERROR: unknown parameter \"$PARAM\""

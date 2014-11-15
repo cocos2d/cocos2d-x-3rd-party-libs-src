@@ -10,8 +10,14 @@ OPENSSL_URL := https://www.openssl.org/source/openssl-$(OPENSSL_VERSION).tar.gz
 # PKGS_FOUND += openssl
 # endif
 
-ifeq ($(shell uname),Darwin)
-OPENSSL_CONFIG_VARS=darwin64-x86_64-cc
+ifeq ($(MAC_ARCH),x86_64)
+OPENSSL_CONFIG_VARS="darwin64-x86_64-cc"
+OPENSSL_ARCH=-m64
+endif
+
+ifeq ($(MAC_ARCH),i386)
+OPENSSL_CONFIG_VARS="BSD-generic32"
+OPENSSL_ARCH=-m32
 endif
 
 ifdef HAVE_TIZEN
@@ -47,13 +53,17 @@ endif
 	$(MOVE)
 
 .openssl: openssl
-	cd $< && $(HOSTVARS)  ./Configure $(OPENSSL_CONFIG_VARS)  --prefix=$(PREFIX) $(OPENSSL_COMPILER)
+	cd $< && $(HOSTVARS)  ./Configure $(OPENSSL_CONFIG_VARS)  --prefix=$(PREFIX) $(OPENSSL_COMPILER) ${OPENSSL_ARCH}
 ifdef HAVE_IOS
 	cd $< && perl -i -pe "s|^CC= xcrun clang|CC= xcrun cc -arch ${IOS_ARCH} -miphoneos-version-min=6.0 |g" Makefile
 	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= -isysroot ${IOS_SDK} ${OPTIM} |g" Makefile
 endif
 ifdef HAVE_ANDROID
 	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= ${ANDROID_ARCH} ${OPTIM} |g" Makefile
+endif
+ifdef HAVE_MACOSX
+	cd $< && perl -i -pe "s|^CC= xcrun clang|CC= xcrun cc  -mmacosx-version-min=10.6 |g" Makefile
+	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= -isysroot ${MACOSX_SDK} -arch ${MAC_ARCH} ${OPTIM} |g" Makefile
 endif
 	cd $< && $(MAKE) install
 	touch $@
