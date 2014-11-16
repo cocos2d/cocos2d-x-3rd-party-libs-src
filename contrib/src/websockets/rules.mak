@@ -19,6 +19,10 @@ ifdef HAVE_TIZEN
 EX_ECFLAGS = -fPIC
 endif
 
+ifdef HAVE_LINUX
+EX_ECFLAGS = -fPIC
+endif
+
 #FIXME: we need to pass __ANDROID__ to cflags
 # ifdef HAVE_ANDROID
 # EX_ECFLAGS = -D__ANDROID__
