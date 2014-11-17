@@ -7,7 +7,13 @@
 build_arches="all"
 build_mode="release"
 build_library="all"
+source `pwd`/config.ini
+echo $config_flag
+echo $hehe
+another=my_${hehe}
+echo $another
 
+exit
 function usage()
 {
     echo "You should follow the instructions here to build static library for iOS"
