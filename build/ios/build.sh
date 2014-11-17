@@ -201,8 +201,9 @@ do
     top_dir=$current_dir/../..
 
     build_script_name="build_ios.sh"
+    is_export_cflags=yes
     if [ $lib = "luajit" ]; then
-        build_script_name="build_ios_without_export.sh"
+        is_export_cflags=no
     fi
 
     if [ $lib = "zlib" ]; then
@@ -238,7 +239,7 @@ do
         fi
 
         echo "build $arch for $lib"
-        $top_dir/contrib/$build_script_name $is_simulator -a $arch -l $library_name -m $build_mode
+        $top_dir/contrib/$build_script_name $is_simulator -a $arch -l $library_name -m $build_mode -e $is_export_cflags
 
         cp $top_dir/contrib/$install_library_path/$arch/lib/lib$archive_name.a $archive_name/prebuilt/lib$archive_name-$arch.a
         # FIXME: some archive names have some postfix in it.

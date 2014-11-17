@@ -12,12 +12,12 @@ BUILD_MODE=release
 
 # TODO: configure to compile speficy 3rd party libraries
 OPTIONS=""
-
+IS_EXPORT_CFLAGS=yes
 
 usage()
 {
 cat << EOF
-usage: $0 [-s] [-k sdk] [-a arch] [-l libname] [-m biuld mode]
+usage: $0 [-s] [-k sdk] [-a arch] [-l libname] [-m biuld mode] [-e export]
 
 OPTIONS
    -k <sdk version>      Specify which sdk to use ('xcodebuild -showsdks', current: ${SDK_VERSION})
@@ -25,6 +25,7 @@ OPTIONS
    -a <arch>     Specify which arch to use (current: ${ARCH})
    -l <libname>  Specify which static library to build
    -m <build mode> Specify release or debug mode(current: ${BUILD_MODE})
+   -e <export>  Specify whether to export cflags or not
 EOF
 }
 
@@ -46,7 +47,7 @@ info()
 }
 
 
-while getopts "hvsk:a:l:m:" OPTION
+while getopts "hvsk:a:l:m:e:" OPTION
 do
      case $OPTION in
          h)
@@ -69,6 +70,9 @@ do
              OPTIONS=--enable-$OPTARG
              ;;
          m)  BUILD_MODE=$OPTARG
+             ;;
+         e)
+             IS_EXPORT_CFLAGS=$OPTARG
              ;;
          ?)
              usage
@@ -140,17 +144,14 @@ export PATH="/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/usr/X11/bin"
 info "Building contrib for iOS in '${COCOSROOT}/contrib/iPhone${PLATFORM}-${ARCH}'"
 
 # The contrib will read the following
+if [ $IS_EXPORT_CFLAGS = "yes" ]; then
 export AR="xcrun ar"
-
 export RANLIB="xcrun ranlib"
 export CC="xcrun clang"
 export OBJC="xcrun clang"
 export CXX="xcrun clang++"
 export LD="xcrun ld"
 export STRIP="xcrun strip"
-
-export PLATFORM=$PLATFORM
-export SDK_VERSION=$SDK_VERSION
 
 if [ "$PLATFORM" = "OS" ]; then
 export CFLAGS="-isysroot ${SDKROOT} -arch ${ARCH} -miphoneos-version-min=${SDK_MIN} ${OPTIM}"
@@ -164,8 +165,6 @@ fi
 export CPP="xcrun cc -E"
 export CXXCPP="xcrun c++ -E"
 
-export BUILDFORIOS="yes"
-
 if [ "$PLATFORM" = "Simulator" ]; then
     # Use the new ABI on simulator, else we can't build
     export OBJCFLAGS="-fobjc-abi-version=2 -fobjc-legacy-dispatch ${OBJCFLAGS}"
@@ -176,6 +175,13 @@ export LDFLAGS="-L${SDKROOT}/usr/lib -arch ${ARCH} -isysroot ${SDKROOT} -miphone
 EXTRA_CFLAGS=""
 
 info "LD FLAGS SELECTED = '${LDFLAGS}'"
+fi
+
+export PLATFORM=$PLATFORM
+export SDK_VERSION=$SDK_VERSION
+
+
+export BUILDFORIOS="yes"
 
 spushd ${COCOSROOT}
 

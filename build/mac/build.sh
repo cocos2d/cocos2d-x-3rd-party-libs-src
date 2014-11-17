@@ -13,7 +13,7 @@ function usage()
     echo "You should follow the instructions here to build static library for Mac"
     echo ""
     echo "./build_png.sh"
-    echo "\t[-h --help]  "
+    echo "\t[--help -h]  "
     echo "\t--libs=[all | png,lua,tiff,jpeg,webp,zlib etc]"
     echo "\t[--arch | -a]=[all | i386,x86_64 etc]"
     echo "\t[--mode | -m]=[release | debug]"

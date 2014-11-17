@@ -123,7 +123,7 @@ echo "MAC_ARCH := ${ARCH}" >> config.mak
 #
 # make
 #
-# FIXME: Can't use parallax make,
+# FIXME: Can't use parallel make,
 # core_count=`sysctl -n machdep.cpu.core_count`
 # let jobs=$core_count+1
 # info "Running make -j$jobs"
