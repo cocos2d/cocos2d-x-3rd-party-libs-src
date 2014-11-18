@@ -13,8 +13,7 @@ info()
 # source ~/.bash_profile
 ANDROID_ABI="armeabi-v7a"
 ANDROID_API=19
-ANDROID_GCC_VERSION=4.8
-ANDROID_ARCH=arm
+ANDROID_GCC_VERSION=4.9
 BUILD_MODE=release
 
 # TODO: configure to compile specify 3rd party libraries
@@ -87,8 +86,8 @@ then
     exit 1
 fi
 
-if [ "${ANDROID_ABI}" != "x86" ] && [ "${ANDROID_ABI}" != "armeabi-v7a" ] && [ "${ANDROID_ABI}" != "armeabi" ]; then
-    echo "You must specify the right Android Arch within {armeabi, armeabi-v7a, x86}"
+if [ "${ANDROID_ABI}" != "x86" ] && [ "${ANDROID_ABI}" != "armeabi-v7a" ] && [ "${ANDROID_ABI}" != "armeabi" ] && [ "${ANDROID_ABI}" != "arm64" ]; then
+    echo "You must specify the right Android Arch within {armeabi, armeabi-v7a, x86, arm64}"
     exit 1
 fi
 
@@ -103,10 +102,12 @@ fi
 # FIXME: we need a way to determine the toolchina address automatically
 toolchain_bin=
 
-if [ "${ANDROID_ABI}" = "x86" ]; then
+if [ ${ANDROID_ABI} = "x86" ]; then
     TARGET="i686-linux-android"
     toolchain_bin=${ANDROID_NDK}/toolchains/x86-${ANDROID_GCC_VERSION}/prebuilt/darwin-x86_64/bin
-    ANDROID_ARCH=x86
+elif [ ${ANDROID_ABI} = "arm64" ];then
+    TARGET="aarch64-linux-android"
+    toolchain_bin=${ANDROID_NDK}/toolchains/${TARGET}-${ANDROID_GCC_VERSION}/prebuilt/darwin-x86_64/bin
 else
     TARGET="arm-linux-androideabi"
     toolchain_bin=${ANDROID_NDK}/toolchains/${TARGET}-${ANDROID_GCC_VERSION}/prebuilt/darwin-x86_64/bin
@@ -159,16 +160,16 @@ else
 
 #don't export cflags
 if [ "$ANDROID_ABI" = "armeabi-v7a" ]; then
-LDFLAGS="-march=armv7-a -Wl,--fix-cortex-a8"
+    LDFLAGS="-march=armv7-a -Wl,--fix-cortex-a8"
 fi
 info "LD FLAGS SELECTED = '${LDFLAGS}'"
 
 if [ "$ANDROID_ABI" = "armeabi-v7a" ]; then
-CFLAGS="-march=armv7-a -mfloat-abi=softfp -mfpu=vfpv3-d16 -mthumb $OPTIM -fomit-frame-pointer -fno-strict-aliasing -DANDROID  -Wa,--noexecstack -Wformat -Werror=format-security  "
+    CFLAGS="-march=armv7-a -mfloat-abi=softfp -mfpu=vfpv3-d16 -mthumb $OPTIM -fomit-frame-pointer -fno-strict-aliasing -DANDROID  -Wa,--noexecstack -Wformat -Werror=format-security  "
 elif [ "$ANDROID_ABI" = "armeabi" ]; then
-CFLAGS="-ffunction-sections -funwind-tables -fstack-protector -no-canonical-prefixes  -march=armv5te -mtune=xscale -msoft-float -mthumb $OPTIM -fomit-frame-pointer -fno-strict-aliasing -DANDROID  -Wa,--noexecstack -Wformat -Werror=format-security"
+    CFLAGS="-ffunction-sections -funwind-tables -fstack-protector -no-canonical-prefixes  -march=armv5te -mtune=xscale -msoft-float -mthumb $OPTIM -fomit-frame-pointer -fno-strict-aliasing -DANDROID  -Wa,--noexecstack -Wformat -Werror=format-security"
 else
-CFLAGS="-ffunction-sections -funwind-tables -fstack-protector -fPIC -no-canonical-prefixes $OPTIM -fomit-frame-pointer -fstrict-aliasing -DANDROID  -Wa,--noexecstack -Wformat -Werror=format-security"
+    CFLAGS="-ffunction-sections -funwind-tables -fstack-protector -fPIC -no-canonical-prefixes $OPTIM -fomit-frame-pointer -fstrict-aliasing -DANDROID  -Wa,--noexecstack -Wformat -Werror=format-security"
 fi
 
 info "CFLAGS is ${CFLAGS}"

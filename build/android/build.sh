@@ -89,6 +89,16 @@ while [ "$1" != "" ]; do
     shift
 done
 
+function check_jq_library()
+{
+    if [[ $(which jq | grep "not found") ]];then
+        echo "You should install jq at first."
+        exit 1
+    fi
+}
+
+check_jq_library
+
 if test -z "$build_arches"
 then
     echo "You must speficy a valid arch option"
@@ -183,7 +193,7 @@ check_invalid_library_name
 
 #check invalid build mode, only debug and release is acceptable
 if [ $build_mode != "release" ] && [ $build_mode != "debug" ]; then
-    echo "invalid build mode, only: debug and release is acceptabl"
+    echo "invalid build mode, only: debug and release is allowed!"
     usage
     exit
 fi
@@ -238,17 +248,12 @@ do
         archive_name=freetype
     fi
 
-    mkdir -p $archive_name/prebuilt/
     mkdir -p $archive_name/include/
 
     for arch in "${build_arches[@]}"
     do
         #skip certain arch libraries
         if [ $lib = "luajit" ] && [ $arch = "arm64" ]; then
-            continue
-        fi
-
-        if [ $lib = "luajit" ] && [ $arch = "x86_64" ]; then
             continue
         fi
 
@@ -259,76 +264,45 @@ do
         echo "build $arch for $lib"
         if [ $cfg_platform_name = "Android" ];then
             $top_dir/contrib/$build_script_name  -a $arch -l $library_name -m $build_mode -e $is_export_cflags -k $build_api -n $build_gcc_version
+        else
+            $top_dir/contrib/$build_script_name  -a $arch -l $library_name -m $build_mode -e $is_export_cflags
         fi
 
-        cp $top_dir/contrib/$install_library_path/$arch/lib/lib$archive_name.a $archive_name/prebuilt/lib$archive_name-$arch.a
-        # FIXME: some archive names have some postfix in it.
-        cp $top_dir/contrib/$install_library_path/$arch/lib/lib$archive_name*.a $archive_name/prebuilt/lib$archive_name-$arch.a
+  
+        local_library_install_path=$archive_name/prebuilt/$arch
+        if [ ! -d $local_library_install_path ]; then
+            echo "create folder for library with specify arch."
+            mkdir -p $local_library_install_path
+        fi
+        
+        cp $top_dir/contrib/$install_library_path/$arch/lib/lib$archive_name.a $local_library_install_path/lib$archive_name.a
+        cp $top_dir/contrib/$install_library_path/$arch/lib/lib$archive_name*.a $local_library_install_path/lib$archive_name.a
 
 
         if [ $lib = "curl" ]; then
-            mkdir -p ssl/prebuilt/
-            cp $top_dir/contrib/$install_library_path/$arch/lib/libssl.a ssl/prebuilt/libssl-$arch.a
+            local_library_install_path=ssl/prebuilt/$arch 
+            mkdir -p $local_library_install_path
+            cp $top_dir/contrib/$install_library_path/$arch/lib/libssl.a $local_library_install_path/libssl.a
 
-            mkdir -p crypto/prebuilt/
-            cp $top_dir/contrib/$install_library_path/$arch/lib/libcrypto.a crypto/prebuilt/libcrypto-$arch.a
+            local_library_install_path=crypto/prebuilt/$arch
+            mkdir -p $local_install_path
+            cp $top_dir/contrib/$install_library_path/$arch/lib/libcrypto.a $local_library_install_path/libcrypto.a
 
-            echo "copying libz..."
-            mkdir -p z/prebuilt/
-            cp $top_dir/contrib/$install_library_path/$arch/lib/libz.a z/prebuilt/libz-$arch.a
         fi
 
-        if [ $lib = "png" ] || [ $lib = "freetype2" ] || [ $lib = "websockets" ];  then
+        if [ $lib = "png" ] || [ $lib = "freetype2" ] || [ $lib = "websockets" ] || [ $lib = "curl" ];  then
             echo "copying libz..."
-            mkdir -p z/prebuilt/
-            cp $top_dir/contrib/$install_library_path/$arch/lib/libz.a z/prebuilt/libz-$arch.a
+            local_install_path=z/prebuilt/$arch
+            mkdir -p $local_install_path
+            cp $top_dir/contrib/$install_library_path/$arch/lib/libz.a $local_install_path/libz.a
         fi
 
         echo "Copying needed heder files"
-        if [ $lib = "png" ]; then
-            cp  $top_dir/contrib/$install_library_path/$arch/include/png*.h  $archive_name/include/
-        fi
+        copy_include_file_path=$(cat libraries.json | jq ".include_file_rules.${lib}" | sed 's/\"//g')
+        cp  $top_dir/contrib/$install_library_path/$arch/include/$copy_include_file_path $archive_name/include/
 
-        if [ $lib = "luajit" ]; then
-            cp -r $top_dir/contrib/$install_library_path/$arch/include/luajit-2.0/  $archive_name/include/
-        fi
-
-        if [ $lib = "lua" ]; then
-            cp -r $top_dir/contrib/$install_library_path/$arch/include/l*.h*  $archive_name/include/
-        fi
-
-        if [ $lib = "curl" ]; then
-            cp -r $top_dir/contrib/$install_library_path/$arch/include/curl/  $archive_name/include/
-        fi
-
-        if [ $lib = "freetype2" ]; then
-            cp -r $top_dir/contrib/$install_library_path/$arch/include/freetype2  $archive_name/include
-        fi
-
-        if [ $lib = "jpeg" ]; then
-            cp -r $top_dir/contrib/$install_library_path/$arch/include/j*.h  $archive_name/include/
-        fi
-
-        if [ $lib = "tiff" ]; then
-            cp -r $top_dir/contrib/$install_library_path/$arch/include/tif*.h  $archive_name/include/
-        fi
-
-        if [ $lib = "webp" ]; then
-            cp -r $top_dir/contrib/$install_library_path/$arch/include/webp/  $archive_name/include/
-        fi
-
-        if [ $lib = "websockets" ]; then
-            cp -r $top_dir/contrib/$install_library_path/$arch/include/libwebsockets.h  $archive_name/include/
-        fi
-
-        if [ $lib = "zlib" ]; then
-            cp -r $top_dir/contrib/$install_library_path/$arch/include/z*.h  $archive_name/include/
-        fi
-
-        # TODO: add more header files decides here
 
         echo "cleaning up"
-        # FIXME: uncomment it for debug purpose
         # rm -rf $top_dir/contrib/$install_library_path
         # rm -rf $top_dir/contrib/$build_library_path-$arch
     done
