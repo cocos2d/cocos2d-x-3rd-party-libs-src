@@ -12,7 +12,7 @@ info()
 # TODO: You must set your ANDROID_NDK path in .bash_profile
 # source ~/.bash_profile
 ANDROID_ABI="armeabi-v7a"
-ANDROID_API=19
+ANDROID_API=21
 ANDROID_GCC_VERSION=4.9
 BUILD_MODE=release
 
@@ -117,6 +117,14 @@ fi
 if [ ! -d ${ANDROID_NDK}/toolchains/x86-${ANDROID_GCC_VERSION} ] && [ ! -d ${ANDROID_NDK}/toolchains/${TARGET}-${ANDROID_GCC_VERSION} ] ;then
     echo "Invalid GCC version!"
     exit
+fi
+
+# check whether sysroot is exists
+if [ $ANDROID_ABI = "arm64" ]; then
+    if [ ! -d ${ANDROID_NDK}/platforms/${ANDROID_API}/arch-arm64 ];then
+        echo "${ANDROID_API} doesn't support build arm64 architecture!"
+        exit 1
+    fi
 fi
 
 shift $(($OPTIND - 1))

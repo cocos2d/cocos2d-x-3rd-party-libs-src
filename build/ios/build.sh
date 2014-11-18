@@ -7,13 +7,7 @@
 build_arches="all"
 build_mode="release"
 build_library="all"
-source `pwd`/config.ini
-echo $config_flag
-echo $hehe
-another=my_${hehe}
-echo $another
 
-exit
 function usage()
 {
     echo "You should follow the instructions here to build static library for iOS"
@@ -315,8 +309,8 @@ do
 
         echo "cleaning up"
         # FIXME: uncomment it for debug purpose
-        rm -rf $top_dir/contrib/$install_library_path
-        rm -rf $top_dir/contrib/$build_library_path-$arch
+        # rm -rf $top_dir/contrib/$install_library_path
+        # rm -rf $top_dir/contrib/$build_library_path-$arch
     done
 
     create_fat_library $archive_name

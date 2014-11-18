@@ -1,6 +1,6 @@
 #!/bin/sh
 
-source `pwd`/config.ini
+source `pwd`/android.ini
 #
 # A script to build static library for Android
 #
