@@ -1,6 +1,7 @@
 #!/bin/sh
 
 source `pwd`/android.ini
+source `pwd`/main.ini
 #
 # A script to build static library for Android
 #
@@ -97,7 +98,7 @@ function check_jq_library()
     fi
 }
 
-check_jq_library
+# check_jq_library
 
 if test -z "$build_arches"
 then
@@ -191,13 +192,17 @@ function check_invalid_library_name()
 
 check_invalid_library_name
 
-#check invalid build mode, only debug and release is acceptable
-if [ $build_mode != "release" ] && [ $build_mode != "debug" ]; then
-    echo "invalid build mode, only: debug and release is allowed!"
-    usage
-    exit
-fi
 
+#check invalid build mode, only debug and release is acceptable
+function check_invalid_build_mode() {
+    if [ $(contains ${cfg_valid_build_mode[@]} $1) == "n" ];then
+        echo "invalid build mode, only: ${cfg_valid_build_mode[@]} is allowed!"
+        usage
+        exit 1
+    fi
+}
+
+check_invalid_build_mode $build_mode
 
 
 function create_fat_library()
@@ -239,6 +244,9 @@ do
     if [ $lib = "luajit" ]; then
         is_export_cflags=no
     fi
+
+    parser_lib_archive_alias=${lib}_archive_alias
+    archive_name=${!parser_lib_archive_alias}
 
     if [ $lib = "zlib" ]; then
         archive_name=z
@@ -298,8 +306,8 @@ do
         fi
 
         echo "Copying needed heder files"
-        copy_include_file_path=$(cat libraries.json | jq ".include_file_rules.${lib}" | sed 's/\"//g')
-        cp  $top_dir/contrib/$install_library_path/$arch/include/$copy_include_file_path $archive_name/include/
+        copy_include_file_path=${lib}_header_files
+        # cp  -r $top_dir/contrib/$install_library_path/$arch/include/${!copy_include_file_path} $archive_name/include/
 
 
         echo "cleaning up"

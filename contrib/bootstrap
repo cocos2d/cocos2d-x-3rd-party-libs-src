@@ -204,11 +204,6 @@ check_tizen_sdk()
 }
 
 test -z "$PREFIX" || add_make "PREFIX := $PREFIX"
-# test -z "$BUILD_DISCS" || add_make_enabled "BUILD_DISCS"
-# test -z "$BUILD_ENCODERS" || add_make_enabled "BUILD_ENCODERS"
-# test -z "$BUILD_NETWORK" || add_make_enabled "BUILD_NETWORK"
-# test -z "$ENABLE_SMALL" || add_make_enabled "ENABLE_SMALL"
-# test -z "$GPL" || add_make_enabled "GPL"
 
 #
 # Checks

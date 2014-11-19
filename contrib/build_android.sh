@@ -148,23 +148,6 @@ export ANDROID_API
 
 export PATH="${toolchain_bin}:${script_root}/extras/tools/bin:$PATH"
 
-if [ $IS_EXPORT_CFLAGS = "yes" ];then
-
-if [ "$ANDROID_ABI" = "armeabi-v7a" ]; then
-export LDFLAGS="-march=armv7-a -Wl,--fix-cortex-a8"
-fi
-info "LD FLAGS SELECTED = '${LDFLAGS}'"
-
-if [ "$ANDROID_ABI" = "armeabi-v7a" ]; then
-    export CFLAGS="-march=armv7-a -mfloat-abi=softfp -mfpu=vfpv3-d16 -mthumb $OPTIM -fomit-frame-pointer -fno-strict-aliasing -DANDROID  -Wa,--noexecstack -Wformat -Werror=format-security  "
-elif [ "$ANDROID_ABI" = "armeabi" ]; then
-    export CFLAGS="-ffunction-sections -funwind-tables -fstack-protector -no-canonical-prefixes  -march=armv5te -mtune=xscale -msoft-float -mthumb $OPTIM -fomit-frame-pointer -fno-strict-aliasing -DANDROID  -Wa,--noexecstack -Wformat -Werror=format-security"
-else
-    export CFLAGS="-ffunction-sections -funwind-tables -fstack-protector -fPIC -no-canonical-prefixes $OPTIM -fomit-frame-pointer -fstrict-aliasing -DANDROID  -Wa,--noexecstack -Wformat -Werror=format-security"
-fi
-
-info "CFLAGS is ${CFLAGS}"
-else
 
 #don't export cflags
 if [ "$ANDROID_ABI" = "armeabi-v7a" ]; then
@@ -181,8 +164,12 @@ else
 fi
 
 info "CFLAGS is ${CFLAGS}"
-fi
 
+
+if [ $IS_EXPORT_CFLAGS = "yes" ];then
+export CFLAGS
+export LDFLAGS
+fi
 
 #
 # build 3rd party libraries
