@@ -245,8 +245,8 @@ do
         is_export_cflags=no
     fi
 
-    parser_lib_archive_alias=${lib}_archive_alias
-    archive_name=${!parser_lib_archive_alias}
+    # parser_lib_archive_alias=${lib}_archive_alias
+    # archive_name=${!parser_lib_archive_alias}
 
     if [ $lib = "zlib" ]; then
         archive_name=z
@@ -307,7 +307,7 @@ do
 
         echo "Copying needed heder files"
         copy_include_file_path=${lib}_header_files
-        # cp  -r $top_dir/contrib/$install_library_path/$arch/include/${!copy_include_file_path} $archive_name/include/
+        cp  -r $top_dir/contrib/$install_library_path/$arch/include/${!copy_include_file_path} $archive_name/include
 
 
         echo "cleaning up"
