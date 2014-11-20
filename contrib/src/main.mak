@@ -108,6 +108,7 @@ STRIP=xcrun strip
 RANLIB=xcrun ranlib
 EXTRA_CFLAGS += -isysroot $(MACOSX_SDK) -mmacosx-version-min=$(MIN_OSX_VERSION) -DMACOSX_DEPLOYMENT_TARGET=$(MIN_OSX_VERSION)
 EXTRA_LDFLAGS += -Wl,-syslibroot,$(MACOSX_SDK) -mmacosx-version-min=$(MIN_OSX_VERSION) -isysroot $(MACOSX_SDK) -DMACOSX_DEPLOYMENT_TARGET=$(MIN_OSX_VERSION)
+
 ifeq ($(ARCH),x86_64)
 EXTRA_CFLAGS += -m64 $(OPTIM)
 EXTRA_LDFLAGS += -m64
@@ -124,7 +125,7 @@ else
 XCODE_FLAGS += -arch $(ARCH)
 endif
 
-endif
+endif #end of MacOSX
 
 CCAS=$(CC) -c
 
@@ -163,8 +164,8 @@ cppcheck = $(shell $(CC) $(CFLAGS) -E -dM - < /dev/null | grep -E $(1))
 
 EXTRA_CFLAGS += -I$(PREFIX)/include
 CFLAGS := $(CFLAGS) $(EXTRA_CFLAGS)
-CPPFLAGS := $(CPPFLAGS) $(CFLAGS)
-CXXFLAGS := $(CXXFLAGS) $(CFLAGS)
+CPPFLAGS := $(CPPFLAGS) $(EXTRA_CFLAGS)
+CXXFLAGS := $(CXXFLAGS) $(EXTRA_CFLAGS)
 EXTRA_LDFLAGS += -L$(PREFIX)/lib
 LDFLAGS := $(LDFLAGS) $(EXTRA_LDFLAGS)
 # Do not export those! Use HOSTVARS.

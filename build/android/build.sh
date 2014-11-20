@@ -36,21 +36,20 @@ fi
 function list_all_supported_libraries()
 {
 
-    # TODO: we need to update the supported libraries and version when we upgrade libraries
     echo "Supported libraries and versions:"
     echo "\t"
-    echo "\tcurl 7.26.0"
-    echo "\tfreetype 2.5.3"
-    echo "\tjpeg 9.0"
-    echo "\tlua 1.5.4"
-    echo "\tluajit 2.0.1"
-    echo "\topenssl 1.0.1.j"
-    echo "\tlibpng 1.6.2"
-    echo "\ttiff 4.0.3"
-    echo "\twebp 0.4.2"
-    echo "\twebsockets 1.3"
-    echo "\tzlib 1.2.8"
-    echo ""
+    # echo "\tcurl 7.26.0"
+    # echo "\tfreetype 2.5.3"
+    # echo "\tjpeg 9.0"
+    # echo "\tlua 1.5.4"
+    # echo "\tluajit 2.0.1"
+    # echo "\topenssl 1.0.1.j"
+    # echo "\tlibpng 1.6.2"
+    # echo "\ttiff 4.0.3"
+    # echo "\twebp 0.4.2"
+    # echo "\twebsockets 1.3"
+    # echo "\tzlib 1.2.8"
+    # echo ""
 }
 
 

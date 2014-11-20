@@ -246,7 +246,7 @@ case "${OS}" in
 			;;
 		esac
 		;;
-        *gnu*)
+        *gnueabi*)
             echo "check Tizen SDK"
             check_tizen_sdk
             add_make_enabled "HAVE_TIZEN"

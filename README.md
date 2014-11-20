@@ -36,6 +36,7 @@ brew install git
 brew install cmake
 brew install m4
 brew install autoconf
+brew install libtool
 ```
 
 - If you want to build static libraries for iOS and Mac, you should install the latest version of XCode.  You should also install the `Command Line Tools` bundled with XCode.
@@ -54,13 +55,8 @@ In order to run these scripts, you should install [msys2](http://msys2.github.io
 After that, you should also install the following dependencies:
 
 ```
-pacman -S gcc
-pacman -S make
-pacman -S autoconf
-pacman -S automake
-pacman -S git
-pacman -S cmake
-pacman -S libtool
+pacman -S mingw-w64-i686-toolchain
+
 ```
 
 ## How to use
