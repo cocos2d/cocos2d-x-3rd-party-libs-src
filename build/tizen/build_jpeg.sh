@@ -11,5 +11,5 @@ cp $top_dir/contrib/arm-linux-gnueabi-armv7a/lib/lib${library_name}.a $library_n
 cp $top_dir/contrib/arm-linux-gnueabi-armv7a/include/*.h  $library_name/include/
 
 echo "cleaning up"
-rm -rf $top_dir/contrib/arm-linux-gnueabi-armv7a/
-rm -rf $top_dir/contrib/tizen-armv7-a
+# rm -rf $top_dir/contrib/arm-linux-gnueabi-armv7a/
+# rm -rf $top_dir/contrib/tizen-armv7-a

@@ -13,7 +13,7 @@ TOPDST ?= ..
 SRC := $(TOPSRC)/src
 TARBALLS := $(TOPSRC)/tarballs
 
-PATH :=$(abspath ../../extras/tools/bin):$(PATH)
+PATH := $(abspath ../../extras/tools/bin):$(PATH)
 export PATH
 
 PKGS_ALL := $(patsubst $(SRC)/%/rules.mak,%,$(wildcard $(SRC)/*/rules.mak))
@@ -127,7 +127,11 @@ endif
 
 endif #end of MacOSX
 
+#32bit / 64bit for Linux
+ifndef HAVE_CROSS_COMPILE
+
 ifdef HAVE_LINUX
+
 ifeq ($(ARCH),x86_64)
 EXTRA_CFLAGS += -m64 $(OPTIM)
 EXTRA_LDFLAGS += -m64
@@ -135,7 +139,9 @@ else
 EXTRA_CFLAGS += -m32 $(OPTIM)
 EXTRA_LDFLAGS += -m32
 endif
-endif
+
+endif  #end of HAVE_LINUX
+endif #end of HAVE_CROSS_COMPILE
 
 CCAS=$(CC) -c
 
@@ -164,9 +170,9 @@ endif
 cppcheck = $(shell $(CC) $(CFLAGS) -E -dM - < /dev/null | grep -E $(1))
 
 EXTRA_CFLAGS += -I$(PREFIX)/include
-CFLAGS := $(CFLAGS) $(EXTRA_CFLAGS)
-CPPFLAGS := $(CPPFLAGS) $(EXTRA_CFLAGS)
-CXXFLAGS := $(CXXFLAGS) $(EXTRA_CFLAGS)
+CFLAGS := $(CFLAGS) $(EXTRA_CFLAGS) $(OPTIM)
+CPPFLAGS := $(CPPFLAGS) $(EXTRA_CFLAGS) $(OPTIM)
+CXXFLAGS := $(CXXFLAGS) $(EXTRA_CFLAGS) $(OPTIM)
 EXTRA_LDFLAGS += -L$(PREFIX)/lib
 LDFLAGS := $(LDFLAGS) $(EXTRA_LDFLAGS)
 # Do not export those! Use HOSTVARS.

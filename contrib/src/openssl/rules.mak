@@ -2,13 +2,6 @@
 OPENSSL_VERSION := 1.0.1j
 OPENSSL_URL := https://www.openssl.org/source/openssl-$(OPENSSL_VERSION).tar.gz
 
-#FIXME: we don't want to use scripts to determine which libraries should be
-#       included, because there is bug in cross compile
-
-# PKGS += openssl
-# ifeq ($(call need_pkg,"openssl"),)
-# PKGS_FOUND += openssl
-# endif
 
 ifeq ($(MAC_ARCH),x86_64)
 OPENSSL_CONFIG_VARS="darwin64-x86_64-cc"
@@ -59,7 +52,7 @@ ifdef HAVE_IOS
 	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= -isysroot ${IOS_SDK} ${OPTIM} |g" Makefile
 endif
 ifdef HAVE_ANDROID
-	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= ${ANDROID_ARCH} ${OPTIM} |g" Makefile
+	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= ${EXTRA_CFLAGS} ${OPTIM} |g" Makefile
 endif
 ifdef HAVE_MACOSX
 	cd $< && perl -i -pe "s|^CC= xcrun clang|CC= xcrun cc  -mmacosx-version-min=10.6 |g" Makefile

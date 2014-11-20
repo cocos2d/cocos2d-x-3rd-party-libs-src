@@ -27,14 +27,13 @@ or Windows machine were not tested, so we don't know if it works or not.
 
 ## Prerequisite
 ### For Mac users
-- If you want to use these scripts, you should install Git 1.8+, CMake 2.8+ and M4 1.4+.
+- If you want to use these scripts, you should install Git 1.8+, CMake 2.8+, autoconf and libtool.
 If you are a Homebrew user, you could simply run the following commands to install these tools:
 
 ```
 brew update
 brew install git
 brew install cmake
-brew install m4
 brew install autoconf
 brew install libtool
 ```
@@ -46,8 +45,15 @@ brew install libtool
 
 - If you want to build static libraries for Tizen, you should download and install [Tizen SDK](https://developer.tizen.org/downloads/tizen-sdk). And you should also add a environment variable named `TIZEN_SDK` in your shell.
 
-### For Linux users
-xxx need to improve the document here later.
+### For Linux(Ubuntu) users
+- If you want to use these scripts, you should instll *autoconf*:
+
+```
+sudo apt-get install autoconf
+sudo apt-get install cmake
+sudo apt-get install libtool
+sudo apt-get install git
+```
 
 ### For Windows users
 In order to run these scripts, you should install [msys2](http://msys2.github.io/) and update the system packages.

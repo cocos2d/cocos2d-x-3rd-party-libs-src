@@ -12,6 +12,9 @@ build_library=$cfg_default_build_libraries
 build_api=$cfg_default_build_api
 build_gcc_version=$cfg_default_gcc_version
 
+
+export ANDROID_NDK=$cfg_android_ndk_path
+
 function usage()
 {
     echo "You should follow the instructions here to build static library for $cfg_platform_name"
@@ -38,18 +41,12 @@ function list_all_supported_libraries()
 
     echo "Supported libraries and versions:"
     echo "\t"
-    # echo "\tcurl 7.26.0"
-    # echo "\tfreetype 2.5.3"
-    # echo "\tjpeg 9.0"
-    # echo "\tlua 1.5.4"
-    # echo "\tluajit 2.0.1"
-    # echo "\topenssl 1.0.1.j"
-    # echo "\tlibpng 1.6.2"
-    # echo "\ttiff 4.0.3"
-    # echo "\twebp 0.4.2"
-    # echo "\twebsockets 1.3"
-    # echo "\tzlib 1.2.8"
-    # echo ""
+
+    for lib in ${cfg_all_supported_libraries[@]}
+    do
+        all_supported_libraries=$(find  ../../contrib/src -type f | grep SHA512SUMS | xargs cat | awk 'match ($0, /.tgz|.tar.gz|.zip|.tar.xz/) { print substr($2,0,length($2)-RLENGTH)}' | grep $lib | awk '{print $1}')
+        echo $all_supported_libraries | awk '{ print $1}'
+    done
 }
 
 
@@ -230,6 +227,83 @@ function create_fat_library()
 }
 
 
+function set_build_mode_cflags()
+{
+    if [ $build_mode = "release" ]; then
+        OPTIM="-O3 -DNDEBUG"
+    fi
+
+    if [ $build_mode = "debug" ]; then
+        OPTIM="-O0 -g -DDEBUG"
+    fi
+
+    export OPTIM
+}
+
+function build_settings_for_Android() 
+{
+    arch=$1
+    echo "build_settings_for_Android... Android_ABI = $arch"
+    if [ ${arch} = "x86" ]; then
+        TARGET="i686-linux-android"
+        toolchain_bin=${ANDROID_NDK}/toolchains/x86-${build_gcc_version}/prebuilt/darwin-x86_64/bin
+    elif [ ${arch} = "arm64" ];then
+        TARGET="aarch64-linux-android"
+        toolchain_bin=${ANDROID_NDK}/toolchains/${TARGET}-${build_gcc_version}/prebuilt/darwin-x86_64/bin
+    else
+        TARGET="arm-linux-androideabi"
+        toolchain_bin=${ANDROID_NDK}/toolchains/${TARGET}-${build_gcc_version}/prebuilt/darwin-x86_64/bin
+    fi
+    
+    export PATH="${toolchain_bin}:$PATH"
+    
+    # check whether gcc version is exists
+    if [ ! -d ${ANDROID_NDK}/toolchains/x86-${build_gcc_version} ] && [ ! -d ${ANDROID_NDK}/toolchains/${TARGET}-${build_gcc_version} ] ;then
+        echo "Invalid GCC version!"
+        exit
+    fi
+
+    # check whether sysroot is exists
+    if [ $arch = "arm64" ]; then
+        if [ ! -d ${ANDROID_NDK}/platforms/android-${build_api}/arch-arm64 ];then
+            echo "${build_api} doesn't support build arm64 architecture!"
+            exit 1
+        fi
+    fi
+
+    echo "build target is ${TARGET}"
+    echo "build toolchain is $toolchain_bin"
+
+    #export ANDROID_ABI & ANDROID_API
+    ANDROID_ABI=$arch
+    ANDROID_API=android-$build_api
+    
+    script_root=`pwd`/../..
+
+    export ANDROID_ABI
+    export ANDROID_API
+
+    out="/dev/stdout"
+    # if [ "$QUIET" = "yes" ]; then
+    #     out="/dev/null"
+    # fi
+
+    #
+    # build 3rd party libraries
+    #
+    pushd "${script_root}/contrib"
+    mkdir -p "Android-${ANDROID_ABI}" && cd "Android-${ANDROID_ABI}"
+
+
+    #We let the scripts to guess the --build options
+    ../bootstrap --enable-$2 \
+                 --host=${TARGET} \
+                 --prefix=${script_root}/contrib/install-android/${ANDROID_ABI}> $out
+
+    echo "OPTIM := ${OPTIM}" >> config.mak
+    echo "TOOLCHAIN_BIN := ${toolchain_bin}" >> config.mak
+}
+
 # build all the libraries for different arches
 for lib in "${build_library[@]}"
 do
@@ -239,10 +313,6 @@ do
     top_dir=$current_dir/../..
 
     build_script_name=$cfg_build_script_name
-    is_export_cflags=yes
-    if [ $lib = "luajit" ]; then
-        is_export_cflags=no
-    fi
 
     # parser_lib_archive_alias=${lib}_archive_alias
     # archive_name=${!parser_lib_archive_alias}
@@ -264,21 +334,27 @@ do
             continue
         fi
 
+        #set build mode flags
+        set_build_mode_cflags
+        
 
         install_library_path=$cfg_library_install_prefix
         build_library_path=$cfg_library_build_folder
 
-        echo "build $arch for $lib"
+        echo "build $arch for $lib in $cfg_platform_name"
         if [ $cfg_platform_name = "Android" ];then
-            $top_dir/contrib/$build_script_name  -a $arch -l $library_name -m $build_mode -e $is_export_cflags -k $build_api -n $build_gcc_version
-        else
-            $top_dir/contrib/$build_script_name  -a $arch -l $library_name -m $build_mode -e $is_export_cflags
+            build_settings_for_Android $arch $lib
         fi
 
+        make fetch
+        make list
+        make
+        
+        popd
   
         local_library_install_path=$archive_name/prebuilt/$arch
         if [ ! -d $local_library_install_path ]; then
-            echo "create folder for library with specify arch."
+            echo "create folder for library with specify arch. $local_library_install_path"
             mkdir -p $local_library_install_path
         fi
         

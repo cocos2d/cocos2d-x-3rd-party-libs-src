@@ -190,11 +190,30 @@ check_android_sdk()
 	add_make "ANDROID_ABI := ${ANDROID_ABI}"
 	[ -z "${ANDROID_API}" ] && echo "You should set ANDROID_API environment variable (using default android-9)" && ANDROID_API := android-9
 	add_make "ANDROID_API := ${ANDROID_API}"
-	[ ${ANDROID_ABI} = "armeabi-v7a" ] && add_make_enabled "HAVE_NEON"
-	[ ${ANDROID_ABI} = "armeabi-v7a" ] && add_make_enabled "HAVE_ARMV7A"
-	[ ${ANDROID_ABI} = "arm64-v8a" ] && add_make_enabled "HAVE_NEON"
-	[ ${ANDROID_ABI} = "arm64-v8a" ] && add_make_enabled "HAVE_ARMV8A"
-	[ ${ANDROID_ABI} = "armeabi" -a -z "${NO_ARMV6}" ] && add_make_enabled "HAVE_ARMV6"
+
+	if [ ${ANDROID_ABI} = "armeabi-v7a" ]; then
+            add_make_enabled "HAVE_NEON"
+            add_make_enabled "HAVE_ARMV7A"
+            add_make "EXTRA_CFLAGS := -march=armv7-a -mfloat-abi=softfp -mfpu=vfpv3-d16 -mthumb -fomit-frame-pointer -fno-strict-aliasing -DANDROID  -Wa,--noexecstack -Wformat "
+            add_make "EXTRA_LDFLAGS := -march=armv7-a -Wl,--fix-cortex-a8"
+        fi
+        
+	if [ ${ANDROID_ABI} = "armeabi" -a -z "${NO_ARMV6}" ];then
+            add_make_enabled "HAVE_ARMV6"
+            add_make "EXTRA_CFLAGS := -ffunction-sections -funwind-tables -fstack-protector -no-canonical-prefixes  -march=armv5te -mtune=xscale -msoft-float -mthumb -fomit-frame-pointer -fno-strict-aliasing -DANDROID  -Wa,--noexecstack -Wformat "
+        fi
+
+	if [ ${ANDROID_ABI} = "arm64-v8a" ]; then
+            add_make_enabled "HAVE_NEON"
+            add_make_enabled "HAVE_ARMV8A"
+            add_make "EXTRA_CFLAGS :=  -fpic -ffunction-sections  -funwind-tables  -fstack-protector  -no-canonical-prefixes"
+            add_make "EXTRA_LDFLAGS := -no-canonical-prefixes"
+        fi
+
+        if [ ${ANDROID_ABI} = "x86" ];then
+            add_make_enabled "HAVE_x86"
+            add_make "EXTRA_CFLAGS := -ffunction-sections -funwind-tables -fstack-protector -no-canonical-prefixes  -fomit-frame-pointer -fstrict-aliasing -DANDROID  -Wa,--noexecstack -Wformat "
+        fi
 }
 
 check_tizen_sdk()
