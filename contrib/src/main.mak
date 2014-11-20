@@ -135,6 +135,7 @@ else
 EXTRA_CFLAGS += -m32 $(OPTIM)
 EXTRA_LDFLAGS += -m32
 endif
+endif
 
 CCAS=$(CC) -c
 
