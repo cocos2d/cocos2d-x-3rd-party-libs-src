@@ -1,19 +1,30 @@
 #!/bin/sh
 
-source `pwd`/android.ini
 source `pwd`/main.ini
 #
 # A script to build static library for Android
 #
 
-build_arches=$cfg_default_build_arches
-build_mode=$cfg_default_build_mode
-build_library=$cfg_default_build_libraries
-build_api=$cfg_default_build_api
-build_gcc_version=$cfg_default_gcc_version
+build_arches=""
+build_mode=""
+build_library=""
+build_api=""
+build_gcc_version=""
+build_platform=""
+build_list_all_libraries=no
 
-
-export ANDROID_NDK=$cfg_android_ndk_path
+function contains() {
+    local n=$#
+    local value=${!n}
+    for ((i=1;i < $#;i++)) {
+            if [ "${!i}" == "${value}" ]; then
+                echo "y"
+                return 0
+            fi
+        }
+        echo "n"
+        return 1
+}
 
 function usage()
 {
@@ -24,30 +35,10 @@ function usage()
     echo "\t--libs=[all | png,lua,tiff,jpeg,webp,zlib etc]"
     echo "\t[--arch | -a]=[all | $cfg_help_arch_string etc]"
     echo "\t[--mode | -m]=[release | debug]"
-    
-if [ $cfg_platform_name = "Android" ]; then
-    echo "\t[--api]=[18,19,20 etc, 19 is default.]"
-    echo "\t[--gcc]=[4.8+, default is 4.8]"
-fi
     echo "\t[--list | -l]"
     echo ""
-    echo "Sample:"
-    echo "\t.$cfg_help_sample_string"
-    echo ""
 }
 
-function list_all_supported_libraries()
-{
-
-    echo "Supported libraries and versions:"
-    echo "\t"
-
-    for lib in ${cfg_all_supported_libraries[@]}
-    do
-        all_supported_libraries=$(find  ../../contrib/src -type f | grep SHA512SUMS | xargs cat | awk 'match ($0, /.tgz|.tar.gz|.zip|.tar.xz/) { print substr($2,0,length($2)-RLENGTH)}' | grep $lib | awk '{print $1}')
-        echo $all_supported_libraries | awk '{ print $1}'
-    done
-}
 
 
 while [ "$1" != "" ]; do
@@ -57,6 +48,9 @@ while [ "$1" != "" ]; do
         --help | -h)
             usage
             exit
+            ;;
+        --platform | -p)
+            build_platform=$VALUE
             ;;
         --libs)
             build_library=$VALUE
@@ -68,8 +62,7 @@ while [ "$1" != "" ]; do
             build_mode=$VALUE
             ;;
         --list | -l)
-            list_all_supported_libraries
-            exit
+            build_list_all_libraries=yes
             ;;
         --api)
             build_api=$VALUE
@@ -86,36 +79,81 @@ while [ "$1" != "" ]; do
     shift
 done
 
-function check_jq_library()
+#check invalid platform
+function check_invalid_platform()
 {
-    if [[ $(which jq | grep "not found") ]];then
-        echo "You should install jq at first."
+    echo "checking ${p} is in ${cfg_all_valid_platforms[@]}"
+    if [ $(contains "${cfg_all_valid_platforms[@]}" $build_platform) == "n" ]; then
+        echo "Invalid platform! Only ${cfg_all_valid_platforms[@]} is acceptable."
         exit 1
     fi
 }
 
-# check_jq_library
+check_invalid_platform
+
+##load platform config files
+for p in ${cfg_all_valid_platforms[@]}
+do
+    if [ $(contains "${cfg_all_valid_platforms[@]}" $build_platform) == "y" ];then
+        source ${build_platform}.ini
+        build_api=$cfg_default_build_api
+        build_gcc_version=$cfg_default_gcc_version
+        echo $build_api
+        echo $build_gcc_version
+    fi
+done
+
+
+
+function list_all_supported_libraries()
+{
+
+    echo "Supported libraries and versions:"
+    echo "\t"
+
+    for lib in ${cfg_all_supported_libraries[@]}
+    do
+        all_supported_libraries=$(find  ../../contrib/src -type f | grep SHA512SUMS | xargs cat | awk 'match ($0, /.tgz|.tar.gz|.zip|.tar.xz/) { print substr($2,0,length($2)-RLENGTH)}' | grep $lib | awk '{print $1}')
+        echo $all_supported_libraries | awk '{ print $1}'
+    done
+}
+
+if [ $build_list_all_libraries = "yes" ];then
+    list_all_supported_libraries
+    exit
+fi
+
 
 if test -z "$build_arches"
 then
-    echo "You must speficy a valid arch option"
-    usage
-    exit 1
+    while true; do
+        read -p "Do you wish to build with all the libraries?[yes|no]" yn
+        case $yn in
+            [Yy]* ) build_arches=$cfg_default_build_arches; break;;
+            [Nn]* ) usage;exit;;
+            * ) echo "Please answer yes or no.";;
+        esac
+    done
 fi
 
 if test -z "$build_library"
 then
-    echo "You must specify a valid library option"
-    usage
-    exit 1
+    while true; do
+        read -p "Do you wish to build with all the libraries?[yes|no]" yn
+        case $yn in
+            [Yy]* ) build_library=$cfg_default_build_libraries; break;;
+            [Nn]* ) usage;exit;;
+            * ) echo "Please answer yes or no.";;
+        esac
+    done
 fi
 
 if test -z "$build_mode"
 then
-    echo "You must specify a valid mode option"
-    usage
-    exit 1
+    echo "You don't specify a valid build mode, use release mode"
+    build_mode=$cfg_default_build_mode
 fi
+
 
 echo "build api is $build_api."
 if [[ ! $build_api =~ ^[0-9]+$ ]]; then
@@ -130,18 +168,10 @@ if [[ ! $build_gcc_version =~ ^[0-9]\.[0-9]+$ ]]; then
     exit 1
 fi 
 
-function contains() {
-    local n=$#
-    local value=${!n}
-    for ((i=1;i < $#;i++)) {
-            if [ "${!i}" == "${value}" ]; then
-                echo "y"
-                return 0
-            fi
-        }
-        echo "n"
-        return 1
-}
+
+export ANDROID_NDK=$cfg_android_ndk_path
+
+#end
 
 all_arches=(${cfg_all_supported_arches[@]})
 all_libraries=(${cfg_all_supported_libraries[@]})
