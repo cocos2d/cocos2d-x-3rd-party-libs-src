@@ -64,6 +64,9 @@ endif
 ifdef HAVE_ANDROID
 	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= ${EXTRA_CFLAGS} ${OPTIM} |g" Makefile
 endif
+ifdef HAVE_LINUX
+	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= ${EXTRA_CFLAGS} ${OPTIM} |g" Makefile
+endif
 ifdef HAVE_MACOSX
 	cd $< && perl -i -pe "s|^CC= xcrun clang|CC= xcrun cc  -mmacosx-version-min=10.6 |g" Makefile
 	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= -isysroot ${MACOSX_SDK} -arch ${MAC_ARCH} ${OPTIM} |g" Makefile
