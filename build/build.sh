@@ -168,6 +168,8 @@ if [ $cfg_platform_name = "Android" ];then
     export ANDROID_NDK=$cfg_android_ndk_path
 fi
 
+current_dir=`pwd`
+top_dir=$current_dir/..
 
 all_arches=(${cfg_all_supported_arches[@]})
 all_libraries=(${cfg_all_supported_libraries[@]})
@@ -299,7 +301,6 @@ function build_settings_for_Android()
     ANDROID_ABI=$arch
     ANDROID_API=android-$build_api
     
-    script_root=`pwd`/../..
 
     export ANDROID_ABI
     export ANDROID_API
@@ -312,14 +313,14 @@ function build_settings_for_Android()
     #
     # build 3rd party libraries
     #
-    pushd "${script_root}/contrib"
+    pushd "${top_dir}/contrib"
     mkdir -p "Android-${ANDROID_ABI}" && cd "Android-${ANDROID_ABI}"
 
 
     #We let the scripts to guess the --build options
     ../bootstrap --enable-$2 \
                  --host=${TARGET} \
-                 --prefix=${script_root}/contrib/install-android/${ANDROID_ABI}> $out
+                 --prefix=${top_dir}/contrib/install-android/${ANDROID_ABI}> $out
 
     echo "OPTIM := ${OPTIM}" >> config.mak
     echo "TOOLCHAIN_BIN := ${toolchain_bin}" >> config.mak
@@ -339,8 +340,7 @@ function build_settings_for_iOS()
     fi
 
     
-    COCOSROOT=`pwd`/../../
-    PREFIX="${COCOSROOT}contrib/install-ios/${need_build_arch}"
+    PREFIX="${top_dir}/contrib/install-ios/${need_build_arch}"
 
     export BUILDFORIOS="yes"
     IOS_ARCH=$need_build_arch
@@ -350,8 +350,8 @@ function build_settings_for_iOS()
     SDK_VERSION=$(xcodebuild -showsdks | grep iphoneos | sort | tail -n 1 | awk '{print substr($NF,9)}')
     export SDK_VERSION=$SDK_VERSION
     
-    mkdir -p "${COCOSROOT}/contrib/iPhone${IOS_PLATFORM}-${IOS_ARCH}"
-    pushd "${COCOSROOT}/contrib/iPhone${IOS_PLATFORM}-${IOS_ARCH}"
+    mkdir -p "${top_dir}/contrib/iPhone${IOS_PLATFORM}-${IOS_ARCH}"
+    pushd "${top_dir}/contrib/iPhone${IOS_PLATFORM}-${IOS_ARCH}"
 
     if [ "$IOS_PLATFORM" = "OS" ]; then
         export AS="gas-preprocessor.pl ${CC}"
@@ -375,12 +375,11 @@ function build_settings_for_Mac()
 {
     mac_arch=$1 
     OSX_VERSION=$(xcodebuild -showsdks | grep macosx | sort | tail -n 1 | awk '{print substr($NF,7)}')
-    cocos_root=`pwd`/../..
     export OSX_VERSION
-    export PATH="${cocos_root}/extras/tools/bin:$PATH"
-    PREFIX="${cocos_root}/contrib/install-mac/${mac_arch}"
+    export PATH="${top_dir}/extras/tools/bin:$PATH"
+    PREFIX="${top_dir}/contrib/install-mac/${mac_arch}"
     
-    pushd "${cocos_root}/contrib"
+    pushd "${top_dir}/contrib"
     mkdir -p "mac-${mac_arch}" && cd "mac-${mac_arch}"
 
     ../bootstrap --enable-$2 --host=$1-apple-darwin --prefix=${PREFIX}
@@ -393,8 +392,6 @@ for lib in "${build_library[@]}"
 do
     library_name=$lib
     archive_name=$lib
-    current_dir=`pwd`
-    top_dir=$current_dir/../..
 
     build_script_name=$cfg_build_script_name
 
