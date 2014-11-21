@@ -391,6 +391,26 @@ function build_settings_for_Mac()
     echo "OPTIM := ${OPTIM}" >> config.mak
 }
 
+function build_settings_for_Tizen()
+{
+   tizen_arch=$1
+
+   [[ -z $TIZEN_SDK ]]  && echo "you must define TIZEN_SDK" && exit 1
+   
+   toolchain_bin=${TIZEN_SDK}/tools/arm-linux-gnueabi-gcc-4.8/bin
+
+   export PATH="${toolchain_bin}:${top_dir}/extras/tools/bin:$PATH"
+   TARGET="arm-linux-gnueabi"
+
+   pushd "${top_dir}/contrib"
+   
+   mkdir -p "tizen-${tizen_arch}" && cd "tizen-${tizen_arch}"
+   
+   ../bootstrap --enable-$2 \
+                --host=${TARGET} \
+                --prefix=${top_dir}/contrib/install-tizen/${tizen_arch}
+}
+
 # build all the libraries for different arches
 for lib in "${build_library[@]}"
 do
@@ -411,6 +431,7 @@ do
     for arch in "${build_arches[@]}"
     do
         #skip certain arch libraries
+        #because luajit doesn't support arm64!
         if [ $lib = "luajit" ] && [ $arch = "arm64" ]; then
             continue
         fi
@@ -430,6 +451,8 @@ do
             build_settings_for_iOS $arch $lib
         elif [ $cfg_platform_name = "Mac" ];then
             build_settings_for_Mac $arch $lib
+        elif [ $cfg_platform_name = "Tizen" ];then
+            build_settings_for_Tizen $arch $lib
         fi
         
 
