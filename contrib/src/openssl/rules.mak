@@ -13,6 +13,16 @@ OPENSSL_CONFIG_VARS="BSD-generic32"
 OPENSSL_ARCH=-m32
 endif
 
+ifeq ($(LINUX_ARCH),x86_64)
+OPENSSL_CONFIG_VARS="linux-generic64"
+OPENSSL_ARCH=-m64
+endif
+
+ifeq ($(LINUX_ARCH),i386)
+OPENSSL_CONFIG_VARS="linux-generic32"
+OPENSSL_ARCH=-m32
+endif
+
 ifdef HAVE_TIZEN
 OPENSSL_COMPILER=os/compiler:arm-linux-gnueabi-
 endif
@@ -46,7 +56,7 @@ endif
 	$(MOVE)
 
 .openssl: openssl
-	cd $< && $(HOSTVARS)  ./Configure $(OPENSSL_CONFIG_VARS)  --prefix=$(PREFIX) $(OPENSSL_COMPILER) ${OPENSSL_ARCH}
+	cd $< && $(HOSTVARS_PIC)  ./Configure $(OPENSSL_CONFIG_VARS)  --prefix=$(PREFIX) $(OPENSSL_COMPILER) ${OPENSSL_ARCH}
 ifdef HAVE_IOS
 	cd $< && perl -i -pe "s|^CC= xcrun clang|CC= xcrun cc -arch ${IOS_ARCH} -miphoneos-version-min=6.0 |g" Makefile
 	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= -isysroot ${IOS_SDK} ${OPTIM} |g" Makefile

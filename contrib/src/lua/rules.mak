@@ -37,14 +37,12 @@ lua: lua-$(LUA_VERSION).tar.gz .sum-lua
 	$(APPLY) $(SRC)/lua/luac-32bits.patch
 	$(APPLY) $(SRC)/lua/no-localeconv.patch
 	$(APPLY) $(SRC)/lua/lua-macosx-support.patch
-ifdef HAVE_DARWIN_OS
+
 	(cd $(UNPACK_DIR) && \
 	sed -e 's%gcc%$(CC)%' \
 		-e 's%LDFLAGS=%LDFLAGS=$(LDFLAGS)%' \
-		-e 's%CFLAGS= -O2 -Wall $(MYCFLAGS)%CFLAGS=$(MYCFLAGS)%' \
-		-e 's%MYCFLAGS=%MYCFLAGS=$(CFLAGS)%' \
+		-e 's%CFLAGS= -O2 -Wall $(MYCFLAGS)%CFLAGS=$(CFLAGS)%' \
 		-i.orig src/Makefile)
-endif
 
 ifdef HAVE_WIN32
 	cd $(UNPACK_DIR) && sed -i.orig -e 's/lua luac/lua.exe luac.exe/' Makefile
