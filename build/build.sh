@@ -266,7 +266,7 @@ function set_build_mode_cflags()
     export OPTIM
 }
 
-function build_settings_for_Android() 
+function build_settings_for_android() 
 {
     arch=$1
     echo "build_settings_for_Android... Android_ABI = $arch"
@@ -324,13 +324,13 @@ function build_settings_for_Android()
     #We let the scripts to guess the --build options
     ../bootstrap --enable-$2 \
                  --host=${TARGET} \
-                 --prefix=${top_dir}/contrib/install-android/${ANDROID_ABI}> $out
+                 --prefix=${top_dir}/contrib/install-${cfg_platform_name}/${ANDROID_ABI}> $out
 
     echo "OPTIM := ${OPTIM}" >> config.mak
     echo "TOOLCHAIN_BIN := ${toolchain_bin}" >> config.mak
 }
 
-function build_settings_for_iOS()
+function build_settings_for_ios()
 {
     need_build_arch=$1
     need_build_library=$2
@@ -344,7 +344,7 @@ function build_settings_for_iOS()
     fi
 
     
-    PREFIX="${top_dir}/contrib/install-ios/${need_build_arch}"
+    PREFIX="${top_dir}/contrib/install-${cfg_platform_name}/${need_build_arch}"
 
     export BUILDFORIOS="yes"
     IOS_ARCH=$need_build_arch
@@ -375,13 +375,13 @@ function build_settings_for_iOS()
     echo "OPTIM := ${OPTIM}" >> config.mak
 }
 
-function build_settings_for_Mac()
+function build_settings_for_mac()
 {
     mac_arch=$1 
     OSX_VERSION=$(xcodebuild -showsdks | grep macosx | sort | tail -n 1 | awk '{print substr($NF,7)}')
     export OSX_VERSION
     export PATH="${top_dir}/extras/tools/bin:$PATH"
-    PREFIX="${top_dir}/contrib/install-mac/${mac_arch}"
+    PREFIX="${top_dir}/contrib/install-${cfg_platform_name}/${mac_arch}"
     
     pushd "${top_dir}/contrib"
     mkdir -p "mac-${mac_arch}" && cd "mac-${mac_arch}"
@@ -391,7 +391,23 @@ function build_settings_for_Mac()
     echo "OPTIM := ${OPTIM}" >> config.mak
 }
 
-function build_settings_for_Tizen()
+function build_settings_for_linux()
+{
+    mac_arch=$1 
+    OSX_VERSION=$(xcodebuild -showsdks | grep macosx | sort | tail -n 1 | awk '{print substr($NF,7)}')
+    export OSX_VERSION
+    export PATH="${top_dir}/extras/tools/bin:$PATH"
+    PREFIX="${top_dir}/contrib/install-${cfg_platform_name}/${mac_arch}"
+    
+    pushd "${top_dir}/contrib"
+    mkdir -p "mac-${mac_arch}" && cd "mac-${mac_arch}"
+
+    ../bootstrap --enable-$2 --host=$1-apple-darwin --prefix=${PREFIX}
+
+    echo "OPTIM := ${OPTIM}" >> config.mak
+}
+
+function build_settings_for_tizen()
 {
    tizen_arch=$1
 
@@ -408,7 +424,12 @@ function build_settings_for_Tizen()
    
    ../bootstrap --enable-$2 \
                 --host=${TARGET} \
-                --prefix=${top_dir}/contrib/install-tizen/${tizen_arch}
+                --prefix=${top_dir}/contrib/install-${cfg_platform_name}/${tizen_arch}
+}
+
+function build_settings_for_linux()
+{
+    echo "build for linux"
 }
 
 # build all the libraries for different arches
@@ -416,8 +437,6 @@ for lib in "${build_library[@]}"
 do
     library_name=$lib
     archive_name=$lib
-
-    build_script_name=$cfg_build_script_name
 
     # parser_lib_archive_alias=${lib}_archive_alias
     # archive_name=${!parser_lib_archive_alias}
@@ -444,16 +463,8 @@ do
         build_library_path=$cfg_library_build_folder
 
         echo "build $arch for $lib in $cfg_platform_name"
-        # TODO: add more platforms here
-        if [ $cfg_platform_name = "Android" ];then
-            build_settings_for_Android $arch $lib
-        elif [ $cfg_platform_name = "iOS" ]; then
-            build_settings_for_iOS $arch $lib
-        elif [ $cfg_platform_name = "Mac" ];then
-            build_settings_for_Mac $arch $lib
-        elif [ $cfg_platform_name = "Tizen" ];then
-            build_settings_for_Tizen $arch $lib
-        fi
+        
+        build_settings_for_$cfg_platform_name $arch $lib
         
 
         make fetch
@@ -500,20 +511,17 @@ do
         # rm -rf $top_dir/contrib/$build_library_path-$arch
     done
 
-    if [ $cfg_platform_name = "iOS" ] || [ $cfg_platform_name = "Mac" ]; then
-
-        if [ $cfg_build_fat_library = "yes" ];then
+    if [ $cfg_build_fat_library = "yes" ];then
         
-            create_fat_library $archive_name
+        create_fat_library $archive_name
 
-            if [ $lib = "curl" ]; then
-                create_fat_library ssl
-                create_fat_library crypto
-            fi
+        if [ $lib = "curl" ]; then
+            create_fat_library ssl
+            create_fat_library crypto
+        fi
 
-            if [ $lib = "png" ] || [ $lib = "curl" ] || [ $lib = "freetype2" ] || [ $lib = "websockets" ]; then
-                create_fat_library z
-            fi
+        if [ $lib = "png" ] || [ $lib = "curl" ] || [ $lib = "freetype2" ] || [ $lib = "websockets" ]; then
+            create_fat_library z
         fi
     fi
 
