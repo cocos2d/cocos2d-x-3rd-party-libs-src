@@ -262,13 +262,8 @@ function create_fat_library()
 
 function set_build_mode_cflags()
 {
-    if [ $build_mode = "release" ]; then
-        OPTIM="-O3 -DNDEBUG"
-    fi
-
-    if [ $build_mode = "debug" ]; then
-        OPTIM="-O0 -g -DDEBUG"
-    fi
+    build_flag=cfg_build_${build_mode}_mode
+    OPTIM=${!build_flag}
 
     export OPTIM
 }
@@ -409,7 +404,7 @@ do
             continue
         fi
 
-        #set build mode flags
+        #set build mode flags -- debug or release
         set_build_mode_cflags
         
 
@@ -417,11 +412,15 @@ do
         build_library_path=$cfg_library_build_folder
 
         echo "build $arch for $lib in $cfg_platform_name"
+        # TODO: add more platforms here
         if [ $cfg_platform_name = "Android" ];then
             build_settings_for_Android $arch $lib
         elif [ $cfg_platform_name = "iOS" ]; then
             build_settings_for_iOS $arch $lib
+        elif [ $cfg_platform_name = "Mac" ];then
+            build_settings_for_Mac $arch $lib
         fi
+        
 
         make fetch
         make list
