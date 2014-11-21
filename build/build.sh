@@ -12,6 +12,7 @@ build_api=""
 build_gcc_version=""
 build_platform=""
 build_list_all_libraries=no
+build_show_help_message=no
 
 function contains() {
     local n=$#
@@ -37,6 +38,9 @@ function usage()
     echo "\t[--mode | -m]=[release | debug]"
     echo "\t[--list | -l]"
     echo ""
+    echo "Sample:"
+    echo "$cfg_help_sample_string"
+    echo ""
 }
 
 
@@ -46,8 +50,7 @@ while [ "$1" != "" ]; do
     VALUE=`echo $1 | awk -F= '{print $2}'`
     case $PARAM in
         --help | -h)
-            usage
-            exit
+            build_show_help_message=yes
             ;;
         --platform | -p)
             build_platform=$VALUE
@@ -116,14 +119,19 @@ function list_all_supported_libraries()
 
     for lib in ${cfg_all_supported_libraries[@]}
     do
-        all_supported_libraries=$(find  ../../contrib/src -type f | grep SHA512SUMS | xargs cat | awk 'match ($0, /.tgz|.tar.gz|.zip|.tar.xz/) { print substr($2,0,length($2)-RLENGTH)}' | grep $lib | awk '{print $1}')
+        all_supported_libraries=$(find  ../contrib/src -type f | grep SHA512SUMS | xargs cat | awk 'match ($0, /.tgz|.tar.gz|.zip|.tar.xz/) { print substr($2,0,length($2)-RLENGTH)}' | grep $lib | awk '{print $1}')
         echo $all_supported_libraries | awk '{ print $1}'
     done
 }
 
 if [ $build_list_all_libraries = "yes" ];then
     list_all_supported_libraries
-    exit
+    exit 1
+fi
+
+if [ $build_show_help_message = "yes" ];then
+    usage
+    exit 1
 fi
 
 
@@ -266,171 +274,7 @@ function set_build_mode_cflags()
     export OPTIM
 }
 
-function build_settings_for_android() 
-{
-    arch=$1
-    echo "build_settings_for_Android... Android_ABI = $arch"
-    if [ ${arch} = "x86" ]; then
-        TARGET="i686-linux-android"
-        toolchain_bin=${ANDROID_NDK}/toolchains/x86-${build_gcc_version}/prebuilt/darwin-x86_64/bin
-    elif [ ${arch} = "arm64" ];then
-        TARGET="aarch64-linux-android"
-        toolchain_bin=${ANDROID_NDK}/toolchains/${TARGET}-${build_gcc_version}/prebuilt/darwin-x86_64/bin
-    else
-        TARGET="arm-linux-androideabi"
-        toolchain_bin=${ANDROID_NDK}/toolchains/${TARGET}-${build_gcc_version}/prebuilt/darwin-x86_64/bin
-    fi
-    
-    export PATH="${toolchain_bin}:$PATH"
-    
-    # check whether gcc version is exists
-    if [ ! -d ${ANDROID_NDK}/toolchains/x86-${build_gcc_version} ] && [ ! -d ${ANDROID_NDK}/toolchains/${TARGET}-${build_gcc_version} ] ;then
-        echo ${ANDROID_NDK}
-        echo "Invalid GCC ${build_gcc_version} version!"
-        exit
-    fi
 
-    # check whether sysroot is exists
-    if [ $arch = "arm64" ]; then
-        if [ ! -d ${ANDROID_NDK}/platforms/android-${build_api}/arch-arm64 ];then
-            echo "android-${build_api} doesn't support build arm64 architecture!"
-            exit 1
-        fi
-    fi
-
-    echo "build target is ${TARGET}"
-    echo "build toolchain is $toolchain_bin"
-
-    #export ANDROID_ABI & ANDROID_API
-    ANDROID_ABI=$arch
-    ANDROID_API=android-$build_api
-    
-
-    export ANDROID_ABI
-    export ANDROID_API
-
-    out="/dev/stdout"
-    # if [ "$QUIET" = "yes" ]; then
-    #     out="/dev/null"
-    # fi
-
-    #
-    # build 3rd party libraries
-    #
-    pushd "${top_dir}/contrib"
-    mkdir -p "Android-${ANDROID_ABI}" && cd "Android-${ANDROID_ABI}"
-
-
-    #We let the scripts to guess the --build options
-    ../bootstrap --enable-$2 \
-                 --host=${TARGET} \
-                 --prefix=${top_dir}/contrib/install-${cfg_platform_name}/${ANDROID_ABI}> $out
-
-    echo "OPTIM := ${OPTIM}" >> config.mak
-    echo "TOOLCHAIN_BIN := ${toolchain_bin}" >> config.mak
-}
-
-function build_settings_for_ios()
-{
-    need_build_arch=$1
-    need_build_library=$2
-
-    if [ $need_build_arch = "i386" ] || [ $need_build_arch = "x86_64" ];then
-        IOS_PLATFORM="Simulator"
-        TARGET="${need_build_arch}-apple-darwin"
-    else
-        IOS_PLATFORM="OS"
-        TARGET="arm-apple-darwin"
-    fi
-
-    
-    PREFIX="${top_dir}/contrib/install-${cfg_platform_name}/${need_build_arch}"
-
-    export BUILDFORIOS="yes"
-    IOS_ARCH=$need_build_arch
-    export IOS_ARCH
-    export IOS_PLATFORM
-
-    SDK_VERSION=$(xcodebuild -showsdks | grep iphoneos | sort | tail -n 1 | awk '{print substr($NF,9)}')
-    export SDK_VERSION=$SDK_VERSION
-    
-    mkdir -p "${top_dir}/contrib/iPhone${IOS_PLATFORM}-${IOS_ARCH}"
-    pushd "${top_dir}/contrib/iPhone${IOS_PLATFORM}-${IOS_ARCH}"
-
-    if [ "$IOS_PLATFORM" = "OS" ]; then
-        export AS="gas-preprocessor.pl ${CC}"
-        export ASCPP="gas-preprocessor.pl ${CC}"
-        export CCAS="gas-preprocessor.pl ${CC}"
-    else
-        export ASCPP="xcrun as"
-    fi
-
-
-    ../bootstrap --enable-$need_build_library \
-                 --build=x86_64-apple-darwin14 \
-                 --host=${TARGET} \
-                 --prefix=${PREFIX}
-
-    echo "IOS_ARCH := ${IOS_ARCH}" >> config.mak
-    echo "OPTIM := ${OPTIM}" >> config.mak
-}
-
-function build_settings_for_mac()
-{
-    mac_arch=$1 
-    OSX_VERSION=$(xcodebuild -showsdks | grep macosx | sort | tail -n 1 | awk '{print substr($NF,7)}')
-    export OSX_VERSION
-    export PATH="${top_dir}/extras/tools/bin:$PATH"
-    PREFIX="${top_dir}/contrib/install-${cfg_platform_name}/${mac_arch}"
-    
-    pushd "${top_dir}/contrib"
-    mkdir -p "mac-${mac_arch}" && cd "mac-${mac_arch}"
-
-    ../bootstrap --enable-$2 --host=$1-apple-darwin --prefix=${PREFIX}
-
-    echo "OPTIM := ${OPTIM}" >> config.mak
-}
-
-function build_settings_for_linux()
-{
-    mac_arch=$1 
-    OSX_VERSION=$(xcodebuild -showsdks | grep macosx | sort | tail -n 1 | awk '{print substr($NF,7)}')
-    export OSX_VERSION
-    export PATH="${top_dir}/extras/tools/bin:$PATH"
-    PREFIX="${top_dir}/contrib/install-${cfg_platform_name}/${mac_arch}"
-    
-    pushd "${top_dir}/contrib"
-    mkdir -p "mac-${mac_arch}" && cd "mac-${mac_arch}"
-
-    ../bootstrap --enable-$2 --host=$1-apple-darwin --prefix=${PREFIX}
-
-    echo "OPTIM := ${OPTIM}" >> config.mak
-}
-
-function build_settings_for_tizen()
-{
-   tizen_arch=$1
-
-   [[ -z $TIZEN_SDK ]]  && echo "you must define TIZEN_SDK" && exit 1
-   
-   toolchain_bin=${TIZEN_SDK}/tools/arm-linux-gnueabi-gcc-4.8/bin
-
-   export PATH="${toolchain_bin}:${top_dir}/extras/tools/bin:$PATH"
-   TARGET="arm-linux-gnueabi"
-
-   pushd "${top_dir}/contrib"
-   
-   mkdir -p "tizen-${tizen_arch}" && cd "tizen-${tizen_arch}"
-   
-   ../bootstrap --enable-$2 \
-                --host=${TARGET} \
-                --prefix=${top_dir}/contrib/install-${cfg_platform_name}/${tizen_arch}
-}
-
-function build_settings_for_linux()
-{
-    echo "build for linux"
-}
 
 # build all the libraries for different arches
 for lib in "${build_library[@]}"
@@ -507,8 +351,10 @@ do
 
 
         echo "cleaning up"
-        # rm -rf $top_dir/contrib/$install_library_path
-        # rm -rf $top_dir/contrib/$build_library_path-$arch
+        if [ $cfg_is_cleanup_after_build = "yes" ];then
+            rm -rf $top_dir/contrib/$install_library_path
+            rm -rf $top_dir/contrib/$build_library_path-$arch
+        fi
     done
 
     if [ $cfg_build_fat_library = "yes" ];then
