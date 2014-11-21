@@ -101,8 +101,8 @@ do
             exit;
         fi
         source $platform_config_file
-        build_api=$cfg_default_build_api
-        build_gcc_version=$cfg_default_gcc_version
+        [[ -z "${build_api}" ]] && build_api=$cfg_default_build_api
+        [[ -z "${build_gcc_version}" ]] && build_gcc_version=$cfg_default_gcc_version
     fi
 done
 
@@ -164,8 +164,11 @@ if [ $cfg_platform_name = "Android" ];then
         usage
         exit 1
     fi 
+
+    if [ ! -z $cfg_android_ndk_path ];then
+        export ANDROID_NDK=$cfg_android_ndk_path
+    fi
     
-    export ANDROID_NDK=$cfg_android_ndk_path
 fi
 
 current_dir=`pwd`
@@ -236,22 +239,22 @@ function create_fat_library()
     LIPO="xcrun -sdk iphoneos lipo"
     STRIP="xcrun -sdk iphoneos strip"
 
-    if [ -f $library_name/prebuilt/lib$library_name.a ]; then
+    if [ -f $cfg_platform_name/$library_name/prebuilt/lib$library_name.a ]; then
         echo "removing old fat library..."
-        rm $library_name/prebuilt/lib$library_name.a
+        rm $cfg_platform_name/$library_name/prebuilt/lib$library_name.a
     fi
 
-    all_static_libs=$(find $library_name/prebuilt -type f -name "lib$library_name.a")
+    all_static_libs=$(find $cfg_platform_name/$library_name/prebuilt -type f -name "lib$library_name.a")
 
     echo "create fat library lib$library_name for $all_static_libs"
     $LIPO -create  $all_static_libs \
-          -output $library_name/prebuilt/lib$library_name.a
+          -output $cfg_platform_name/$library_name/prebuilt/lib$library_name.a
 
     # rm $all_static_libs
 
     # remove debugging info don't strip
     # $STRIP -S $library_name/prebuilt/lib$library_name.a
-    $LIPO -info $library_name/prebuilt/lib$library_name.a
+    $LIPO -info $cfg_platform_name/$library_name/prebuilt/lib$library_name.a
 }
 
 
@@ -282,14 +285,15 @@ function build_settings_for_Android()
     
     # check whether gcc version is exists
     if [ ! -d ${ANDROID_NDK}/toolchains/x86-${build_gcc_version} ] && [ ! -d ${ANDROID_NDK}/toolchains/${TARGET}-${build_gcc_version} ] ;then
-        echo "Invalid GCC version!"
+        echo ${ANDROID_NDK}
+        echo "Invalid GCC ${build_gcc_version} version!"
         exit
     fi
 
     # check whether sysroot is exists
     if [ $arch = "arm64" ]; then
         if [ ! -d ${ANDROID_NDK}/platforms/android-${build_api}/arch-arm64 ];then
-            echo "${build_api} doesn't support build arm64 architecture!"
+            echo "android-${build_api} doesn't support build arm64 architecture!"
             exit 1
         fi
     fi
@@ -402,7 +406,7 @@ do
         archive_name=z
     fi
 
-    mkdir -p $archive_name/include/
+    mkdir -p $cfg_platform_name/$archive_name/include/
 
     for arch in "${build_arches[@]}"
     do
@@ -435,7 +439,7 @@ do
         
         popd
   
-        local_library_install_path=$archive_name/prebuilt/$arch
+        local_library_install_path=$cfg_platform_name/$archive_name/prebuilt/$arch
         if [ ! -d $local_library_install_path ]; then
             echo "create folder for library with specify arch. $local_library_install_path"
             mkdir -p $local_library_install_path
@@ -446,11 +450,11 @@ do
 
 
         if [ $lib = "curl" ]; then
-            local_library_install_path=ssl/prebuilt/$arch 
+            local_library_install_path=$cfg_platform_name/ssl/prebuilt/$arch 
             mkdir -p $local_library_install_path
             cp $top_dir/contrib/$install_library_path/$arch/lib/libssl.a $local_library_install_path/libssl.a
 
-            local_library_install_path=crypto/prebuilt/$arch
+            local_library_install_path=$cfg_platform_name/crypto/prebuilt/$arch
             mkdir -p $local_install_path
             cp $top_dir/contrib/$install_library_path/$arch/lib/libcrypto.a $local_library_install_path/libcrypto.a
 
@@ -458,14 +462,14 @@ do
 
         if [ $lib = "png" ] || [ $lib = "freetype2" ] || [ $lib = "websockets" ] || [ $lib = "curl" ];  then
             echo "copying libz..."
-            local_install_path=z/prebuilt/$arch
+            local_install_path=$cfg_platform_name/z/prebuilt/$arch
             mkdir -p $local_install_path
             cp $top_dir/contrib/$install_library_path/$arch/lib/libz.a $local_install_path/libz.a
         fi
 
         echo "Copying needed heder files"
         copy_include_file_path=${lib}_header_files
-        cp  -r $top_dir/contrib/$install_library_path/$arch/include/${!copy_include_file_path} $archive_name/include
+        cp  -r $top_dir/contrib/$install_library_path/$arch/include/${!copy_include_file_path} $cfg_platform_name/$archive_name/include
 
 
         echo "cleaning up"
