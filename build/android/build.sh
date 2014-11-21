@@ -82,7 +82,7 @@ done
 #check invalid platform
 function check_invalid_platform()
 {
-    echo "checking ${p} is in ${cfg_all_valid_platforms[@]}"
+    echo "checking ${build_platform} is in ${cfg_all_valid_platforms[@]}"
     if [ $(contains "${cfg_all_valid_platforms[@]}" $build_platform) == "n" ]; then
         echo "Invalid platform! Only ${cfg_all_valid_platforms[@]} is acceptable."
         exit 1
@@ -95,11 +95,14 @@ check_invalid_platform
 for p in ${cfg_all_valid_platforms[@]}
 do
     if [ $(contains "${cfg_all_valid_platforms[@]}" $build_platform) == "y" ];then
-        source ${build_platform}.ini
+        platform_config_file=${build_platform}.ini
+        if [ ! -f $platform_config_file ];then
+            echo "platform config file is not exists!"
+            exit;
+        fi
+        source $platform_config_file
         build_api=$cfg_default_build_api
         build_gcc_version=$cfg_default_gcc_version
-        echo $build_api
-        echo $build_gcc_version
     fi
 done
 
@@ -155,23 +158,23 @@ then
 fi
 
 
-echo "build api is $build_api."
-if [[ ! $build_api =~ ^[0-9]+$ ]]; then
-    echo "Android API should be integers!"
-    usage
-    exit 1
+if [ $cfg_platform_name = "Android" ];then
+    echo "build api is $build_api."
+    if [[ ! $build_api =~ ^[0-9]+$ ]]; then
+        echo "Android API should be integers!"
+        usage
+        exit 1
+    fi
+
+    if [[ ! $build_gcc_version =~ ^[0-9]\.[0-9]+$ ]]; then
+        echo "Invalid gcc version number! Gcc version should be numerical numbers."
+        usage
+        exit 1
+    fi 
+    
+    export ANDROID_NDK=$cfg_android_ndk_path
 fi
 
-if [[ ! $build_gcc_version =~ ^[0-9]\.[0-9]+$ ]]; then
-    echo "Invalid gcc version number! Gcc version should be numerical numbers."
-    usage
-    exit 1
-fi 
-
-
-export ANDROID_NDK=$cfg_android_ndk_path
-
-#end
 
 all_arches=(${cfg_all_supported_arches[@]})
 all_libraries=(${cfg_all_supported_libraries[@]})
@@ -243,13 +246,13 @@ function create_fat_library()
         rm $library_name/prebuilt/lib$library_name.a
     fi
 
-    all_static_libs=$(find $library_name/prebuilt -type f -name "lib$library_name-*.a")
+    all_static_libs=$(find $library_name/prebuilt -type f -name "lib$library_name.a")
 
     echo "create fat library lib$library_name for $all_static_libs"
     $LIPO -create  $all_static_libs \
           -output $library_name/prebuilt/lib$library_name.a
 
-    rm $all_static_libs
+    # rm $all_static_libs
 
     # remove debugging info don't strip
     # $STRIP -S $library_name/prebuilt/lib$library_name.a
@@ -334,6 +337,52 @@ function build_settings_for_Android()
     echo "TOOLCHAIN_BIN := ${toolchain_bin}" >> config.mak
 }
 
+function build_settings_for_iOS()
+{
+    need_build_arch=$1
+    need_build_library=$2
+
+    if [ $need_build_arch = "i386" ] || [ $need_build_arch = "x86_64" ];then
+        IOS_PLATFORM="Simulator"
+        TARGET="${need_build_arch}-apple-darwin"
+    else
+        IOS_PLATFORM="OS"
+        TARGET="arm-apple-darwin"
+    fi
+
+    
+    COCOSROOT=`pwd`/../../
+    PREFIX="${COCOSROOT}contrib/install-ios/${need_build_arch}"
+
+    export BUILDFORIOS="yes"
+    IOS_ARCH=$need_build_arch
+    export IOS_ARCH
+    export IOS_PLATFORM
+
+    SDK_VERSION=$(xcodebuild -showsdks | grep iphoneos | sort | tail -n 1 | awk '{print substr($NF,9)}')
+    export SDK_VERSION=$SDK_VERSION
+    
+    mkdir -p "${COCOSROOT}/contrib/iPhone${IOS_PLATFORM}-${IOS_ARCH}"
+    pushd "${COCOSROOT}/contrib/iPhone${IOS_PLATFORM}-${IOS_ARCH}"
+
+    if [ "$IOS_PLATFORM" = "OS" ]; then
+        export AS="gas-preprocessor.pl ${CC}"
+        export ASCPP="gas-preprocessor.pl ${CC}"
+        export CCAS="gas-preprocessor.pl ${CC}"
+    else
+        export ASCPP="xcrun as"
+    fi
+
+
+    ../bootstrap --enable-$need_build_library \
+                 --build=x86_64-apple-darwin14 \
+                 --host=${TARGET} \
+                 --prefix=${PREFIX}
+
+    echo "IOS_ARCH := ${IOS_ARCH}" >> config.mak
+    echo "OPTIM := ${OPTIM}" >> config.mak
+}
+
 # build all the libraries for different arches
 for lib in "${build_library[@]}"
 do
@@ -349,10 +398,6 @@ do
 
     if [ $lib = "zlib" ]; then
         archive_name=z
-    fi
-
-    if [ $lib = "freetype2" ]; then
-        archive_name=freetype
     fi
 
     mkdir -p $archive_name/include/
@@ -374,6 +419,8 @@ do
         echo "build $arch for $lib in $cfg_platform_name"
         if [ $cfg_platform_name = "Android" ];then
             build_settings_for_Android $arch $lib
+        elif [ $cfg_platform_name = "iOS" ]; then
+            build_settings_for_iOS $arch $lib
         fi
 
         make fetch
@@ -421,16 +468,19 @@ do
     done
 
     if [ $cfg_platform_name = "iOS" ] || [ $cfg_platform_name = "Mac" ]; then
+
+        if [ $cfg_build_fat_library = "yes" ];then
         
-        create_fat_library $archive_name
+            create_fat_library $archive_name
 
-        if [ $lib = "curl" ]; then
-            create_fat_library ssl
-            create_fat_library crypto
-        fi
+            if [ $lib = "curl" ]; then
+                create_fat_library ssl
+                create_fat_library crypto
+            fi
 
-        if [ $lib = "png" ] || [ $lib = "curl" ] || [ $lib = "freetype2" ] || [ $lib = "websockets" ]; then
-            create_fat_library z
+            if [ $lib = "png" ] || [ $lib = "curl" ] || [ $lib = "freetype2" ] || [ $lib = "websockets" ]; then
+                create_fat_library z
+            fi
         fi
     fi
 

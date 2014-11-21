@@ -158,6 +158,8 @@ AR=xcrun ar
 LD=xcrun ld
 STRIP=xcrun strip
 RANLIB=xcrun ranlib
+# CPP=xcrun cc -E
+# CXXCPP=xcrun c++ -E
 endif
 
 ifdef HAVE_WIN32

@@ -129,9 +129,12 @@ add_make_enabled()
 
 check_ios_sdk()
 {
+   [ -z "${IOS_ARCH}" ] && echo "You must set IOS_ARCH environment variable" && exit 1
+   [ -z "${IOS_PLATFORM}" ] && echo "You must set IOS_PLATFORM environment variable" && exit 1
+   
    if test -z "$SDKROOT"
    then
-      SDKROOT=`xcode-select -print-path`/Platforms/iPhone${PLATFORM}.platform/Developer/SDKs/iPhone${PLATFORM}${SDK_VERSION}.sdk
+      SDKROOT=`xcode-select -print-path`/Platforms/iPhone${IOS_PLATFORM}.platform/Developer/SDKs/iPhone${IOS_PLATFORM}${SDK_VERSION}.sdk
       echo "SDKROOT not specified, assuming $SDKROOT"
    else
       SDKROOT="$SDKROOT"
@@ -144,6 +147,17 @@ check_ios_sdk()
    fi
    add_make "IOS_SDK=${SDKROOT}"
    add_make "IOS_TOOLCHAIN=${SDKROOT}/../../usr/bin/"
+
+   if [ "$IOS_PLATFORM" = "OS" ]; then
+       EX_CFLAGS="-isysroot ${SDKROOT} -arch ${IOS_ARCH} -miphoneos-version-min=6.0"
+       if [ "${IOS_ARCH}" != "arm64" ]; then
+           EX_CFLAGS="${EX_CFLAGS} -mcpu=cortex-a8"
+       fi
+   else
+       EX_CFLAGS="-isysroot ${SDKROOT} -arch ${IOS_ARCH} -miphoneos-version-min=6.0"
+   fi
+   add_make "EXTRA_CFLAGS := ${EX_CFLAGS}"
+   add_make "EXTRA_LDFLAGS := -L${SDKROOT}/usr/lib -arch ${IOS_ARCH} -isysroot ${SDKROOT} -miphoneos-version-min=6.0"
 }
 
 check_macosx_sdk()

@@ -4,7 +4,6 @@ set -x
 
 PLATFORM=OS
 VERBOSE=no
-SDK_VERSION=$(xcodebuild -showsdks | grep iphoneos | sort | tail -n 1 | awk '{print substr($NF,9)}')
 # FIXME: why min deploy target can't use 5.1.1
 SDK_MIN=6.0
 ARCH=armv7
@@ -145,21 +144,21 @@ info "Building contrib for iOS in '${COCOSROOT}/contrib/iPhone${PLATFORM}-${ARCH
 
 # The contrib will read the following
 if [ $IS_EXPORT_CFLAGS = "yes" ]; then
-# export AR="xcrun ar"
-# export RANLIB="xcrun ranlib"
-# export CC="xcrun clang"
-# export OBJC="xcrun clang"
-# export CXX="xcrun clang++"
-# export LD="xcrun ld"
-# export STRIP="xcrun strip"
+export AR="xcrun ar"
+export RANLIB="xcrun ranlib"
+export CC="xcrun clang"
+export OBJC="xcrun clang"
+export CXX="xcrun clang++"
+export LD="xcrun ld"
+export STRIP="xcrun strip"
 
 if [ "$PLATFORM" = "OS" ]; then
     export CFLAGS="-isysroot ${SDKROOT} -arch ${ARCH} -miphoneos-version-min=${SDK_MIN} ${OPTIM}"
-    if [ "$ARCH" != "arm64" ]; then
-        export CFLAGS="${CFLAGS} -mcpu=cortex-a8"
-    fi
+if [ "$ARCH" != "arm64" ]; then
+    export CFLAGS="${CFLAGS} -mcpu=cortex-a8"
+fi
 else
-    export CFLAGS="-isysroot ${SDKROOT} -arch ${ARCH} -miphoneos-version-min=${SDK_MIN} ${OPTIM}"
+export CFLAGS="-isysroot ${SDKROOT} -arch ${ARCH} -miphoneos-version-min=${SDK_MIN} ${OPTIM}"
 fi
 
 export CPP="xcrun cc -E"
