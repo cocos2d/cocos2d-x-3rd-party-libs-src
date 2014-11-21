@@ -82,7 +82,7 @@ done
 #check invalid platform
 function check_invalid_platform()
 {
-    echo "checking ${build_platform} is in ${cfg_all_valid_platforms[@]}"
+    # echo "checking ${build_platform} is in ${cfg_all_valid_platforms[@]}"
     if [ $(contains "${cfg_all_valid_platforms[@]}" $build_platform) == "n" ]; then
         echo "Invalid platform! Only ${cfg_all_valid_platforms[@]} is acceptable."
         exit 1
@@ -129,14 +129,7 @@ fi
 
 if test -z "$build_arches"
 then
-    while true; do
-        read -p "Do you wish to build with all the libraries?[yes|no]" yn
-        case $yn in
-            [Yy]* ) build_arches=$cfg_default_build_arches; break;;
-            [Nn]* ) usage;exit;;
-            * ) echo "Please answer yes or no.";;
-        esac
-    done
+    build_arches=$cfg_default_build_arches
 fi
 
 if test -z "$build_library"
@@ -375,6 +368,23 @@ function build_settings_for_iOS()
                  --prefix=${PREFIX}
 
     echo "IOS_ARCH := ${IOS_ARCH}" >> config.mak
+    echo "OPTIM := ${OPTIM}" >> config.mak
+}
+
+function build_settings_for_Mac()
+{
+    mac_arch=$1 
+    OSX_VERSION=$(xcodebuild -showsdks | grep macosx | sort | tail -n 1 | awk '{print substr($NF,7)}')
+    cocos_root=`pwd`/../..
+    export OSX_VERSION
+    export PATH="${cocos_root}/extras/tools/bin:$PATH"
+    PREFIX="${cocos_root}/contrib/install-mac/${mac_arch}"
+    
+    pushd "${cocos_root}/contrib"
+    mkdir -p "mac-${mac_arch}" && cd "mac-${mac_arch}"
+
+    ../bootstrap --enable-$2 --host=$1-apple-darwin --prefix=${PREFIX}
+
     echo "OPTIM := ${OPTIM}" >> config.mak
 }
 
