@@ -167,17 +167,6 @@ if [ $cfg_platform_name = "android" ];then
         exit 1
     fi 
 
-    if [ ! -z $cfg_android_ndk_path ] && [ -z $ANDROID_NDK ]; then
-        echo "export android ndk"
-        export ANDROID_NDK=$cfg_android_ndk_path
-    fi
-fi
-
-if [ $cfg_platform_name = "tizen" ];then
-    if [ ! -z $cfg_tizen_sdk_path ] && [ -z $TIZEN_SDK ];then
-        echo "export tizen sdk"
-        export TIZEN_SDK=$cfg_tizen_sdk_path
-    fi
 fi
 
 current_dir=`pwd`
