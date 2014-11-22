@@ -14,6 +14,7 @@ tiff: tiff-$(TIFF_VERSION).tar.gz .sum-tiff
 	$(MOVE)
 
 .tiff: tiff
+	$(RECONF)
 	cd $< && $(HOSTVARS) ./configure $(HOSTCONF) \
 		--disable-jpeg \
 		--disable-zlib \

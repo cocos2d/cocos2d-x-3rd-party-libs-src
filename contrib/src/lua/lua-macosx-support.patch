@@ -1,8 +1,29 @@
+diff --git a/Makefile b/Makefile
+index 6e78f66..5deea66 100644
+--- a/Makefile
++++ b/Makefile
+@@ -38,7 +38,7 @@ RANLIB= ranlib
+ # == END OF USER SETTINGS. NO NEED TO CHANGE ANYTHING BELOW THIS LINE =========
+ 
+ # Convenience platforms targets.
+-PLATS= aix ansi bsd freebsd generic linux macosx mingw posix solaris
++PLATS= aix ansi bsd freebsd generic linux ios macosx mingw posix solaris
+ 
+ # What to install.
+ TO_BIN= lua luac
 diff --git a/src/Makefile b/src/Makefile
-index e4a3cd6..acaaa26 100644
+index e4a3cd6..dca4284 100644
 --- a/src/Makefile
 +++ b/src/Makefile
-@@ -98,8 +98,11 @@ generic:
+@@ -6,7 +6,6 @@
+ 
+ # Your platform. See PLATS for possible values.
+ PLAT= none
+-
+ CC= gcc
+ CFLAGS= -O2 -Wall $(MYCFLAGS)
+ AR= ar rcu
+@@ -98,8 +97,11 @@ generic:
  linux:
  	$(MAKE) all MYCFLAGS=-DLUA_USE_LINUX MYLIBS="-Wl,-E -ldl -lreadline -lhistory -lncurses"
  

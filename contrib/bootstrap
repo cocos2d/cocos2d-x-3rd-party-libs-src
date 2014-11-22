@@ -1,5 +1,6 @@
 #! /bin/sh
 # Copyright (C) 2003-2011 the VideoLAN team
+# Copyright (C) 2013-2014 the cocos2d-x team
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -129,9 +130,18 @@ add_make_enabled()
 
 check_ios_sdk()
 {
+   [ -z "${MY_TARGET_ARCH}" ] && echo "You must set MY_TARGET_ARCH environment variable" && exit 1
+    if [ $MY_TARGET_ARCH = "i386" ] || [ $MY_TARGET_ARCH = "x86_64" ];then
+        IOS_PLATFORM="Simulator"
+    else
+        IOS_PLATFORM="OS"
+    fi
+   
+   SDK_VERSION=$(xcodebuild -showsdks | grep iphoneos | sort | tail -n 1 | awk '{print substr($NF,9)}')
+   
    if test -z "$SDKROOT"
    then
-      SDKROOT=`xcode-select -print-path`/Platforms/iPhone${PLATFORM}.platform/Developer/SDKs/iPhone${PLATFORM}${SDK_VERSION}.sdk
+      SDKROOT=`xcode-select -print-path`/Platforms/iPhone${IOS_PLATFORM}.platform/Developer/SDKs/iPhone${IOS_PLATFORM}${SDK_VERSION}.sdk
       echo "SDKROOT not specified, assuming $SDKROOT"
    else
       SDKROOT="$SDKROOT"
@@ -144,6 +154,25 @@ check_ios_sdk()
    fi
    add_make "IOS_SDK=${SDKROOT}"
    add_make "IOS_TOOLCHAIN=${SDKROOT}/../../usr/bin/"
+
+   if [ "$IOS_PLATFORM" = "OS" ]; then
+       export AS="gas-preprocessor.pl ${CC}"
+       export ASCPP="gas-preprocessor.pl ${CC}"
+       export CCAS="gas-preprocessor.pl ${CC}"
+   else
+       export ASCPP="xcrun as"
+   fi
+    
+   if [ "$IOS_PLATFORM" = "OS" ]; then
+       EX_CFLAGS="-isysroot ${SDKROOT} -arch ${MY_TARGET_ARCH} -miphoneos-version-min=6.0"
+       if [ "${MY_TARGET_ARCH}" != "arm64" ]; then
+           EX_CFLAGS="${EX_CFLAGS} -mcpu=cortex-a8"
+       fi
+   else
+       EX_CFLAGS="-isysroot ${SDKROOT} -arch ${MY_TARGET_ARCH} -miphoneos-version-min=6.0"
+   fi
+   add_make "EXTRA_CFLAGS := ${EX_CFLAGS}"
+   add_make "EXTRA_LDFLAGS := -L${SDKROOT}/usr/lib -arch ${MY_TARGET_ARCH} -isysroot ${SDKROOT} -miphoneos-version-min=6.0"
 }
 
 check_macosx_sdk()
@@ -184,17 +213,64 @@ check_macosx_sdk()
 
 check_android_sdk()
 {
+        ANDROID_ABI=$MY_TARGET_ARCH
+        
 	[ -z "${ANDROID_NDK}" ] && echo "You must set ANDROID_NDK environment variable" && exit 1
 	add_make "ANDROID_NDK := ${ANDROID_NDK}"
+	[ -z "${ANDROID_GCC_VERSION}" ] && echo "You must set ANDROID_GCC_VERSION environment variable" && exit 1
+	add_make "ANDROID_GCC_VERSION := ${ANDROID_GCC_VERSION}"
 	[ -z "${ANDROID_ABI}" ] && echo "You must set ANDROID_ABI environment variable" && exit 1
 	add_make "ANDROID_ABI := ${ANDROID_ABI}"
 	[ -z "${ANDROID_API}" ] && echo "You should set ANDROID_API environment variable (using default android-9)" && ANDROID_API := android-9
 	add_make "ANDROID_API := ${ANDROID_API}"
-	[ ${ANDROID_ABI} = "armeabi-v7a" ] && add_make_enabled "HAVE_NEON"
-	[ ${ANDROID_ABI} = "armeabi-v7a" ] && add_make_enabled "HAVE_ARMV7A"
-	[ ${ANDROID_ABI} = "arm64-v8a" ] && add_make_enabled "HAVE_NEON"
-	[ ${ANDROID_ABI} = "arm64-v8a" ] && add_make_enabled "HAVE_ARMV8A"
-	[ ${ANDROID_ABI} = "armeabi" -a -z "${NO_ARMV6}" ] && add_make_enabled "HAVE_ARMV6"
+        
+        ## FIXME: the android toolchain path is hardcoded, only MACOSX will work.
+        if [ ${ANDROID_ABI} = "x86" ]; then
+            toolchain_path_prefix=x86
+        elif [ ${ANDROID_ABI} = "arm64" ];then
+            toolchain_path_prefix=aarch64-linux-android
+        else
+            toolchain_path_prefix=arm-linux-androideabi
+        fi
+
+        # check whether sysroot is exists
+        if [ $ANDROID_ABI = "arm64" ]; then
+            if [ ! -d ${ANDROID_NDK}/platforms/${ANDROID_API}/arch-arm64 ];then
+                echo "${ANDROID_NDK} ${ANDROID_API} doesn't support build arm64 architecture!"
+                exit $? 
+            fi
+        fi
+        
+        # check whether gcc version is exists
+        if [ ! -d ${ANDROID_NDK}/toolchains/${toolchain_path_prefix}-${ANDROID_GCC_VERSION} ] ;then
+            echo "${ANDROID_NDK} Invalid GCC ${ANDROID_GCC_VERSION} version!"
+            exit 1
+        fi
+
+
+	if [ ${ANDROID_ABI} = "armv7" ]; then
+            add_make_enabled "HAVE_NEON"
+            add_make_enabled "HAVE_ARMV7A"
+            add_make "EXTRA_CFLAGS := -march=armv7-a -mfloat-abi=softfp -mfpu=vfpv3-d16 -mthumb -fomit-frame-pointer -fno-strict-aliasing -DANDROID  -Wa,--noexecstack -Wformat "
+            add_make "EXTRA_LDFLAGS := -march=armv7-a -Wl,--fix-cortex-a8"
+        fi
+        
+	if [ ${ANDROID_ABI} = "arm" -a -z "${NO_ARMV6}" ];then
+            add_make_enabled "HAVE_ARMV6"
+            add_make "EXTRA_CFLAGS := -ffunction-sections -funwind-tables -fstack-protector -no-canonical-prefixes  -march=armv5te -mtune=xscale -msoft-float -mthumb -fomit-frame-pointer -fno-strict-aliasing -DANDROID  -Wa,--noexecstack -Wformat "
+        fi
+
+	if [ ${ANDROID_ABI} = "arm64" ]; then
+            add_make_enabled "HAVE_NEON"
+            add_make_enabled "HAVE_ARMV8A"
+            add_make "EXTRA_CFLAGS :=  -fpic -ffunction-sections  -funwind-tables  -fstack-protector  -no-canonical-prefixes"
+            add_make "EXTRA_LDFLAGS := -no-canonical-prefixes"
+        fi
+
+        if [ ${ANDROID_ABI} = "x86" ];then
+            add_make_enabled "HAVE_x86"
+            add_make "EXTRA_CFLAGS := -ffunction-sections -funwind-tables -fstack-protector -no-canonical-prefixes  -fomit-frame-pointer -fstrict-aliasing -DANDROID  -Wa,--noexecstack -Wformat "
+        fi
 }
 
 check_tizen_sdk()
@@ -204,11 +280,6 @@ check_tizen_sdk()
 }
 
 test -z "$PREFIX" || add_make "PREFIX := $PREFIX"
-# test -z "$BUILD_DISCS" || add_make_enabled "BUILD_DISCS"
-# test -z "$BUILD_ENCODERS" || add_make_enabled "BUILD_ENCODERS"
-# test -z "$BUILD_NETWORK" || add_make_enabled "BUILD_NETWORK"
-# test -z "$ENABLE_SMALL" || add_make_enabled "ENABLE_SMALL"
-# test -z "$GPL" || add_make_enabled "GPL"
 
 #
 # Checks
@@ -235,26 +306,26 @@ case "${OS}" in
 		add_make_enabled "HAVE_LINUX" "HAVE_ANDROID"
 		case "${HOST}" in
 			*arm*)
-			add_make "PLATFORM_SHORT_ARCH := arm"
+			    add_make "PLATFORM_SHORT_ARCH := arm"
 			;;
-			*arm64*)
-			add_make "PLATFORM_SHORT_ARCH := arm64"
+			*arm64* | *aarch64*)
+			    add_make "PLATFORM_SHORT_ARCH := arm64"
 			;;
 			*i686*)
-			add_make "PLATFORM_SHORT_ARCH := x86"
+			    add_make "PLATFORM_SHORT_ARCH := x86"
 			;;
 			*x86_64*)
-			add_make "PLATFORM_SHORT_ARCH := x86_64"
+			    add_make "PLATFORM_SHORT_ARCH := x86_64"
 			;;
 			*mipsel*)
-			add_make "PLATFORM_SHORT_ARCH := mips"
+			    add_make "PLATFORM_SHORT_ARCH := mips"
 			;;
 		esac
 		;;
-        *gnu*)
+        *gnueabi*)
             echo "check Tizen SDK"
             check_tizen_sdk
-            add_make_enabled "HAVE_TIZEN"
+            add_make_enabled "HAVE_TIZEN" "HAVE_LINUX"
             ;;
 	*linux*)
 		add_make_enabled "HAVE_LINUX"

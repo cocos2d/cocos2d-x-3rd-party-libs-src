@@ -19,10 +19,6 @@ ifdef HAVE_TIZEN
 EX_ECFLAGS = -fPIC
 endif
 
-#FIXME: we need to pass __ANDROID__ to cflags
-# ifdef HAVE_ANDROID
-# EX_ECFLAGS = -D__ANDROID__
-# endif
 
 DEPS_websockets = zlib $(DEPS_zlib)
 

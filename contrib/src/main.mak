@@ -13,7 +13,7 @@ TOPDST ?= ..
 SRC := $(TOPSRC)/src
 TARBALLS := $(TOPSRC)/tarballs
 
-PATH :=$(abspath ../../extras/tools/bin):$(PATH)
+PATH := $(abspath ../../extras/tools/bin):$(PATH)
 export PATH
 
 PKGS_ALL := $(patsubst $(SRC)/%/rules.mak,%,$(wildcard $(SRC)/*/rules.mak))
@@ -108,6 +108,7 @@ STRIP=xcrun strip
 RANLIB=xcrun ranlib
 EXTRA_CFLAGS += -isysroot $(MACOSX_SDK) -mmacosx-version-min=$(MIN_OSX_VERSION) -DMACOSX_DEPLOYMENT_TARGET=$(MIN_OSX_VERSION)
 EXTRA_LDFLAGS += -Wl,-syslibroot,$(MACOSX_SDK) -mmacosx-version-min=$(MIN_OSX_VERSION) -isysroot $(MACOSX_SDK) -DMACOSX_DEPLOYMENT_TARGET=$(MIN_OSX_VERSION)
+
 ifeq ($(ARCH),x86_64)
 EXTRA_CFLAGS += -m64 $(OPTIM)
 EXTRA_LDFLAGS += -m64
@@ -124,7 +125,23 @@ else
 XCODE_FLAGS += -arch $(ARCH)
 endif
 
+endif #end of MacOSX
+
+#32bit / 64bit for Linux
+ifndef HAVE_CROSS_COMPILE
+
+ifdef HAVE_LINUX
+
+ifeq ($(ARCH),x86_64)
+EXTRA_CFLAGS += -m64 $(OPTIM)
+EXTRA_LDFLAGS += -m64
+else
+EXTRA_CFLAGS += -m32 $(OPTIM)
+EXTRA_LDFLAGS += -m32
 endif
+
+endif  #end of HAVE_LINUX
+endif #end of HAVE_CROSS_COMPILE
 
 CCAS=$(CC) -c
 
@@ -141,6 +158,8 @@ AR=xcrun ar
 LD=xcrun ld
 STRIP=xcrun strip
 RANLIB=xcrun ranlib
+# CPP=xcrun cc -E
+# CXXCPP=xcrun c++ -E
 endif
 
 ifdef HAVE_WIN32
@@ -149,22 +168,13 @@ HAVE_MINGW_W64 := 1
 endif
 endif
 
-# ifdef HAVE_SOLARIS
-# ifeq ($(ARCH),x86_64)
-# EXTRA_CFLAGS += -m64
-# EXTRA_LDFLAGS += -m64
-# else
-# EXTRA_CFLAGS += -m32
-# EXTRA_LDFLAGS += -m32
-# endif
-# endif
 
 cppcheck = $(shell $(CC) $(CFLAGS) -E -dM - < /dev/null | grep -E $(1))
 
 EXTRA_CFLAGS += -I$(PREFIX)/include
-CFLAGS := $(CFLAGS) $(EXTRA_CFLAGS)
-CPPFLAGS := $(CPPFLAGS) $(CFLAGS)
-CXXFLAGS := $(CXXFLAGS) $(CFLAGS)
+CFLAGS := $(CFLAGS) $(EXTRA_CFLAGS) $(OPTIM)
+CPPFLAGS := $(CPPFLAGS) $(EXTRA_CFLAGS) $(OPTIM)
+CXXFLAGS := $(CXXFLAGS) $(EXTRA_CFLAGS) $(OPTIM)
 EXTRA_LDFLAGS += -L$(PREFIX)/lib
 LDFLAGS := $(LDFLAGS) $(EXTRA_LDFLAGS)
 # Do not export those! Use HOSTVARS.

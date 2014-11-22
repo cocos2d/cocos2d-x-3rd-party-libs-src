@@ -24,17 +24,6 @@ ifdef HAVE_SOLARIS
 LUA_TARGET := solaris
 endif
 
-#FIXME: we don't want to use scripts to determine which libraries should be
-#       included, because there is bug in cross compile
-
-# Feel free to add autodetection if you need to...
-# PKGS += lua
-# ifeq ($(call need_pkg,"lua5.2"),)
-# PKGS_FOUND += lua
-# endif
-# ifeq ($(call need_pkg,"lua5.1"),)
-# PKGS_FOUND += lua
-# endif
 
 $(TARBALLS)/lua-$(LUA_VERSION).tar.gz:
 	$(call download,$(LUA_URL))
@@ -48,14 +37,12 @@ lua: lua-$(LUA_VERSION).tar.gz .sum-lua
 	$(APPLY) $(SRC)/lua/luac-32bits.patch
 	$(APPLY) $(SRC)/lua/no-localeconv.patch
 	$(APPLY) $(SRC)/lua/lua-macosx-support.patch
-ifdef HAVE_DARWIN_OS
+
 	(cd $(UNPACK_DIR) && \
 	sed -e 's%gcc%$(CC)%' \
 		-e 's%LDFLAGS=%LDFLAGS=$(LDFLAGS)%' \
-		-e 's%CFLAGS= -O2 -Wall $(MYCFLAGS)%CFLAGS=$(MYCFLAGS)%' \
-		-e 's%MYCFLAGS=%MYCFLAGS=$(CFLAGS)%' \
+		-e 's%CFLAGS= -O2 -Wall $(MYCFLAGS)%CFLAGS=$(CFLAGS)%' \
 		-i.orig src/Makefile)
-endif
 
 ifdef HAVE_WIN32
 	cd $(UNPACK_DIR) && sed -i.orig -e 's/lua luac/lua.exe luac.exe/' Makefile
@@ -63,6 +50,7 @@ endif
 	cd $(UNPACK_DIR)/src && sed -i.orig \
 		-e 's/CC=/#CC=/' \
 		-e 's/= *strip/=$(STRIP)/' \
+		-e 's/= *ar rcu/= $(AR) rcu/' \
 		-e 's/= *ranlib/= $(RANLIB)/' \
 		Makefile
 	$(MOVE)

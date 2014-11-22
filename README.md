@@ -27,15 +27,15 @@ or Windows machine were not tested, so we don't know if it works or not.
 
 ## Prerequisite
 ### For Mac users
-- If you want to use these scripts, you should install Git 1.8+, CMake 2.8+ and M4 1.4+.
+- If you want to use these scripts, you should install Git 1.8+, CMake 2.8+, autoconf and libtool.
 If you are a Homebrew user, you could simply run the following commands to install these tools:
 
 ```
 brew update
 brew install git
 brew install cmake
-brew install m4
 brew install autoconf
+brew install libtool
 ```
 
 - If you want to build static libraries for iOS and Mac, you should install the latest version of XCode.  You should also install the `Command Line Tools` bundled with XCode.
@@ -45,8 +45,15 @@ brew install autoconf
 
 - If you want to build static libraries for Tizen, you should download and install [Tizen SDK](https://developer.tizen.org/downloads/tizen-sdk). And you should also add a environment variable named `TIZEN_SDK` in your shell.
 
-### For Linux users
-xxx need to improve the document here later.
+### For Linux(Ubuntu) users
+- If you want to use these scripts, you should instll *autoconf*:
+
+```
+sudo apt-get install autoconf
+sudo apt-get install cmake
+sudo apt-get install libtool
+sudo apt-get install git
+```
 
 ### For Windows users
 In order to run these scripts, you should install [msys2](http://msys2.github.io/) and update the system packages.
@@ -54,13 +61,8 @@ In order to run these scripts, you should install [msys2](http://msys2.github.io
 After that, you should also install the following dependencies:
 
 ```
-pacman -S gcc
-pacman -S make
-pacman -S autoconf
-pacman -S automake
-pacman -S git
-pacman -S cmake
-pacman -S libtool
+pacman -S mingw-w64-i686-toolchain
+
 ```
 
 ## How to use
@@ -69,8 +71,10 @@ We have one build script for each platform, they are under `build/platform{ios/m
 All of them share the same usage:
 
 ```
-./build.sh --libs=param1 --arch=param2 --mode=param3 --list
+./build.sh -p=param0 --libs=param1 --arch=param2 --mode=param3 --list
 ```
+
+- param0: specify a platform, only (ios, mac, android, linux and tizen ) are valid values.
 
 - param1:
     - use `all` to build all the 3rd party libraries, it will take you a very long time.
@@ -87,12 +91,12 @@ All of them share the same usage:
 - list:
     - Use these option to list all the supported libraries.
 
-### For iOS Platform
+### Build png on iOS platform
 For building libpng fat library with all arch x86_64, i386, armv7, arm64 on release mode:
 
 ```
-cd build/ios
-./build.sh --libs=png
+cd build
+./build.sh -p=ios --libs=png
 ```
 
 After running this command, it will generate a folder named `png`:
@@ -110,24 +114,24 @@ All the other libraries share the same folder structure.
 For building libpng fat library with arch armv7 and arm64 on debug mode:
 
 ```
-cd build/ios
-./build.sh --libs=png --arch=armv7,arm64 --mode=debug
+cd build
+./build.sh -p=ios --libs=png --arch=armv7,arm64 --mode=debug
 ```
 
-### For Android Platform
-xxx document will be update later.
+### Build for Android arm64
 
-### For Mac
-xxx document will be update later.
+1. Download Android NDK r10c and set the ANDROID_NDK to point to the Android ndk r10c path. Don't forget to `source ~/.bash_profile`.
 
-### For Tizen
-xxx document will be update later.
+2. Modify the android.ini config file. Change `cfg_default_build_api=21` and `cfg_default_gcc_version=4.9`.
 
-### For Linux
-xxx After testing these scripts on Linux, document will be update.
+3. Pass `--arch=64` to build the libraries with arm64 support.
+
+
+For other platforms and other libraries, it is more or less the same way except for some minor changes in `--arch` parameter and `-p` parameter.
+
 
 ## How to build a DEBUG and RELEASE version
-xxx we need to improve the script to add debug and release options.
+You can add flag "--mode=[debug | release]" for building DEBUG and RELEASE version.
 
 ## How to do build clean?
 If you use `./build.sh` to build static libraries, there is no need to do clean. After generating the static library, script will delete the intermediate files.
