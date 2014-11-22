@@ -233,20 +233,20 @@ check_android_sdk()
             toolchain_path_prefix=arm-linux-androideabi
         fi
 
-        # check whether gcc version is exists
-        if [ ! -d ${ANDROID_NDK}/toolchains/${toolchain_path_prefix}-${ANDROID_GCC_VERSION} ] ;then
-            echo ${ANDROID_NDK}
-            echo "Invalid GCC ${ANDROID_GCC_VERSION} version!"
-            exit
-        fi
-
         # check whether sysroot is exists
         if [ $ANDROID_ABI = "arm64" ]; then
             if [ ! -d ${ANDROID_NDK}/platforms/${ANDROID_API}/arch-arm64 ];then
                 echo "${ANDROID_NDK} ${ANDROID_API} doesn't support build arm64 architecture!"
-                exit 1
+                exit $? 
             fi
         fi
+        
+        # check whether gcc version is exists
+        if [ ! -d ${ANDROID_NDK}/toolchains/${toolchain_path_prefix}-${ANDROID_GCC_VERSION} ] ;then
+            echo "${ANDROID_NDK} Invalid GCC ${ANDROID_GCC_VERSION} version!"
+            exit 1
+        fi
+
 
 	if [ ${ANDROID_ABI} = "armv7" ]; then
             add_make_enabled "HAVE_NEON"

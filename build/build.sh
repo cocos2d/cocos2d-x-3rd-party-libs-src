@@ -167,11 +167,17 @@ if [ $cfg_platform_name = "android" ];then
         exit 1
     fi 
 
-    if [ ! -z $cfg_android_ndk_path ];then
+    if [ ! -z $cfg_android_ndk_path ] && [ -z $ANDROID_NDK ]; then
         echo "export android ndk"
         export ANDROID_NDK=$cfg_android_ndk_path
     fi
-    
+fi
+
+if [ $cfg_platform_name = "tizen" ];then
+    if [ ! -z $cfg_tizen_sdk_path ] && [ -z $TIZEN_SDK ];then
+        echo "export tizen sdk"
+        export TIZEN_SDK=$cfg_tizen_sdk_path
+    fi
 fi
 
 current_dir=`pwd`
@@ -310,9 +316,11 @@ do
         MY_TARGET_ARCH=$arch
         export MY_TARGET_ARCH
 
-        cross_compile_toolchain_path=cfg_${arch}_toolchain_bin
-        echo "toolchain path is ${!cross_compile_toolchain_path}"
-        export PATH="${!cross_compile_toolchain_path}:${PATH}"
+        if [ ${cfg_is_cross_compile} = "yes" ];then
+            cross_compile_toolchain_path=cfg_${arch}_toolchain_bin
+            echo "toolchain path is ${!cross_compile_toolchain_path}"
+            export PATH="${!cross_compile_toolchain_path}:${PATH}"
+        fi
 
         # TODO: add more build and target options here
         if [ $cfg_platform_name = "ios" ];then
@@ -367,7 +375,7 @@ do
 
         fi
 
-        if [ $lib = "png" ] || [ $lib = "freetype2" ] || [ $lib = "websockets" ] || [ $lib = "curl" ];  then
+        if [ $lib = "png" ] || [ $lib = "freetype" ] || [ $lib = "websockets" ] || [ $lib = "curl" ];  then
             echo "copying libz..."
             local_install_path=$cfg_platform_name/z/prebuilt/$arch
             mkdir -p $local_install_path
@@ -396,7 +404,7 @@ do
             create_fat_library crypto
         fi
 
-        if [ $lib = "png" ] || [ $lib = "curl" ] || [ $lib = "freetype2" ] || [ $lib = "websockets" ]; then
+        if [ $lib = "png" ] || [ $lib = "curl" ] || [ $lib = "freetype" ] || [ $lib = "websockets" ]; then
             create_fat_library z
         fi
     fi
