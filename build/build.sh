@@ -67,12 +67,6 @@ while [ "$1" != "" ]; do
         --list | -l)
             build_list_all_libraries=yes
             ;;
-        --api)
-            build_api=$VALUE
-            ;;
-        --gcc)
-            build_gcc_version=$VALUE
-            ;;
         *)
             echo "ERROR: unknown parameter \"$PARAM\""
             usage
@@ -174,6 +168,7 @@ if [ $cfg_platform_name = "android" ];then
     fi 
 
     if [ ! -z $cfg_android_ndk_path ];then
+        echo "export android ndk"
         export ANDROID_NDK=$cfg_android_ndk_path
     fi
     
@@ -315,9 +310,21 @@ do
         MY_TARGET_ARCH=$arch
         export MY_TARGET_ARCH
 
+        cross_compile_toolchain_path=cfg_${arch}_toolchain_bin
+        echo "toolchain path is ${!cross_compile_toolchain_path}"
+        export PATH="${!cross_compile_toolchain_path}:${PATH}"
+
+        # TODO: add more build and target options here
         if [ $cfg_platform_name = "ios" ];then
             export BUILDFORIOS="yes"
         fi
+
+        if [ $cfg_platform_name = "android" ];then
+            export ANDROID_GCC_VERSION=$build_gcc_version
+            export ANDROID_API=android-$build_api
+
+        fi
+
         
         mkdir -p "${top_dir}/contrib/${cfg_platform_name}-${arch}"
         cd "${top_dir}/contrib/${cfg_platform_name}-${arch}"

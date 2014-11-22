@@ -30,7 +30,7 @@ endif #endof HAVE_IOS
 
 ifdef HAVE_ANDROID
 NDKF=--sysroot=$(ANDROID_NDK)/platforms/$(ANDROID_API)/arch-$(PLATFORM_SHORT_ARCH)
-ifeq ($(ANDROID_ABI),armeabi-v7a)
+ifeq ($(ANDROID_ABI),armv7)
 LUAJIT_LDFLAGS="-march=armv7-a -Wl,--fix-cortex-a8"
 endif
 endif
