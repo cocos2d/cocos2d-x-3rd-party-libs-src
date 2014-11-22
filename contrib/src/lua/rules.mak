@@ -50,6 +50,7 @@ endif
 	cd $(UNPACK_DIR)/src && sed -i.orig \
 		-e 's/CC=/#CC=/' \
 		-e 's/= *strip/=$(STRIP)/' \
+		-e 's/= *ar rcu/= $(AR) rcu/' \
 		-e 's/= *ranlib/= $(RANLIB)/' \
 		Makefile
 	$(MOVE)

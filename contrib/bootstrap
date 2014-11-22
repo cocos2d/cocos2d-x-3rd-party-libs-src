@@ -292,7 +292,7 @@ case "${OS}" in
         *gnueabi*)
             echo "check Tizen SDK"
             check_tizen_sdk
-            add_make_enabled "HAVE_TIZEN"
+            add_make_enabled "HAVE_TIZEN" "HAVE_LINUX"
             ;;
 	*linux*)
 		add_make_enabled "HAVE_LINUX"
