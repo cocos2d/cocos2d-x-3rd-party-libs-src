@@ -95,7 +95,7 @@ All of them share the same usage:
 For building libpng fat library with all arch x86_64, i386, armv7, arm64 on release mode:
 
 ```
-cd build/ios
+cd build
 ./build.sh -p=ios --libs=png
 ```
 
@@ -114,7 +114,7 @@ All the other libraries share the same folder structure.
 For building libpng fat library with arch armv7 and arm64 on debug mode:
 
 ```
-cd build/ios
+cd build
 ./build.sh -p=ios --libs=png --arch=armv7,arm64 --mode=debug
 ```
 
