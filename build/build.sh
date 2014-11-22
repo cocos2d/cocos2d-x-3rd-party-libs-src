@@ -314,6 +314,8 @@ do
         
         build_settings_for_$cfg_platform_name $arch $lib
         
+        echo "TARGET_ARCH := ${arch}" >> config.mak
+        echo "OPTIM := ${OPTIM}" >> config.mak
 
         make fetch
         make list
