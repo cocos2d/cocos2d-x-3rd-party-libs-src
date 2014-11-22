@@ -289,6 +289,10 @@ do
         archive_name=z
     fi
 
+    if [ $lib = "openssl" ];then
+        archive_name=ssl
+    fi
+
     mkdir -p $cfg_platform_name/$archive_name/include/
 
     for arch in "${build_arches[@]}"
@@ -333,7 +337,7 @@ do
             cp $top_dir/contrib/$install_library_path/$arch/lib/libssl.a $local_library_install_path/libssl.a
 
             local_library_install_path=$cfg_platform_name/crypto/prebuilt/$arch
-            mkdir -p $local_install_path
+            mkdir -p $local_library_install_path
             cp $top_dir/contrib/$install_library_path/$arch/lib/libcrypto.a $local_library_install_path/libcrypto.a
 
         fi
