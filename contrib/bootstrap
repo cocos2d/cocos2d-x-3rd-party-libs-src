@@ -130,8 +130,8 @@ add_make_enabled()
 
 check_ios_sdk()
 {
-   [ -z "${TARGET_ARCH}" ] && echo "You must set TARGET_ARCH environment variable" && exit 1
-    if [ $TARGET_ARCH = "i386" ] || [ $TARGET_ARCH = "x86_64" ];then
+   [ -z "${MY_TARGET_ARCH}" ] && echo "You must set MY_TARGET_ARCH environment variable" && exit 1
+    if [ $MY_TARGET_ARCH = "i386" ] || [ $MY_TARGET_ARCH = "x86_64" ];then
         IOS_PLATFORM="Simulator"
     else
         IOS_PLATFORM="OS"
@@ -164,15 +164,15 @@ check_ios_sdk()
    fi
     
    if [ "$IOS_PLATFORM" = "OS" ]; then
-       EX_CFLAGS="-isysroot ${SDKROOT} -arch ${TARGET_ARCH} -miphoneos-version-min=6.0"
-       if [ "${TARGET_ARCH}" != "arm64" ]; then
+       EX_CFLAGS="-isysroot ${SDKROOT} -arch ${MY_TARGET_ARCH} -miphoneos-version-min=6.0"
+       if [ "${MY_TARGET_ARCH}" != "arm64" ]; then
            EX_CFLAGS="${EX_CFLAGS} -mcpu=cortex-a8"
        fi
    else
-       EX_CFLAGS="-isysroot ${SDKROOT} -arch ${TARGET_ARCH} -miphoneos-version-min=6.0"
+       EX_CFLAGS="-isysroot ${SDKROOT} -arch ${MY_TARGET_ARCH} -miphoneos-version-min=6.0"
    fi
    add_make "EXTRA_CFLAGS := ${EX_CFLAGS}"
-   add_make "EXTRA_LDFLAGS := -L${SDKROOT}/usr/lib -arch ${TARGET_ARCH} -isysroot ${SDKROOT} -miphoneos-version-min=6.0"
+   add_make "EXTRA_LDFLAGS := -L${SDKROOT}/usr/lib -arch ${MY_TARGET_ARCH} -isysroot ${SDKROOT} -miphoneos-version-min=6.0"
 }
 
 check_macosx_sdk()

@@ -311,17 +311,16 @@ do
         build_library_path=$cfg_library_build_folder
 
         echo "build $arch for $lib in $cfg_platform_name"
+
+        MY_TARGET_ARCH=$arch
+        export MY_TARGET_ARCH
         
         build_settings_for_$cfg_platform_name $arch $lib
         
-        echo "TARGET_ARCH := ${arch}" >> config.mak
+        echo "MY_TARGET_ARCH := ${MY_TARGET_ARCH}" >> config.mak
         echo "OPTIM := ${OPTIM}" >> config.mak
 
-        make fetch
-        make list
-        make
-        
-        popd
+        cd -    
   
         local_library_install_path=$cfg_platform_name/$archive_name/prebuilt/$arch
         if [ ! -d $local_library_install_path ]; then

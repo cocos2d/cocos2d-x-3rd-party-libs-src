@@ -4,24 +4,24 @@ OPENSSL_URL := https://www.openssl.org/source/openssl-$(OPENSSL_VERSION).tar.gz
 
 
 ifdef HAVE_MACOSX
-ifeq ($(TARGET_ARCH),x86_64)
+ifeq ($(MY_TARGET_ARCH),x86_64)
 OPENSSL_CONFIG_VARS="darwin64-x86_64-cc"
 OPENSSL_ARCH=-m64
 endif
 
-ifeq ($(TARGET_ARCH),i386)
+ifeq ($(MY_TARGET_ARCH),i386)
 OPENSSL_CONFIG_VARS="BSD-generic32"
 OPENSSL_ARCH=-m32
 endif
 endif
 
 ifdef HAVE_LINUX
-ifeq ($(TARGET_ARCH),x86_64)
+ifeq ($(MY_TARGET_ARCH),x86_64)
 OPENSSL_CONFIG_VARS="linux-generic64"
 OPENSSL_ARCH=-m64
 endif
 
-ifeq ($(TARGET_ARCH),i386)
+ifeq ($(MY_TARGET_ARCH),i386)
 OPENSSL_CONFIG_VARS="linux-generic32"
 OPENSSL_ARCH=-m32
 endif
@@ -36,15 +36,15 @@ OPENSSL_COMPILER=os/compiler:$(HOST)
 endif
 
 ifdef HAVE_IOS
-ifeq ($(TARGET_ARCH),armv7)
+ifeq ($(MY_TARGET_ARCH),armv7)
 OPENSSL_CONFIG_VARS="BSD-generic32"
 endif
 
-ifeq ($(TARGET_ARCH),i386)
+ifeq ($(MY_TARGET_ARCH),i386)
 OPENSSL_CONFIG_VARS="BSD-generic32"
 endif
 
-ifeq ($(TARGET_ARCH),arm64)
+ifeq ($(MY_TARGET_ARCH),arm64)
 OPENSSL_CONFIG_VARS="BSD-generic64"
 endif
 endif
@@ -64,18 +64,15 @@ endif
 .openssl: openssl
 	cd $< && $(HOSTVARS_PIC)  ./Configure $(OPENSSL_CONFIG_VARS)  --prefix=$(PREFIX) $(OPENSSL_COMPILER) ${OPENSSL_ARCH}
 ifdef HAVE_IOS
-	cd $< && perl -i -pe "s|^CC= xcrun clang|CC= xcrun cc -arch ${TARGET_ARCH} -miphoneos-version-min=6.0 |g" Makefile
+	cd $< && perl -i -pe "s|^CC= xcrun clang|CC= xcrun cc -arch ${MY_TARGET_ARCH} -miphoneos-version-min=6.0 |g" Makefile
 	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= -isysroot ${IOS_SDK} ${OPTIM} |g" Makefile
-endif
-ifdef HAVE_ANDROID
-	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= ${EXTRA_CFLAGS} ${OPTIM} |g" Makefile
 endif
 ifdef HAVE_LINUX
 	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= ${EXTRA_CFLAGS} ${OPTIM} |g" Makefile
 endif
 ifdef HAVE_MACOSX
 	cd $< && perl -i -pe "s|^CC= xcrun clang|CC= xcrun cc  -mmacosx-version-min=10.6 |g" Makefile
-	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= -isysroot ${MACOSX_SDK} -arch ${TARGET_ARCH} ${OPTIM} |g" Makefile
+	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= -isysroot ${MACOSX_SDK} -arch ${MY_TARGET_ARCH} ${OPTIM} |g" Makefile
 endif
 	cd $< && $(MAKE) install
 	touch $@
