@@ -327,7 +327,11 @@ do
         cd "${top_dir}/contrib/${cfg_platform_name}-${arch}"
 
         PREFIX="${top_dir}/contrib/install-${cfg_platform_name}/${arch}"
+
         my_target_host=cfg_${arch}_host_machine
+        if [ $cfg_is_cross_compile = "no" ];then
+            cfg_build_machine=${!my_target_host}
+        fi
 
         ../bootstrap --enable-$lib \
                      --build=$cfg_build_machine \
