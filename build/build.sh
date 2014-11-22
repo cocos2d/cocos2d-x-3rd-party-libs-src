@@ -307,15 +307,32 @@ do
         set_build_mode_cflags
         
 
-        install_library_path=$cfg_library_install_prefix
-        build_library_path=$cfg_library_build_folder
+        install_library_path="install-${cfg_platform_name}"
+        build_library_path=$cfg_platform_name
 
         echo "build $arch for $lib in $cfg_platform_name"
 
         MY_TARGET_ARCH=$arch
         export MY_TARGET_ARCH
+
+        if [ $cfg_platform_name = "ios" ];then
+            export BUILDFORIOS="yes"
+        fi
         
-        build_settings_for_$cfg_platform_name $arch $lib
+        mkdir -p "${top_dir}/contrib/${cfg_platform_name}-${arch}"
+        cd "${top_dir}/contrib/${cfg_platform_name}-${arch}"
+
+        PREFIX="${top_dir}/contrib/install-${cfg_platform_name}/${arch}"
+        my_target_host=cfg_${arch}_host_machine
+
+        ../bootstrap --enable-$lib \
+                     --build=$cfg_build_machine \
+                     --host=${!my_target_host} \
+                     --prefix=${PREFIX}
+
+        make fetch
+        make list
+        make
         
         echo "MY_TARGET_ARCH := ${MY_TARGET_ARCH}" >> config.mak
         echo "OPTIM := ${OPTIM}" >> config.mak
@@ -362,6 +379,7 @@ do
         fi
     done
 
+    echo $cfg_build_fat_library
     if [ $cfg_build_fat_library = "yes" ];then
         
         create_fat_library $archive_name
