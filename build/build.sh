@@ -270,27 +270,27 @@ function set_build_mode_cflags()
 for lib in "${build_library[@]}"
 do
     library_name=$lib
-    archive_name=$lib
 
-    # parser_lib_archive_alias=${lib}_archive_alias
-    # archive_name=${!parser_lib_archive_alias}
-
-    if [ $lib = "zlib" ]; then
-        archive_name=z
-    fi
-
-    if [ $lib = "openssl" ];then
-        archive_name=ssl
+    parser_lib_archive_alias=${lib}_archive_alias
+    archive_name=${!parser_lib_archive_alias}
+    if [ -z $archive_name ];then
+        archive_name=$lib
     fi
 
     mkdir -p $cfg_platform_name/$archive_name/include/
 
     for arch in "${build_arches[@]}"
     do
-        #skip certain arch libraries
-        #because luajit doesn't support arm64!
-        if [ $lib = "luajit" ] && [ $arch = "arm64" ]; then
-            continue
+        #skip build libraries with certain arch
+        ignore_arch_library=${lib}_ignore_arch_list
+        ignore_arch_list=(${!ignore_arch_library})
+        ignore_arch_list_array=(${ignore_arch_list//,/ })
+        if [ ! -z ${ignore_arch_list} ]; then
+            echo ${ignore_arch_list}
+            if [ $(contains "${ignore_arch_list_array[@]}" $arch) == "y" ];then
+                echo "ingore $lib for $arch"
+                continue
+            fi
         fi
 
         #set build mode flags -- debug or release
@@ -302,7 +302,13 @@ do
 
         echo "build $arch for $lib in $cfg_platform_name"
 
-        MY_TARGET_ARCH=$arch
+        parse_arch_folder_name=cfg_${arch}_alias_folder_name
+        original_arch_name=${!parse_arch_folder_name}
+        if [ -z $original_arch_name ];then
+            original_arch_name=$arch
+        fi
+        
+        MY_TARGET_ARCH=$original_arch_name
         export MY_TARGET_ARCH
 
         if [ ${cfg_is_cross_compile} = "yes" ];then
@@ -338,42 +344,46 @@ do
                      --host=${!my_target_host} \
                      --prefix=${PREFIX}
 
-        make fetch
-        make list
-        make
         
         echo "MY_TARGET_ARCH := ${MY_TARGET_ARCH}" >> config.mak
         echo "OPTIM := ${OPTIM}" >> config.mak
+        
+        make
 
         cd -    
   
-        local_library_install_path=$cfg_platform_name/$archive_name/prebuilt/$arch
+        local_library_install_path=$cfg_platform_name/$archive_name/prebuilt/$original_arch_name
         if [ ! -d $local_library_install_path ]; then
             echo "create folder for library with specify arch. $local_library_install_path"
             mkdir -p $local_library_install_path
         fi
         
-        cp $top_dir/contrib/$install_library_path/$arch/lib/lib$archive_name.a $local_library_install_path/lib$archive_name.a
-        cp $top_dir/contrib/$install_library_path/$arch/lib/lib$archive_name*.a $local_library_install_path/lib$archive_name.a
-
-
-        if [ $lib = "curl" ]; then
-            local_library_install_path=$cfg_platform_name/ssl/prebuilt/$arch 
-            mkdir -p $local_library_install_path
-            cp $top_dir/contrib/$install_library_path/$arch/lib/libssl.a $local_library_install_path/libssl.a
-
-            local_library_install_path=$cfg_platform_name/crypto/prebuilt/$arch
-            mkdir -p $local_library_install_path
-            cp $top_dir/contrib/$install_library_path/$arch/lib/libcrypto.a $local_library_install_path/libcrypto.a
-
+        #determine the .a achive name with a specified libraries
+        parse_original_lib_name=${lib}_original_name
+        original_archive_name=${!parse_original_lib_name}
+        if [ -z $original_archive_name ];then
+            original_archive_name=$archive_name
         fi
 
-        if [ $lib = "png" ] || [ $lib = "freetype" ] || [ $lib = "websockets" ] || [ $lib = "curl" ];  then
-            echo "copying libz..."
-            local_install_path=$cfg_platform_name/z/prebuilt/$arch
-            mkdir -p $local_install_path
-            cp $top_dir/contrib/$install_library_path/$arch/lib/libz.a $local_install_path/libz.a
+        #copy .a archive from install-platform folder
+        cp $top_dir/contrib/$install_library_path/$arch/lib/lib$original_archive_name.a $local_library_install_path/lib$archive_name.a
+
+        #copy dependent .a archive
+        parse_dependent_archive_list=${lib}_dependent_archive_list
+        original_dependent_archive_list=${!parse_dependent_archive_list}
+        if [ ! -z $original_dependent_archive_list ];then
+            echo "copying dependent archives..."
+            original_dependent_archive_list=(${original_dependent_archive_list//,/ })            
+
+            for dep_archive in ${original_dependent_archive_list[@]}
+            do
+                local_library_install_path=$cfg_platform_name/${dep_archive}/prebuilt/$original_arch_name
+                mkdir -p $local_library_install_path
+                cp $top_dir/contrib/$install_library_path/$arch/lib/lib${dep_archive}.a $local_library_install_path/lib${dep_archive}.a
+
+            done
         fi
+
 
         echo "Copying needed heder files"
         copy_include_file_path=${lib}_header_files
@@ -392,13 +402,16 @@ do
         
         create_fat_library $archive_name
 
-        if [ $lib = "curl" ]; then
-            create_fat_library ssl
-            create_fat_library crypto
-        fi
+        parse_dependent_archive_list=${lib}_dependent_archive_list
+        original_dependent_archive_list=${!parse_dependent_archive_list}
+        if [ ! -z $original_dependent_archive_list ];then
+            echo "create fat library for dependent archives..."
+            original_dependent_archive_list=(${original_dependent_archive_list//,/ })            
 
-        if [ $lib = "png" ] || [ $lib = "curl" ] || [ $lib = "freetype" ] || [ $lib = "websockets" ]; then
-            create_fat_library z
+            for dep_archive in ${original_dependent_archive_list[@]}
+            do
+                create_fat_library $dep_archive                
+            done
         fi
     fi
 

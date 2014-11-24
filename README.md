@@ -5,7 +5,7 @@ This repository includes the source code of the 3rd party libraries (binary) tha
 
 This repository is needed for cocos2d-x developers and/or people who want to:
 
-* generate a updated version of a certain library (eg: upgrade libpng 1.2.2 to 1.2.14)
+* generate a updated version of a certain library (eg: upgrade libpng 1.6.2 to 1.6.14)
 * port cocos2d-x to other platforms (eg: port it to Android ARM64, or Xbox One, etc)
 * generate DEBUG versions of all the 3rd party library
 
@@ -66,7 +66,7 @@ pacman -S mingw-w64-i686-toolchain
 ```
 
 ## How to use
-We have one build script for each platform, they are under `build/platform{ios/mac/android/tizen}` directory.
+We have one build script for each platform, they are under `build` directory.
 
 All of them share the same usage:
 
@@ -81,7 +81,7 @@ All of them share the same usage:
     - use comma separated library names, for example, `png,lua,jpeg,webp`,  no space between the comma.
 
 - param2:
-    - use `all` to build all the supported arches. For iOS, they are "armv7, arm64, i386, x86_64", for Android, they are "armeabi, armeabi-v7a, x86, arm64", for Mac, they are "x86_64", for Tizen, they are "armv7"
+    - use `all` to build all the supported arches. For iOS, they are "armv7, arm64, i386, x86_64", for Android, they are "arm,armv7,arm64,x86", for Mac, they are "x86_64", for Tizen, they are "armv7"
     - use comma separated arch name, for example, `armv7, arm64`, no space between the comma.
 
 - param3:
@@ -89,7 +89,7 @@ All of them share the same usage:
     - debug:  Build library on debug mode. we use `-O0 -g -DDEBUG` flag to build debug library.
 
 - list:
-    - Use these option to list all the supported libraries.
+    - Use these option to list all the supported library names and versions.
 
 ### Build png on iOS platform
 For building libpng fat library with all arch x86_64, i386, armv7, arm64 on release mode:
@@ -126,15 +126,17 @@ cd build
 
 3. Pass `--arch=64` to build the libraries with arm64 support.
 
-
-For other platforms and other libraries, it is more or less the same way except for some minor changes in `--arch` parameter and `-p` parameter.
+Note:
+If you build `webp` with arm64, you will get `cpu-features.h` header file not found error. This is a known issue of Android NDK r10c. You could simply create a empty header file
+named `cpu-features.h` under `{ANDROID_NDK}/platforms/android-21/arch-arm64/usr/include`.
 
 
 ## How to build a DEBUG and RELEASE version
 You can add flag "--mode=[debug | release]" for building DEBUG and RELEASE version.
 
 ## How to do build clean?
-If you use `./build.sh` to build static libraries, there is no need to do clean. After generating the static library, script will delete the intermediate files.
+You could simply turn on the flag `cfg_is_cleanup_after_build` to "yes" in `main.ini` file.
+After each build, you could also delete the generated folders under `contrib` directory.
 
 
 ## How to upgrade a existing library
