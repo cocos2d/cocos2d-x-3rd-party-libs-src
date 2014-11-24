@@ -165,7 +165,7 @@ if [ $cfg_platform_name = "android" ];then
         echo "Invalid gcc version number! Gcc version should be numerical numbers."
         usage
         exit 1
-    fi 
+    fi
 
 fi
 
@@ -295,7 +295,7 @@ do
 
         #set build mode flags -- debug or release
         set_build_mode_cflags
-        
+
 
         install_library_path="install-${cfg_platform_name}"
         build_library_path=$cfg_platform_name
@@ -307,7 +307,7 @@ do
         if [ -z $original_arch_name ];then
             original_arch_name=$arch
         fi
-        
+
         MY_TARGET_ARCH=$original_arch_name
         export MY_TARGET_ARCH
 
@@ -328,7 +328,7 @@ do
 
         fi
 
-        
+
         mkdir -p "${top_dir}/contrib/${cfg_platform_name}-${arch}"
         cd "${top_dir}/contrib/${cfg_platform_name}-${arch}"
 
@@ -344,20 +344,20 @@ do
                      --host=${!my_target_host} \
                      --prefix=${PREFIX}
 
-        
+
         echo "MY_TARGET_ARCH := ${MY_TARGET_ARCH}" >> config.mak
         echo "OPTIM := ${OPTIM}" >> config.mak
-        
+
         make
 
-        cd -    
-  
+        cd -
+
         local_library_install_path=$cfg_platform_name/$archive_name/prebuilt/$original_arch_name
         if [ ! -d $local_library_install_path ]; then
             echo "create folder for library with specify arch. $local_library_install_path"
             mkdir -p $local_library_install_path
         fi
-        
+
         #determine the .a achive name with a specified libraries
         parse_original_lib_name=${lib}_original_name
         original_archive_name=${!parse_original_lib_name}
@@ -373,7 +373,7 @@ do
         original_dependent_archive_list=${!parse_dependent_archive_list}
         if [ ! -z $original_dependent_archive_list ];then
             echo "copying dependent archives..."
-            original_dependent_archive_list=(${original_dependent_archive_list//,/ })            
+            original_dependent_archive_list=(${original_dependent_archive_list//,/ })
 
             for dep_archive in ${original_dependent_archive_list[@]}
             do
@@ -399,18 +399,18 @@ do
 
     echo $cfg_build_fat_library
     if [ $cfg_build_fat_library = "yes" ];then
-        
+
         create_fat_library $archive_name
 
         parse_dependent_archive_list=${lib}_dependent_archive_list
         original_dependent_archive_list=${!parse_dependent_archive_list}
         if [ ! -z $original_dependent_archive_list ];then
             echo "create fat library for dependent archives..."
-            original_dependent_archive_list=(${original_dependent_archive_list//,/ })            
+            original_dependent_archive_list=(${original_dependent_archive_list//,/ })
 
             for dep_archive in ${original_dependent_archive_list[@]}
             do
-                create_fat_library $dep_archive                
+                create_fat_library $dep_archive
             done
         fi
     fi
