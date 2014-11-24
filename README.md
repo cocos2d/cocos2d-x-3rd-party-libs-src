@@ -126,6 +126,10 @@ cd build
 
 3. Pass `--arch=64` to build the libraries with arm64 support.
 
+Note:
+If you build `webp` with arm64, you will get `cpu-features.h` header file not found error. This is a known issue of Android NDK r10c. You could simply create a empty header file
+named `cpu-features.h` under `{ANDROID_NDK}/platforms/android-21/arch-arm64/usr/include`.
+
 
 ## How to build a DEBUG and RELEASE version
 You can add flag "--mode=[debug | release]" for building DEBUG and RELEASE version.
