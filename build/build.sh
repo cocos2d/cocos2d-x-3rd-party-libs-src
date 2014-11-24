@@ -346,8 +346,14 @@ do
         echo "OPTIM := ${OPTIM}" >> config.mak
 
         cd -    
+
+        parse_arch_folder_name=cfg_${arch}_alias_folder_name
+        original_arch_folder_name=${!parse_arch_folder_name}
+        if [ -z $original_arch_folder_name ];then
+            original_arch_folder_name=$arch
+        fi
   
-        local_library_install_path=$cfg_platform_name/$archive_name/prebuilt/$arch
+        local_library_install_path=$cfg_platform_name/$archive_name/prebuilt/$original_arch_folder_name
         if [ ! -d $local_library_install_path ]; then
             echo "create folder for library with specify arch. $local_library_install_path"
             mkdir -p $local_library_install_path
@@ -372,7 +378,7 @@ do
 
             for dep_archive in ${original_dependent_archive_list[@]}
             do
-                local_library_install_path=$cfg_platform_name/${dep_archive}/prebuilt/$arch 
+                local_library_install_path=$cfg_platform_name/${dep_archive}/prebuilt/$original_arch_folder_name
                 mkdir -p $local_library_install_path
                 cp $top_dir/contrib/$install_library_path/$arch/lib/lib${dep_archive}.a $local_library_install_path/lib${dep_archive}.a
 
