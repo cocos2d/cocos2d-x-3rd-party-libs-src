@@ -89,7 +89,7 @@ All of them share the same usage:
     - debug:  Build library on debug mode. we use `-O0 -g -DDEBUG` flag to build debug library.
 
 - list:
-    - Use these option to list all the supported libraries and versions.
+    - Use these option to list all the supported library names and versions.
 
 ### Build png on iOS platform
 For building libpng fat library with all arch x86_64, i386, armv7, arm64 on release mode:
@@ -135,7 +135,8 @@ named `cpu-features.h` under `{ANDROID_NDK}/platforms/android-21/arch-arm64/usr/
 You can add flag "--mode=[debug | release]" for building DEBUG and RELEASE version.
 
 ## How to do build clean?
-If you use `./build.sh` to build static libraries, there is no need to do clean. After generating the static library, script will delete the intermediate files.
+You could simply turn on the flag `cfg_is_cleanup_after_build` to "yes" in `main.ini` file.
+After each build, you could also delete the generated folders under `contrib` directory.
 
 
 ## How to upgrade a existing library
