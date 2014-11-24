@@ -71,20 +71,24 @@ We have one build script for each platform, they are under `build` directory.
 All of them share the same usage:
 
 ```
-./build.sh -p=param0 --libs=param1 --arch=param2 --mode=param3 --list
+./build.sh -p=platform --libs=libs --arch=arch --mode=mode --list
 ```
 
-- param0: specify a platform, only (ios, mac, android, linux and tizen ) are valid values.
+- platform: specify a platform. Supported platforms: ios, mac, android, linux and tizen
 
-- param1:
-    - use `all` to build all the 3rd party libraries, it will take you a very long time.
-    - use comma separated library names, for example, `png,lua,jpeg,webp`,  no space between the comma.
+  libs:
+    - use `all` to build all the 3rd party libraries.
+    - use comma separated library names, for example, `png,lua,jpeg,webp`, no space between the comma to select one or more libs
 
-- param2:
-    - use `all` to build all the supported arches. For iOS, they are "armv7, arm64, i386, x86_64", for Android, they are "arm,armv7,arm64,x86", for Mac, they are "x86_64", for Tizen, they are "armv7"
+  arch:
+    - use `all` to build all the supported architectures.
+    - for iOS, they are "armv7, arm64, i386, x86_64"
+    - for Android, they are "arm,armv7,arm64,x86"
+    - for Mac, they are "x86_64"
+    - for Tizen, they are "armv7"
     - use comma separated arch name, for example, `armv7, arm64`, no space between the comma.
 
-- param3:
+- mode:
     - release:  Build library on release mode. This is the default option. We use `-O3 -DNDEBUG` flags to build release library.
     - debug:  Build library on debug mode. we use `-O0 -g -DDEBUG` flag to build debug library.
 
