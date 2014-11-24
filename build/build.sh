@@ -302,7 +302,13 @@ do
 
         echo "build $arch for $lib in $cfg_platform_name"
 
-        MY_TARGET_ARCH=$arch
+        parse_arch_folder_name=cfg_${arch}_alias_folder_name
+        original_arch_name=${!parse_arch_folder_name}
+        if [ -z $original_arch_name ];then
+            original_arch_name=$arch
+        fi
+        
+        MY_TARGET_ARCH=$original_arch_name
         export MY_TARGET_ARCH
 
         if [ ${cfg_is_cross_compile} = "yes" ];then
@@ -338,22 +344,15 @@ do
                      --host=${!my_target_host} \
                      --prefix=${PREFIX}
 
-        make fetch
-        make list
-        make
         
         echo "MY_TARGET_ARCH := ${MY_TARGET_ARCH}" >> config.mak
         echo "OPTIM := ${OPTIM}" >> config.mak
+        
+        make
 
         cd -    
-
-        parse_arch_folder_name=cfg_${arch}_alias_folder_name
-        original_arch_folder_name=${!parse_arch_folder_name}
-        if [ -z $original_arch_folder_name ];then
-            original_arch_folder_name=$arch
-        fi
   
-        local_library_install_path=$cfg_platform_name/$archive_name/prebuilt/$original_arch_folder_name
+        local_library_install_path=$cfg_platform_name/$archive_name/prebuilt/$original_arch_name
         if [ ! -d $local_library_install_path ]; then
             echo "create folder for library with specify arch. $local_library_install_path"
             mkdir -p $local_library_install_path
@@ -378,7 +377,7 @@ do
 
             for dep_archive in ${original_dependent_archive_list[@]}
             do
-                local_library_install_path=$cfg_platform_name/${dep_archive}/prebuilt/$original_arch_folder_name
+                local_library_install_path=$cfg_platform_name/${dep_archive}/prebuilt/$original_arch_name
                 mkdir -p $local_library_install_path
                 cp $top_dir/contrib/$install_library_path/$arch/lib/lib${dep_archive}.a $local_library_install_path/lib${dep_archive}.a
 
