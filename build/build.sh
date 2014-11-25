@@ -29,18 +29,25 @@ function contains() {
 
 function usage()
 {
-    echo "You should follow the instructions here to build static library for $cfg_platform_name"
+    echo "Helper to build all the 3rd party libraries for Cocos2D-X on various platform."
     echo ""
-    echo "./build_png.sh"
-    echo "\t[-h --help]  "
-    echo "\t--libs=[all | png,lua,tiff,jpeg,webp,zlib etc]"
-    echo "\t[--arch | -a]=[all | $cfg_help_arch_string etc]"
-    echo "\t[--mode | -m]=[release | debug]"
-    echo "\t[--list | -l]"
+    echo "Usage:"
+    echo "    ./build.sh  -p=PLATFORM [--libs=LIBRARY...] [-a=ARCH...] [-mode=MODE]"
+    echo "    ./build.sh  --platform=PLATFORM [--libs=LIBRARY...] [--arch=ARCH...] [--mode=MODE]"
+    echo "    ./build.sh  -p=PLATFORM (-h | --help)"
+    echo "    ./build.sh  -p=PLATFORM (-l | --list)"
     echo ""
-    echo "Sample:"
-    echo "$cfg_help_sample_string"
+    echo "Arguments:"
+    echo "    PLATFORM:    Platform names, valid values are: mac,ios,android,win32,tizen,linux"
+    echo "    LIBRARY:     Library names, valid values are platform dependent(png,jpeg,lua,chipmunk,etc)"
+    echo "    ARCH:        Build arches, valid values are platform dependent(arm,arm64,armv7,i386,etc)"
+    echo "    MODE:        Build mode, valid values are: release and debug"
     echo ""
+    echo "Options:"
+    echo "    --platform   Specify a target platform, one platform a time."
+    echo "    --libs:      Specify a few target libraries,all the libraries should be comma separated.[default: all]"
+    echo "    --arch:      Specify a few arches to build,all the arches should be comma separated. [default: all]"
+    echo "    --mode:      Specify the build mode.[default: release]"
 }
 
 
@@ -81,7 +88,7 @@ function check_invalid_platform()
 {
     # echo "checking ${build_platform} is in ${cfg_all_valid_platforms[@]}"
     if [ $(contains "${cfg_all_valid_platforms[@]}" $build_platform) == "n" ]; then
-        echo "Invalid platform! Only ${cfg_all_valid_platforms[@]} is acceptable."
+        usage
         exit 1
     fi
 }
@@ -109,11 +116,10 @@ function list_all_supported_libraries()
 {
 
     echo "Supported libraries and versions:"
-    echo "\t"
 
     for lib in ${cfg_all_supported_libraries[@]}
     do
-        all_supported_libraries=$(find  ../contrib/src -type f | grep SHA512SUMS | xargs cat | awk 'match ($0, /.tgz|.tar.gz|.zip|.tar.xz/) { print substr($2,0,length($2)-RLENGTH)}' | grep $lib | awk '{print $1}')
+        all_supported_libraries=$(find  ../contrib/src -type f | grep SHA512SUMS | xargs cat | awk 'match ($0, /.tgz|.tar.gz|.zip|.tar.xz/) { print substr($2,0,length($2)-RLENGTH)}' | grep -i $lib | awk '{print $1}')
         echo $all_supported_libraries | awk '{ print $1}'
     done
 }

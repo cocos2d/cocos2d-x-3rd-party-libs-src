@@ -66,9 +66,9 @@ pacman -S mingw-w64-i686-toolchain
 ```
 
 ## How to use
-We have one build script for each platform, they are under `build` directory.
+We have one build script for each platform, it is under `build` directory.
 
-All of them share the same usage:
+The usage would be:
 
 ```
 ./build.sh -p=platform --libs=libs --arch=arch --mode=mode --list
