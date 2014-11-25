@@ -75,6 +75,7 @@ All of them share the same usage:
 ```
 
 - param0: specify a platform, only (ios, mac, android, linux and tizen ) are valid values.
+    - Note: This parameter is required each time when you run the script.
 
 - param1:
     - use `all` to build all the 3rd party libraries, it will take you a very long time.
