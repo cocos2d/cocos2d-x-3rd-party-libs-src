@@ -283,6 +283,7 @@ do
         archive_name=$lib
     fi
 
+
     mkdir -p $cfg_platform_name/$archive_name/include/
 
     for arch in "${build_arches[@]}"
@@ -302,6 +303,15 @@ do
         #set build mode flags -- debug or release
         set_build_mode_cflags
 
+        #determine wether use mthumb or not
+        parse_use_mthumb=cfg_${lib}_${arch}_use_mthumb
+        use_mthumb=${!parse_use_mthumb}
+        echo $use_mthumb
+        if [ -z $use_mthumb ];then
+            use_mthumb=yes
+        fi
+
+        export ANDROID_USE_MTHUMB=$use_mthumb
 
         install_library_path="install-${cfg_platform_name}"
         build_library_path=$cfg_platform_name
@@ -331,7 +341,6 @@ do
         if [ $cfg_platform_name = "android" ];then
             export ANDROID_GCC_VERSION=$build_gcc_version
             export ANDROID_API=android-$build_api
-
         fi
 
 

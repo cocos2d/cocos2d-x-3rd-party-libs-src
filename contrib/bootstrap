@@ -247,17 +247,23 @@ check_android_sdk()
             exit 1
         fi
 
+        THUMB_FLAG=""
+        if [ $ANDROID_USE_MTHUMB = "yes" ];then
+            THUMB_FLAG="-mthumb"
+            echo "we are using mthumb for ${ANDROID_ABI}!!"
+        fi
+
 
 	if [ ${ANDROID_ABI} = "armeabi-v7a" ]; then
             add_make_enabled "HAVE_NEON"
             add_make_enabled "HAVE_ARMV7A"
-            add_make "EXTRA_CFLAGS := -march=armv7-a -mfloat-abi=softfp -mfpu=vfpv3-d16 -mthumb -fomit-frame-pointer -fno-strict-aliasing -DANDROID  -Wa,--noexecstack -Wformat "
+            add_make "EXTRA_CFLAGS := -march=armv7-a -mfloat-abi=softfp -mfpu=vfpv3-d16 ${THUMB_FLAG} -fomit-frame-pointer -fno-strict-aliasing -DANDROID  -Wa,--noexecstack -Wformat "
             add_make "EXTRA_LDFLAGS := -march=armv7-a -Wl,--fix-cortex-a8"
         fi
         
 	if [ ${ANDROID_ABI} = "armeabi" -a -z "${NO_ARMV6}" ];then
             add_make_enabled "HAVE_ARMV6"
-            add_make "EXTRA_CFLAGS := -ffunction-sections -funwind-tables -fstack-protector -no-canonical-prefixes  -march=armv5te -mtune=xscale -msoft-float -mthumb -fomit-frame-pointer -fno-strict-aliasing -DANDROID  -Wa,--noexecstack -Wformat "
+            add_make "EXTRA_CFLAGS := -ffunction-sections -funwind-tables -fstack-protector -no-canonical-prefixes  -march=armv5te -mtune=xscale -msoft-float ${THUMB_FLAG} -fomit-frame-pointer -fno-strict-aliasing -DANDROID  -Wa,--noexecstack -Wformat "
         fi
 
 	if [ ${ANDROID_ABI} = "armeabi-v8a" ]; then
