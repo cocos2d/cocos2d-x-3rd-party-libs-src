@@ -62,6 +62,7 @@ After that, you should also install the following dependencies:
 
 ```
 pacman -S mingw-w64-i686-toolchain
+pacman -S git make mingw-w64-i686-cmake tar autoconf automake libtool
 
 ```
 
