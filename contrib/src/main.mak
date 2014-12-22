@@ -99,7 +99,7 @@ CXX := ${HOST}-g++ --sysroot=$(TIZEN_SDK)/platforms/mobile-2.3/rootstraps/mobile
 endif
 
 ifdef HAVE_MACOSX
-MIN_OSX_VERSION=10.6
+MIN_OSX_VERSION=${MIN_MACOSX_TARGET}
 CC=xcrun cc
 CXX=xcrun c++
 AR=xcrun ar
