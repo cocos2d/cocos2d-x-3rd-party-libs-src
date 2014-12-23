@@ -2,8 +2,6 @@
 
 GAFPLAYER_GITURL := git@github.com:andyque/Cocos2dxGAFPlayer.git
 
-PKGS += gafplayer
-
 $(TARBALLS)/gafplayer-git.tar.xz:
 	$(call download_git,$(GAFPLAYER_GITURL),addCMakeSupport)
 
@@ -32,7 +30,9 @@ ifdef HAVE_ANDROID
 CMAKE_DEFINE=ANDROID
 endif
 
-
+ifdef HAVE_LINUX
+CMAKE_DEFINE=LINUX
+endif
 
 .gafplayer: gafplayer toolchain.cmake
 	cd $</Library && $(HOSTVARS) CFLAGS="$(CFLAGS) $(EX_ECFLAGS)" ${CMAKE} -D${CMAKE_DEFINE}=1
