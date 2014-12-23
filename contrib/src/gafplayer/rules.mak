@@ -1,6 +1,6 @@
 # gafplayer
 
-GAFPLAYER_GITURL := git@github.com:andyque/Cocos2dxGAFPlayer.git
+GAFPLAYER_GITURL := https://github.com/andyque/Cocos2dxGAFPlayer.git
 
 $(TARBALLS)/gafplayer-git.tar.xz:
 	$(call download_git,$(GAFPLAYER_GITURL),addCMakeSupport)
