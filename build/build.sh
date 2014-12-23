@@ -270,6 +270,9 @@ function set_build_mode_cflags()
     export OPTIM
 }
 
+if [ $cfg_platform_name = "mac" ];then
+    export MIN_MACOSX_TARGET=$cfg_min_macosx_deoply_tartget
+fi
 
 
 # build all the libraries for different arches
