@@ -419,6 +419,8 @@ ifdef HAVE_ANDROID
 	echo "set(CMAKE_SYSTEM_NAME Linux)" >> $@
 	echo "set(CMAKE_CXX_SYSROOT_FLAG \"\")" >> $@
 	echo "set(CMAKE_C_SYSROOT_FLAG \"\")" >> $@
+	echo "include_directories($(ANDROID_NDK)/sources/android/support/include \
+		$(ANDROID_NDK)/sources/cxx-stl/llvm-libc++/libcxx/include)"  >> $@
 endif
 ifdef HAVE_TIZEN
 	echo "set(CMAKE_SYSTEM_NAME Linux)" >> $@
