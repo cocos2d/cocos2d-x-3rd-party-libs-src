@@ -21,6 +21,10 @@ DEPS_curl = openssl $(DEPS_openssl)
 	cd $< && $(HOSTVARS_PIC) ./configure $(HOSTCONF) \
 		--with-ssl \
 		--with-zlib \
+
+# ifdef HAVE_ANDROID
+# 	$(APPLY) $(SRC)/curl/android.patch
+# endif
 	cd $< && $(MAKE)
 	cd $< && $(MAKE) install
 	touch $@
