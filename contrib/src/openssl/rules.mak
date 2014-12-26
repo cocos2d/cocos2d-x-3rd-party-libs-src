@@ -47,6 +47,12 @@ endif
 ifeq ($(MY_TARGET_ARCH),arm64)
 OPENSSL_CONFIG_VARS="BSD-generic64"
 endif
+ifeq ($(MY_TARGET_ARCH),armv7s)
+OPENSSL_CONFIG_VARS="BSD-generic32"
+endif
+ifeq ($(MY_TARGET_ARCH),x86_64)
+OPENSSL_CONFIG_VARS="darwin64-x86_64-cc"
+endif
 endif
 
 $(TARBALLS)/openssl-$(OPENSSL_VERSION).tar.gz:
