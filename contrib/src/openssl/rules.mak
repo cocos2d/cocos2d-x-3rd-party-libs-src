@@ -17,7 +17,7 @@ endif
 
 ifdef HAVE_LINUX
 ifeq ($(MY_TARGET_ARCH),x86_64)
-OPENSSL_CONFIG_VARS="linux-generic64"
+OPENSSL_CONFIG_VARS="linux-x86_64"
 OPENSSL_ARCH=-m64
 endif
 
