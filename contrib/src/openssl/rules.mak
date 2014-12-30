@@ -77,8 +77,8 @@ ifdef HAVE_LINUX
 	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= ${EXTRA_CFLAGS} ${OPTIM} |g" Makefile
 endif
 ifdef HAVE_MACOSX
-	cd $< && perl -i -pe "s|^CC= xcrun clang|CC= xcrun cc  -mmacosx-version-min=10.6 |g" Makefile
-	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= -isysroot ${MACOSX_SDK} -arch ${MY_TARGET_ARCH} ${OPTIM} |g" Makefile
+	cd $< && perl -i -pe "s|^CC= xcrun clang|CC= xcrun cc -arch ${MY_TARGET_ARCH} -mmacosx-version-min=10.7 |g" Makefile
+	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= -isysroot ${MACOSX_SDK} ${OPTIM} |g" Makefile
 endif
 	cd $< && $(MAKE) install
 	touch $@
