@@ -17,12 +17,17 @@ DEPS_curl = zlib $(DEPS_zlib)
 
 DEPS_curl = openssl $(DEPS_openssl)
 
+ifdef HAVE_LINUX
+configure_option=--without-libidn --without-librtmp
+endif
+
 .curl: curl .zlib .openssl
 	$(RECONF)
 	cd $< && $(HOSTVARS_PIC) ./configure $(HOSTCONF) \
 		--with-ssl=$(PREFIX) \
 		--with-zlib \
-		--disable-ldap
+		--disable-ldap \
+		$(configure_option)
 # ifdef HAVE_ANDROID
 # 	$(APPLY) $(SRC)/curl/android.patch
 # endif

@@ -18,12 +18,12 @@ endif
 ifdef HAVE_LINUX
 ifeq ($(MY_TARGET_ARCH),x86_64)
 OPENSSL_CONFIG_VARS="linux-x86_64"
-OPENSSL_ARCH=-m64
+OPENSSL_ARCH=-m64 -no-ssl2
 endif
 
 ifeq ($(MY_TARGET_ARCH),i386)
 OPENSSL_CONFIG_VARS="linux-generic32"
-OPENSSL_ARCH=-m32
+OPENSSL_ARCH=-m32 -no-ssl2
 endif
 endif
 
