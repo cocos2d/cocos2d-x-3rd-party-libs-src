@@ -17,13 +17,13 @@ endif
 
 ifdef HAVE_LINUX
 ifeq ($(MY_TARGET_ARCH),x86_64)
-OPENSSL_CONFIG_VARS="linux-generic64"
-OPENSSL_ARCH=-m64
+OPENSSL_CONFIG_VARS="linux-x86_64"
+OPENSSL_ARCH=-m64 -no-ssl2
 endif
 
 ifeq ($(MY_TARGET_ARCH),i386)
 OPENSSL_CONFIG_VARS="linux-generic32"
-OPENSSL_ARCH=-m32
+OPENSSL_ARCH=-m32 -no-ssl2
 endif
 endif
 
@@ -46,6 +46,12 @@ endif
 
 ifeq ($(MY_TARGET_ARCH),arm64)
 OPENSSL_CONFIG_VARS="BSD-generic64"
+endif
+ifeq ($(MY_TARGET_ARCH),armv7s)
+OPENSSL_CONFIG_VARS="BSD-generic32"
+endif
+ifeq ($(MY_TARGET_ARCH),x86_64)
+OPENSSL_CONFIG_VARS="darwin64-x86_64-cc"
 endif
 endif
 
@@ -71,8 +77,8 @@ ifdef HAVE_LINUX
 	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= ${EXTRA_CFLAGS} ${OPTIM} |g" Makefile
 endif
 ifdef HAVE_MACOSX
-	cd $< && perl -i -pe "s|^CC= xcrun clang|CC= xcrun cc  -mmacosx-version-min=10.6 |g" Makefile
-	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= -isysroot ${MACOSX_SDK} -arch ${MY_TARGET_ARCH} ${OPTIM} |g" Makefile
+	cd $< && perl -i -pe "s|^CC= xcrun clang|CC= xcrun cc -arch ${MY_TARGET_ARCH} -mmacosx-version-min=10.7 |g" Makefile
+	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= -isysroot ${MACOSX_SDK} ${OPTIM} |g" Makefile
 endif
 	cd $< && $(MAKE) install
 	touch $@

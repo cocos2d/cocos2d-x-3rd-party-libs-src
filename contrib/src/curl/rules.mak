@@ -1,6 +1,6 @@
 # curl
 
-CURL_VERSION := 7.26.0
+CURL_VERSION := 7.39.0
 CURL_URL :=  http://curl.haxx.se/download/curl-$(CURL_VERSION).tar.gz
 
 $(TARBALLS)/curl-$(CURL_VERSION).tar.gz:
@@ -17,10 +17,19 @@ DEPS_curl = zlib $(DEPS_zlib)
 
 DEPS_curl = openssl $(DEPS_openssl)
 
+ifdef HAVE_LINUX
+configure_option=--without-libidn --without-librtmp
+endif
+
 .curl: curl .zlib .openssl
+	$(RECONF)
 	cd $< && $(HOSTVARS_PIC) ./configure $(HOSTCONF) \
-		--with-ssl \
+		--with-ssl=$(PREFIX) \
 		--with-zlib \
-	cd $< && $(MAKE)
+		--disable-ldap \
+		$(configure_option)
+# ifdef HAVE_ANDROID
+# 	$(APPLY) $(SRC)/curl/android.patch
+# endif
 	cd $< && $(MAKE) install
 	touch $@

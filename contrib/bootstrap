@@ -209,6 +209,8 @@ check_macosx_sdk()
 
    add_make "MACOSX_SDK=${SDKROOT}"
    add_make "OSX_VERSION ?= ${OSX_VERSION}"
+   # TODO: the system libssl.dylib would config with the one we built
+   # add_make "EXTRA_LDFLAGS := -L${SDKROOT}/usr/lib "
 }
 
 check_android_sdk()
