@@ -279,6 +279,13 @@ check_android_sdk()
             add_make_enabled "HAVE_x86"
             add_make "EXTRA_CFLAGS := -ffunction-sections -funwind-tables -fstack-protector -no-canonical-prefixes  -fomit-frame-pointer -fstrict-aliasing -DANDROID  -Wa,--noexecstack -Wformat "
         fi
+
+        if [ ${ANDROID_STL_VERSION} = "gnu" ];then
+            add_make_enabled "HAVE_STL_GUN"
+        else
+            add_make_enabled "HAVE_STL_CLANG"
+        fi
+        
 }
 
 check_tizen_sdk()

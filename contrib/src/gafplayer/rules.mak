@@ -30,8 +30,10 @@ ifdef HAVE_ANDROID
 CMAKE_DEFINE=ANDROID
 endif
 
+ifndef HAVE_CROSS_COMPILE
 ifdef HAVE_LINUX
 CMAKE_DEFINE=LINUX
+endif
 endif
 
 .gafplayer: gafplayer toolchain.cmake
