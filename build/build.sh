@@ -315,6 +315,7 @@ do
         fi
 
         export ANDROID_USE_MTHUMB=$use_mthumb
+        export ANDROID_STL_VERSION=$cfg_default_build_stl
 
         install_library_path="install-${cfg_platform_name}"
         build_library_path=$cfg_platform_name
