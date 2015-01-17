@@ -35,6 +35,7 @@ brew update
 brew install git
 brew install cmake
 brew install autoconf
+brew install automake
 brew install libtool
 ```
 
@@ -50,6 +51,7 @@ brew install libtool
 
 ```
 sudo apt-get install autoconf
+sudo apt-get install automake
 sudo apt-get install cmake
 sudo apt-get install libtool
 sudo apt-get install git
@@ -62,7 +64,7 @@ After that, you should also install the following dependencies:
 
 ```
 pacman -S mingw-w64-i686-toolchain
-pacman -S git make mingw-w64-i686-cmake tar autoconf automake libtool
+pacman -S git make mingw-w64-i686-cmake tar autoconf automake libtool automake
 
 ```
 
