@@ -229,14 +229,14 @@ check_android_sdk()
         ## FIXME: the android toolchain path is hardcoded, only MACOSX will work.
         if [ ${ANDROID_ABI} = "x86" ]; then
             toolchain_path_prefix=x86
-        elif [ ${ANDROID_ABI} = "armeabi-v8a" ];then
+        elif [ ${ANDROID_ABI} = "arm64-v8a" ];then
             toolchain_path_prefix=aarch64-linux-android
         else
             toolchain_path_prefix=arm-linux-androideabi
         fi
 
         # check whether sysroot is exists
-        if [ $ANDROID_ABI = "armeabi-v8a" ]; then
+        if [ $ANDROID_ABI = "arm64-v8a" ]; then
             if [ ! -d ${ANDROID_NDK}/platforms/${ANDROID_API}/arch-arm64 ];then
                 echo "${ANDROID_NDK} ${ANDROID_API} doesn't support build arm64 architecture!"
                 exit $? 
@@ -268,7 +268,7 @@ check_android_sdk()
             add_make "EXTRA_CFLAGS := -ffunction-sections -funwind-tables -fstack-protector -no-canonical-prefixes  -march=armv5te -mtune=xscale -msoft-float ${THUMB_FLAG} -fomit-frame-pointer -fno-strict-aliasing -DANDROID  -Wa,--noexecstack -Wformat "
         fi
 
-	if [ ${ANDROID_ABI} = "armeabi-v8a" ]; then
+	if [ ${ANDROID_ABI} = "arm64-v8a" ]; then
             add_make_enabled "HAVE_NEON"
             add_make_enabled "HAVE_ARMV8A"
             add_make "EXTRA_CFLAGS :=  -fpic -ffunction-sections  -funwind-tables  -fstack-protector  -no-canonical-prefixes"

@@ -1,0 +1,41 @@
+diff --git a/lib/context.c b/lib/context.c
+index f2f30ad..2b04f36 100755
+--- a/lib/context.c
++++ b/lib/context.c
+@@ -123,7 +123,12 @@ libwebsocket_create_context(struct lws_context_creation_info *info)
+ 	context->options = info->options;
+ 	context->iface = info->iface;
+ 	/* to reduce this allocation, */
+-	context->max_fds = getdtablesize();
++	//context->max_fds = getdtablesize();
++    context->max_fds = OPEN_MAX;
++    struct rlimit rl;
++    if (getrlimit(RLIMIT_NOFILE, &rl) != -1) {
++        context->max_fds = rl.rlim_cur;
++    }
+ 	lwsl_notice(" static allocation: %u + (%u x %u fds) = %u bytes\n",
+ 		sizeof(struct libwebsocket_context),
+ 		sizeof(struct libwebsocket_pollfd) +
+diff --git a/lib/private-libwebsockets.h b/lib/private-libwebsockets.h
+index 6fae889..c1aac6f 100755
+--- a/lib/private-libwebsockets.h
++++ b/lib/private-libwebsockets.h
+@@ -42,6 +42,7 @@
+ #include <ctype.h>
+ #include <limits.h>
+ #include <stdarg.h>
++#include <sys/resource.h>
+ 
+ #ifdef HAVE_SYS_STAT_H
+ #include <sys/stat.h>
+@@ -145,8 +146,10 @@
+ #endif
+ 
+ #ifndef HAVE_BZERO
++#ifndef bzero
+ #define bzero(b, len) (memset((b), '\0', (len)), (void) 0)
+ #endif
++#endif
+ 
+ #ifndef HAVE_STRERROR
+ #define strerror(x) ""
