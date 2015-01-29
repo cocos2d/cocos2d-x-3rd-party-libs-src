@@ -1,5 +1,5 @@
 # OPENSSL
-OPENSSL_VERSION := 1.0.1j
+OPENSSL_VERSION := 1.0.1l
 OPENSSL_URL := https://www.openssl.org/source/openssl-$(OPENSSL_VERSION).tar.gz
 
 

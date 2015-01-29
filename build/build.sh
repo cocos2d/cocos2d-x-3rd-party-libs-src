@@ -101,7 +101,7 @@ do
     if [ $(contains "${cfg_all_valid_platforms[@]}" $build_platform) == "y" ];then
         platform_config_file=${build_platform}.ini
         if [ ! -f $platform_config_file ];then
-            echo "platform config file is not exists!"
+            echo "platform config file does not exists!"
             exit;
         fi
         source $platform_config_file
@@ -143,7 +143,7 @@ fi
 if test -z "$build_library"
 then
     while true; do
-        read -p "Do you wish to build with all the libraries?[yes|no]" yn
+        read -p "Build with all the libraries? [yes|no]" yn
         case $yn in
             [Yy]* ) build_library=$cfg_default_build_libraries; break;;
             [Nn]* ) usage;exit;;
