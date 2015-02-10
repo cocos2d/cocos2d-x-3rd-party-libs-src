@@ -13,10 +13,12 @@ $(TARBALLS)/libcjson-git.tar.xz:
 
 cjson: libcjson-git.tar.xz .sum-cjson
 	$(UNPACK)
+	$(APPLY) $(SRC)/cjson/cmake-patch.patch
 	$(MOVE)
 
+DEPS_cjson = lua $(DEPS_lua)
 
-.cjson: cjson
-	cd $< && $(HOSTVARS) ./configure $(HOSTCONF)
-	cd $< && $(MAKE) install
+.cjson: cjson toolchain.cmake
+	cd $< && $(HOSTVARS) ${CMAKE} -DUSE_INTERNAL_FPCONV=1
+	cd $< && $(MAKE) VERBOSE=1 install
 	touch $@
