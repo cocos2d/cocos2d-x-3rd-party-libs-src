@@ -252,13 +252,16 @@ function create_fat_library()
 
     echo "create fat library lib$library_name for $all_static_libs"
     $LIPO -create  $all_static_libs \
-          -output $cfg_platform_name/$library_name/prebuilt/lib$library_name.a
+          -output $cfg_platform_name/lib$library_name.a
 
     # rm $all_static_libs
 
     # remove debugging info don't strip
     # $STRIP -S $library_name/prebuilt/lib$library_name.a
-    $LIPO -info $cfg_platform_name/$library_name/prebuilt/lib$library_name.a
+    $LIPO -info $cfg_platform_name/lib$library_name.a
+
+    rm $all_static_libs
+    rm -rf $cfg_platform_name/$library_name/prebuilt
 }
 
 
@@ -287,7 +290,7 @@ do
     fi
 
 
-    mkdir -p $cfg_platform_name/$archive_name/include/
+    # mkdir -p $cfg_platform_name/$archive_name/include/
 
     for arch in "${build_arches[@]}"
     do
@@ -406,7 +409,13 @@ do
 
         echo "Copying needed heder files"
         copy_include_file_path=${lib}_header_files
-        cp  -r $top_dir/contrib/$install_library_path/$arch/include/${!copy_include_file_path} $cfg_platform_name/$archive_name/include
+        src_directory=$top_dir/contrib/$install_library_path/$arch/include/${!copy_include_file_path}
+        echo $src_directory
+        if [ -d $src_directory ];then
+            cp  -r $src_directory/* $cfg_platform_name/$archive_name/
+        else
+            cp $src_directory $cfg_platform_name/$archive_name/
+        fi
 
 
         echo "cleaning up"
