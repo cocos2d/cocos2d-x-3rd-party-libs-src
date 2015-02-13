@@ -13,6 +13,7 @@ $(TARBALLS)/libminizip-git.tar.xz:
 
 minizip: libminizip-git.tar.xz .sum-minizip
 	$(UNPACK)
+	$(APPLY) $(SRC)/minizip/010-unzip-add-function-unzOpenBuffer.patch
 	$(MOVE)
 
 DEPS_minizip = zlib $(DEPS_zlib)

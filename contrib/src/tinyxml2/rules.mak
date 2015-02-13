@@ -13,6 +13,7 @@ $(TARBALLS)/libtinyxml2-git.tar.xz:
 
 tinyxml2: libtinyxml2-git.tar.xz .sum-tinyxml2
 	$(UNPACK)
+	$(APPLY) $(SRC)/tinyxml2/android.patch
 	$(MOVE)
 
 .tinyxml2: tinyxml2 toolchain.cmake

@@ -375,6 +375,11 @@ do
         cd -
 
         local_library_install_path=$cfg_platform_name/$archive_name/prebuilt/$original_arch_name
+        mkdir -p $cfg_platform_name/include/$archive_name
+        if [ $cfg_platform_name = "android" ];then
+            local_library_install_path=$cfg_platform_name/$original_arch_name
+        fi
+        
         if [ ! -d $local_library_install_path ]; then
             echo "create folder for library with specify arch. $local_library_install_path"
             mkdir -p $local_library_install_path
@@ -400,6 +405,9 @@ do
             for dep_archive in ${original_dependent_archive_list[@]}
             do
                 local_library_install_path=$cfg_platform_name/${dep_archive}/prebuilt/$original_arch_name
+                if [ $cfg_platform_name = "android" ];then
+                    local_library_install_path=$cfg_platform_name/$original_arch_name
+                fi
                 mkdir -p $local_library_install_path
                 cp $top_dir/contrib/$install_library_path/$arch/lib/lib${dep_archive}.a $local_library_install_path/lib${dep_archive}.a
 
@@ -411,10 +419,11 @@ do
         copy_include_file_path=${lib}_header_files
         src_directory=$top_dir/contrib/$install_library_path/$arch/include/${!copy_include_file_path}
         echo $src_directory
+        destination_header_path=$cfg_platform_name/include/$archive_name/
         if [ -d $src_directory ];then
-            cp  -r $src_directory/* $cfg_platform_name/$archive_name/
+            cp  -r $src_directory/* $destination_header_path
         else
-            cp $src_directory $cfg_platform_name/$archive_name/
+            cp $src_directory $destination_header_path
         fi
 
 
