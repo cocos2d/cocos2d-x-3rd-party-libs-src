@@ -11,6 +11,7 @@ $(TARBALLS)/libwebp-$(WEBP_VERSION).tar.gz:
 webp: libwebp-$(WEBP_VERSION).tar.gz .sum-webp
 	$(UNPACK)
 	$(UPDATE_AUTOCONFIG)
+	$(APPLY) $(SRC)/webp/missing-cpu-feature.patch
 	$(MOVE)
 
 .webp: webp
