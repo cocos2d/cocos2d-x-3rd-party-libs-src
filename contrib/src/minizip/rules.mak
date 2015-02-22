@@ -20,6 +20,6 @@ DEPS_minizip = zlib $(DEPS_zlib)
 
 .minizip: minizip
 	$(RECONF)
-	cd $< && $(HOSTVARS) ./configure $(HOSTCONF)
+	cd $< && $(HOSTVARS) CFLAGS="$(CFLAGS) -DUSE_FILE32API" ./configure $(HOSTCONF)
 	cd $< && $(MAKE) install
 	touch $@
