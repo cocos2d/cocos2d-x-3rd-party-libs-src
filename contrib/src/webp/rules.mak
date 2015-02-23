@@ -15,7 +15,14 @@ webp: libwebp-$(WEBP_VERSION).tar.gz .sum-webp
 	$(MOVE)
 
 .webp: webp
+ifdef HAVE_ANDROID
+	cd $< && echo "APP_ABI:=$(MY_TARGET_ARCH)" >> Application.mk
+	cd $< && ln -s $(shell pwd)/webp $(shell pwd)/webp/jni
+	cd $< && ndk-build
+	cd $< && cp obj/local/$(MY_TARGET_ARCH)/libwebp.a $(PREFIX)/lib/
+else
 	cd $< && $(HOSTVARS) ./configure $(HOSTCONF)
 	cd $< && $(MAKE)
 	cd $< && $(MAKE) install
+endif
 	touch $@
