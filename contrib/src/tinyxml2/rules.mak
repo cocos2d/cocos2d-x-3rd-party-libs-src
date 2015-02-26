@@ -17,6 +17,6 @@ tinyxml2: libtinyxml2-git.tar.xz .sum-tinyxml2
 	$(MOVE)
 
 .tinyxml2: tinyxml2 toolchain.cmake
-	cd $< && $(HOSTVARS) ${CMAKE}
+	cd $< && $(HOSTVARS) ${CMAKE} -DCMAKE_INSTALL_PREFIX:PATH=$(PREFIX)
 	cd $< && $(MAKE) VERBOSE=1 install
 	touch $@

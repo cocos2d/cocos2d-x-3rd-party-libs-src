@@ -5,7 +5,6 @@ FLATBUFFERS_GITURL := https://github.com/google/flatbuffers.git
 $(TARBALLS)/flatbuffers-git.tar.xz:
 	$(call download_git,$(FLATBUFFERS_GITURL),master,1e4d28b)
 
-
 .sum-flatbuffers: flatbuffers-git.tar.xz
 	$(warning $@ not implemented)
 	touch $@

@@ -18,6 +18,6 @@ luasocket: libluasocket-git.tar.xz .sum-luasocket
 # DEPS_luasocket = lua $(DEPS_lua)
 
 .luasocket: luasocket toolchain.cmake
-	cd $< && $(HOSTVARS) ${CMAKE} -DLUA_INCLUDE_DIR=$(PREFIX)
+	cd $< && $(HOSTVARS) ${CMAKE} -DLUA_INCLUDE_DIR=$(PREFIX) -DCMAKE_INSTALL_PREFIX:PATH=$(PREFIX)
 	cd $< && $(MAKE) VERBOSE=1 install
 	touch $@
