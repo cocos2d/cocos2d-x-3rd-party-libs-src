@@ -1,0 +1,306 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index c17239b..a51818e 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -15,7 +15,6 @@ if(NOT CMAKE_BUILD_TYPE)
+         FORCE)
+ endif()
+ 
+-find_package(Lua51 REQUIRED)
+ include_directories(${LUA_INCLUDE_DIR})
+ 
+ if(NOT USE_INTERNAL_FPCONV)
+@@ -51,26 +50,22 @@ if(NOT HAVE_ISINF)
+ endif()
+ 
+ set(_MODULE_LINK "${CMAKE_THREAD_LIBS_INIT}")
+-get_filename_component(_lua_lib_dir ${LUA_LIBRARY} PATH)
+ 
+ if(APPLE)
+     set(CMAKE_SHARED_MODULE_CREATE_C_FLAGS
+         "${CMAKE_SHARED_MODULE_CREATE_C_FLAGS} -undefined dynamic_lookup")
+ endif()
+ 
+-if(WIN32)
+-    # Win32 modules need to be linked to the Lua library.
+-    set(_MODULE_LINK ${LUA_LIBRARY} ${_MODULE_LINK})
+-    set(_lua_module_dir "${_lua_lib_dir}")
+-    # Windows sprintf()/strtod() handle NaN/inf differently. Not supported.
+-    add_definitions(-DDISABLE_INVALID_NUMBERS)
+-else()
+-    set(_lua_module_dir "${_lua_lib_dir}/lua/5.1")
+-endif()
+-
+-add_library(cjson MODULE lua_cjson.c strbuf.c ${FPCONV_SOURCES})
+-set_target_properties(cjson PROPERTIES PREFIX "")
+-target_link_libraries(cjson ${_MODULE_LINK})
+-install(TARGETS cjson DESTINATION "${_lua_module_dir}")
+ 
++add_library(libcjson STATIC lua_cjson.c strbuf.c ${FPCONV_SOURCES})
++set_target_properties(libcjson PROPERTIES PREFIX "")
++target_link_libraries(libcjson ${_MODULE_LINK})
++INSTALL(
++  TARGETS libcjson
++  ARCHIVE DESTINATION lib
++  LIBRARY DESTINATION lib
++  COMPONENT library
++)
++set(include_items dtoa_config.h fpconv.h strbuf.h lua_cjson.h)
++install(FILES ${include_items} DESTINATION "include/cjson")
+ # vi:ai et sw=4 ts=4:
+diff --git a/fpconv.c b/fpconv.c
+index 7990831..49b83ae 100644
+--- a/fpconv.c
++++ b/fpconv.c
+@@ -98,7 +98,7 @@ static int strtod_buffer_size(const char *s)
+     while (valid_number_character(*p))
+         p++;
+ 
+-    return p - s;
++    return (int)(p - s);
+ }
+ 
+ /* Similar to strtod(), but must be passed the current locale's decimal point
+diff --git a/fpconv.h b/fpconv.h
+index 0124908..02017be 100644
+--- a/fpconv.h
++++ b/fpconv.h
+@@ -6,13 +6,19 @@
+  * -1.7976931348623e+308 */
+ # define FPCONV_G_FMT_BUFSIZE   32
+ 
++#ifdef _MSC_VER
++#define snprintf _snprintf
++#undef inline
++#define inline __inline
++#endif
++
+ #ifdef USE_INTERNAL_FPCONV
+-static inline void fpconv_init()
++static void fpconv_init()
+ {
+     /* Do nothing - not required */
+ }
+ #else
+-extern inline void fpconv_init();
++extern void fpconv_init();
+ #endif
+ 
+ extern int fpconv_g_fmt(char*, double, int);
+diff --git a/lua_cjson.c b/lua_cjson.c
+index ca5b88d..e7633be 100644
+--- a/lua_cjson.c
++++ b/lua_cjson.c
+@@ -40,9 +40,9 @@
+ #include <string.h>
+ #include <math.h>
+ #include <limits.h>
+-#include <lua.h>
+-#include <lauxlib.h>
+ 
++#include "lua.h"
++#include "lauxlib.h"
+ #include "strbuf.h"
+ #include "fpconv.h"
+ 
+@@ -54,9 +54,12 @@
+ #define CJSON_VERSION   "2.1devel"
+ #endif
+ 
+-/* Workaround for Solaris platforms missing isinf() */
+-#if !defined(isinf) && (defined(USE_INTERNAL_ISINF) || defined(MISSING_ISINF))
+-#define isinf(x) (!isnan(x) && isnan((x) - (x)))
++#ifdef _WIN32
++#define __strncasecmp strnicmp
++#define isnan(x) ((x) != (x))
++#define isinf(x) (!isnan(x) && isnan(x - x))
++#else
++#define __strncasecmp strncasecmp
+ #endif
+ 
+ #define DEFAULT_SPARSE_CONVERT 0
+@@ -68,6 +71,7 @@
+ #define DEFAULT_DECODE_INVALID_NUMBERS 1
+ #define DEFAULT_ENCODE_KEEP_BUFFER 1
+ #define DEFAULT_ENCODE_NUMBER_PRECISION 14
++#define DEFAULT_DECODE_LUA_NIL 1
+ 
+ #ifdef DISABLE_INVALID_NUMBERS
+ #undef DEFAULT_DECODE_INVALID_NUMBERS
+@@ -127,6 +131,7 @@ typedef struct {
+ 
+     int decode_invalid_numbers;
+     int decode_max_depth;
++    int decode_lua_nil;             /* 1 => use Lua nil for NULL */
+ } json_config_t;
+ 
+ typedef struct {
+@@ -222,7 +227,7 @@ static int json_integer_option(lua_State *l, int optindex, int *setting,
+     int value;
+ 
+     if (!lua_isnil(l, optindex)) {
+-        value = luaL_checkinteger(l, optindex);
++        value = (int)luaL_checkinteger(l, optindex);
+         snprintf(errmsg, sizeof(errmsg), "expected integer between %d and %d", min, max);
+         luaL_argcheck(l, min <= value && value <= max, 1, errmsg);
+         *setting = value;
+@@ -356,6 +361,15 @@ static int json_cfg_decode_invalid_numbers(lua_State *l)
+     return 1;
+ }
+ 
++static int json_cfg_decode_lua_nil(lua_State *l)
++{
++    json_config_t *cfg = json_arg_init(l, 1);
++
++    json_enum_option(l, 1, &cfg->decode_lua_nil, NULL, 1);
++
++    return 1;
++}
++
+ static int json_destroy_config(lua_State *l)
+ {
+     json_config_t *cfg;
+@@ -390,6 +404,7 @@ static void json_create_config(lua_State *l)
+     cfg->decode_invalid_numbers = DEFAULT_DECODE_INVALID_NUMBERS;
+     cfg->encode_keep_buffer = DEFAULT_ENCODE_KEEP_BUFFER;
+     cfg->encode_number_precision = DEFAULT_ENCODE_NUMBER_PRECISION;
++    cfg->decode_lua_nil = DEFAULT_DECODE_LUA_NIL;
+ 
+ #if DEFAULT_ENCODE_KEEP_BUFFER > 0
+     strbuf_init(&cfg->encode_buf, 0);
+@@ -471,7 +486,7 @@ static void json_append_string(lua_State *l, strbuf_t *json, int lindex)
+      * This buffer is reused constantly for small strings
+      * If there are any excess pages, they won't be hit anyway.
+      * This gains ~5% speedup. */
+-    strbuf_ensure_empty_length(json, len * 6 + 2);
++    strbuf_ensure_empty_length(json, (int)len * 6 + 2);
+ 
+     strbuf_append_char_unsafe(json, '\"');
+     for (i = 0; i < len; i++) {
+@@ -592,12 +607,20 @@ static void json_append_number(lua_State *l, json_config_t *cfg,
+     if (cfg->encode_invalid_numbers == 0) {
+         /* Prevent encoding invalid numbers */
+         if (isinf(num) || isnan(num))
+-            json_encode_exception(l, cfg, json, lindex, "must not be NaN or Inf");
++            json_encode_exception(l, cfg, json, lindex,
++                                  "must not be NaN or Infinity");
+     } else if (cfg->encode_invalid_numbers == 1) {
+-        /* Encode invalid numbers, but handle "nan" separately
+-         * since some platforms may encode as "-nan". */
++        /* Encode NaN/Infinity separately to ensure Javascript compatible
++         * values are used. */
+         if (isnan(num)) {
+-            strbuf_append_mem(json, "nan", 3);
++            strbuf_append_mem(json, "NaN", 3);
++            return;
++        }
++        if (isinf(num)) {
++            if (num < 0)
++                strbuf_append_mem(json, "-Infinity", 9);
++            else
++                strbuf_append_mem(json, "Infinity", 8);
+             return;
+         }
+     } else {
+@@ -876,7 +899,7 @@ static void json_set_token_error(json_token_t *token, json_parse_t *json,
+                                  const char *errtype)
+ {
+     token->type = T_ERROR;
+-    token->index = json->ptr - json->data;
++    token->index = (int)(json->ptr - json->data);
+     token->value.string = errtype;
+ }
+ 
+@@ -981,9 +1004,9 @@ static int json_is_invalid_number(json_parse_t *json)
+     }
+ 
+     /* Reject inf/nan */
+-    if (!strncasecmp(p, "inf", 3))
++    if (!__strncasecmp(p, "inf", 3))
+         return 1;
+-    if (!strncasecmp(p, "nan", 3))
++    if (!__strncasecmp(p, "nan", 3))
+         return 1;
+ 
+     /* Pass all other numbers which may still be invalid, but
+@@ -1025,7 +1048,7 @@ static void json_next_token(json_parse_t *json, json_token_t *token)
+ 
+     /* Store location of new token. Required when throwing errors
+      * for unexpected tokens (syntax errors). */
+-    token->index = json->ptr - json->data;
++    token->index = (int)(json->ptr - json->data);
+ 
+     /* Don't advance the pointer for an error or the end */
+     if (token->type == T_ERROR) {
+@@ -1239,9 +1262,16 @@ static void json_process_value(lua_State *l, json_parse_t *json,
+         json_parse_array_context(l, json);
+         break;;
+     case T_NULL:
+-        /* In Lua, setting "t[k] = nil" will delete k from the table.
+-         * Hence a NULL pointer lightuserdata object is used instead */
+-        lua_pushlightuserdata(l, NULL);
++        if (json->cfg->decode_lua_nil)
++        {
++            lua_pushnil(l);
++        }
++        else
++        {
++            /* In Lua, setting "t[k] = nil" will delete k from the table.
++             * Hence a NULL pointer lightuserdata object is used instead */
++            lua_pushlightuserdata(l, NULL);
++        }
+         break;;
+     default:
+         json_throw_parse_error(l, json, "value", token);
+@@ -1272,7 +1302,7 @@ static int json_decode(lua_State *l)
+     /* Ensure the temporary buffer can hold the entire string.
+      * This means we no longer need to do length checks since the decoded
+      * string must be smaller than the entire json string */
+-    json.tmp = strbuf_new(json_len);
++    json.tmp = strbuf_new((int)json_len);
+ 
+     json_next_token(&json, &token);
+     json_process_value(l, &json, &token);
+@@ -1351,6 +1381,7 @@ static int lua_cjson_new(lua_State *l)
+         { "encode_keep_buffer", json_cfg_encode_keep_buffer },
+         { "encode_invalid_numbers", json_cfg_encode_invalid_numbers },
+         { "decode_invalid_numbers", json_cfg_decode_invalid_numbers },
++        { "decode_lua_nil", json_cfg_decode_lua_nil },
+         { "new", lua_cjson_new },
+         { NULL, NULL }
+     };
+diff --git a/lua_cjson.h b/lua_cjson.h
+new file mode 100644
+index 0000000..4d3b1e7
+--- /dev/null
++++ b/lua_cjson.h
+@@ -0,0 +1,12 @@
++
++#ifndef __LUA_CJSON_H_
++#define __LUA_CJSON_H_
++
++#include "lua.h"
++
++#define USE_INTERNAL_FPCONV
++
++int luaopen_cjson(lua_State *l);
++int luaopen_cjson_safe(lua_State *l);
++
++#endif // __LUA_CJSON_H_
+diff --git a/strbuf.h b/strbuf.h
+index d861108..eb09da9 100644
+--- a/strbuf.h
++++ b/strbuf.h
+@@ -74,6 +74,12 @@ extern void strbuf_append_string(strbuf_t *s, const char *str);
+ static void strbuf_append_char(strbuf_t *s, const char c);
+ static void strbuf_ensure_null(strbuf_t *s);
+ 
++#ifdef _MSC_VER
++#define snprintf _snprintf
++#undef inline
++#define inline __inline
++#endif
++
+ /* Reset string for before use */
+ static inline void strbuf_reset(strbuf_t *s)
+ {

@@ -252,13 +252,16 @@ function create_fat_library()
 
     echo "create fat library lib$library_name for $all_static_libs"
     $LIPO -create  $all_static_libs \
-          -output $cfg_platform_name/$library_name/prebuilt/lib$library_name.a
+          -output $cfg_platform_name/lib$library_name.a
 
     # rm $all_static_libs
 
     # remove debugging info don't strip
     # $STRIP -S $library_name/prebuilt/lib$library_name.a
-    $LIPO -info $cfg_platform_name/$library_name/prebuilt/lib$library_name.a
+    $LIPO -info $cfg_platform_name/lib$library_name.a
+
+    rm $all_static_libs
+    rm -rf $cfg_platform_name/$library_name/prebuilt
 }
 
 
@@ -287,7 +290,7 @@ do
     fi
 
 
-    mkdir -p $cfg_platform_name/$archive_name/include/
+    # mkdir -p $cfg_platform_name/$archive_name/include/
 
     for arch in "${build_arches[@]}"
     do
@@ -371,7 +374,8 @@ do
 
         cd -
 
-        local_library_install_path=$cfg_platform_name/$archive_name/prebuilt/$original_arch_name
+        local_library_install_path=$cfg_platform_name/$original_arch_name
+        
         if [ ! -d $local_library_install_path ]; then
             echo "create folder for library with specify arch. $local_library_install_path"
             mkdir -p $local_library_install_path
@@ -397,6 +401,9 @@ do
             for dep_archive in ${original_dependent_archive_list[@]}
             do
                 local_library_install_path=$cfg_platform_name/${dep_archive}/prebuilt/$original_arch_name
+                if [ $cfg_platform_name = "android"] || [ $cfg_platform_name = "linux" ];then
+                    local_library_install_path=$cfg_platform_name/$original_arch_name
+                fi
                 mkdir -p $local_library_install_path
                 cp $top_dir/contrib/$install_library_path/$arch/lib/lib${dep_archive}.a $local_library_install_path/lib${dep_archive}.a
 
@@ -405,8 +412,16 @@ do
 
 
         echo "Copying needed heder files"
+        mkdir -p $cfg_platform_name/$arch/include/$archive_name
         copy_include_file_path=${lib}_header_files
-        cp  -r $top_dir/contrib/$install_library_path/$arch/include/${!copy_include_file_path} $cfg_platform_name/$archive_name/include
+        src_directory=$top_dir/contrib/$install_library_path/$arch/include/${!copy_include_file_path}
+        echo $src_directory
+        destination_header_path=$cfg_platform_name/$arch/include/$archive_name/
+        if [ -d $src_directory ];then
+            cp  -r $src_directory/* $destination_header_path
+        else
+            cp $src_directory $destination_header_path
+        fi
 
 
         echo "cleaning up"
