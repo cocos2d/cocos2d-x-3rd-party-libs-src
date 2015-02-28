@@ -405,21 +405,29 @@ do
 
 
         echo "Copying needed heder files"
+        #determine the real folder name
+        parse_original_library_folder_name=${lib}_header_files_folder
+        library_include_folder_name=${!parse_original_library_folder_name}
+        if [ -z $library_include_folder_name ];then
+            library_include_folder_name=$archive_name
+        fi
+        
+        
         #copy header files for ios & mac
         if [ $cfg_platform_name = "ios" ] || [ $cfg_platform_name = "mac" ];then
-            if [ ! -d $top_dir/build/$cfg_platform_name/include/$archive_name ];then
-                mkdir -p $top_dir/build/$cfg_platform_name/include/$archive_name
+            if [ ! -d $top_dir/build/$cfg_platform_name/include/$library_include_folder_name ];then
+                mkdir -p $top_dir/build/$cfg_platform_name/include/$library_include_folder_name
             fi
         fi
         
-        mkdir -p $cfg_platform_name/$original_arch_name/include/$archive_name
+        mkdir -p $cfg_platform_name/$original_arch_name/include/$library_include_folder_name
         copy_include_file_path=${lib}_header_files
         src_directory=$top_dir/contrib/$install_library_path/$arch/include/${!copy_include_file_path}
         echo $src_directory
-        destination_header_path=$cfg_platform_name/$original_arch_name/include/$archive_name/
+        destination_header_path=$cfg_platform_name/$original_arch_name/include/$library_include_folder_name
 
         if [ $cfg_platform_name = "ios" ] || [ $cfg_platform_name = "mac" ];then
-            destination_header_path=$cfg_platform_name/include/$archive_name
+            destination_header_path=$cfg_platform_name/include/$library_include_folder_name
         fi
 
         
