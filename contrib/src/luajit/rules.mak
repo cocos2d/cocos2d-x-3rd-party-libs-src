@@ -1,6 +1,6 @@
 # luajit
 
-LUAJIT_VERSION := 2.0.1
+LUAJIT_VERSION := 2.0.3
 LUAJIT_URL := http://luajit.org/download/LuaJIT-$(LUAJIT_VERSION).tar.gz
 
 $(TARBALLS)/luajit-$(LUAJIT_VERSION).tar.gz:
@@ -12,6 +12,9 @@ luajit: luajit-$(LUAJIT_VERSION).tar.gz .sum-luajit
 	$(UNPACK)
 ifeq ($(LUAJIT_VERSION),2.0.1)
 	$(APPLY) $(SRC)/luajit/v2.0.1_hotfix1.patch
+endif
+ifeq ($(LUAJIT_VERSION),2.0.3)
+	$(APPLY) $(SRC)/luajit/ldsize-512.patch
 endif
 	$(MOVE)
 
