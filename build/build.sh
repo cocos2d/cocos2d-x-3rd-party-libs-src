@@ -243,25 +243,21 @@ function create_fat_library()
     LIPO="xcrun -sdk iphoneos lipo"
     STRIP="xcrun -sdk iphoneos strip"
 
-    if [ -f $cfg_platform_name/$library_name/prebuilt/lib$library_name.a ]; then
-        echo "removing old fat library..."
-        rm $cfg_platform_name/$library_name/prebuilt/lib$library_name.a
-    fi
-
-    all_static_libs=$(find $cfg_platform_name/$library_name/prebuilt -type f -name "lib$library_name.a")
+    all_static_libs=$(find $cfg_platform_name  -type f -name "lib$library_name.a")
 
     echo "create fat library lib$library_name for $all_static_libs"
+    if [ ! -d $cfg_platform_name/libs ];then
+        mkdir -p $cfg_platform_name/libs
+    fi
+
     $LIPO -create  $all_static_libs \
-          -output $cfg_platform_name/lib$library_name.a
+          -output $cfg_platform_name/libs/lib$library_name.a
 
     # rm $all_static_libs
 
     # remove debugging info don't strip
     # $STRIP -S $library_name/prebuilt/lib$library_name.a
-    $LIPO -info $cfg_platform_name/lib$library_name.a
-
-    rm $all_static_libs
-    rm -rf $cfg_platform_name/$library_name/prebuilt
+    $LIPO -info $cfg_platform_name/libs/lib$library_name.a
 }
 
 
@@ -298,7 +294,7 @@ do
         ignore_arch_library=${lib}_ignore_arch_list
         ignore_arch_list=(${!ignore_arch_library})
         ignore_arch_list_array=(${ignore_arch_list//,/ })
-        if [ ! -z ${ignore_arch_list} ]; then
+        if [ ! -z ${ignore_arch_list} ] && [ $cfg_platform_name = "ios" ]; then
             echo ${ignore_arch_list}
             if [ $(contains "${ignore_arch_list_array[@]}" $arch) == "y" ];then
                 echo "ingore $lib for $arch"
@@ -374,7 +370,7 @@ do
 
         cd -
 
-        local_library_install_path=$cfg_platform_name/$original_arch_name
+        local_library_install_path=$cfg_platform_name/$original_arch_name/libs
         
         if [ ! -d $local_library_install_path ]; then
             echo "create folder for library with specify arch. $local_library_install_path"
@@ -400,10 +396,7 @@ do
 
             for dep_archive in ${original_dependent_archive_list[@]}
             do
-                local_library_install_path=$cfg_platform_name/${dep_archive}/prebuilt/$original_arch_name
-                if [ $cfg_platform_name = "android"] || [ $cfg_platform_name = "linux" ];then
-                    local_library_install_path=$cfg_platform_name/$original_arch_name
-                fi
+                local_library_install_path=$cfg_platform_name/$original_arch_name
                 mkdir -p $local_library_install_path
                 cp $top_dir/contrib/$install_library_path/$arch/lib/lib${dep_archive}.a $local_library_install_path/lib${dep_archive}.a
 
@@ -412,11 +405,24 @@ do
 
 
         echo "Copying needed heder files"
-        mkdir -p $cfg_platform_name/$arch/include/$archive_name
+        #copy header files for ios & mac
+        if [ $cfg_platform_name = "ios" ] || [ $cfg_platform_name = "mac" ];then
+            if [ ! -d $top_dir/build/$cfg_platform_name/include/$archive_name ];then
+                mkdir -p $top_dir/build/$cfg_platform_name/include/$archive_name
+            fi
+        fi
+        
+        mkdir -p $cfg_platform_name/$original_arch_name/include/$archive_name
         copy_include_file_path=${lib}_header_files
         src_directory=$top_dir/contrib/$install_library_path/$arch/include/${!copy_include_file_path}
         echo $src_directory
-        destination_header_path=$cfg_platform_name/$arch/include/$archive_name/
+        destination_header_path=$cfg_platform_name/$original_arch_name/include/$archive_name/
+
+        if [ $cfg_platform_name = "ios" ] || [ $cfg_platform_name = "mac" ];then
+            destination_header_path=$cfg_platform_name/include/$archive_name
+        fi
+
+        
         if [ -d $src_directory ];then
             cp  -r $src_directory/* $destination_header_path
         else
@@ -450,3 +456,12 @@ do
     fi
 
 done
+
+# do some cleanup work
+if [ $cfg_platform_name = "ios" ] || [ $cfg_platform_name = "mac" ];then
+    build_arches=("arm64" "armv7" "armv7s" "i386" "x86_64")
+    for arch in ${build_arches[@]}
+    do
+       rm -rf $cfg_platform_name/$arch
+    done
+fi
