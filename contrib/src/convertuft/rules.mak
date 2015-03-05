@@ -1,6 +1,6 @@
 # convertutf
 
-CONVERTUTF_GITURL := /Users/guanghui/Github/convertuft
+CONVERTUTF_GITURL := https://github.com/andyque/convertuft
 
 $(TARBALLS)/convertutf-git.tar.xz:
 	$(call download_git,$(CONVERTUTF_GITURL),master)
