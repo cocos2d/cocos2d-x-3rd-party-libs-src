@@ -430,21 +430,21 @@ do
             destination_header_path=$cfg_platform_name/include/$library_include_folder_name
         fi
         
-        if [ -d $src_directory ];then
+        if [ -d "$src_directory" ];then
             cp  -r $src_directory/* $destination_header_path
         else
             cp $src_directory $destination_header_path
         fi
 
 
-        echo "cleaning up"
+        # echo "cleaning up"
         if [ $cfg_is_cleanup_after_build = "yes" ];then
             rm -rf $top_dir/contrib/$install_library_path
             rm -rf $top_dir/contrib/$build_library_path-$arch
         fi
     done
 
-    echo $cfg_build_fat_library
+    # echo $cfg_build_fat_library
     if [ $cfg_build_fat_library = "yes" ];then
 
         create_fat_library $archive_name
@@ -472,3 +472,5 @@ if [ $cfg_platform_name = "ios" ] || [ $cfg_platform_name = "mac" ];then
        rm -rf $cfg_platform_name/$arch
     done
 fi
+
+echo "done!"
