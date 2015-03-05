@@ -20,6 +20,8 @@ ifdef HAVE_ANDROID
 	cd $< && ln -s $(shell pwd)/webp $(shell pwd)/webp/jni
 	cd $< && ndk-build
 	cd $< && cp obj/local/$(MY_TARGET_ARCH)/libwebp.a $(PREFIX)/lib/
+	cd $< && mkdir -p $(PREFIX)/include/webp
+	cd $< && cp -a src/webp/*.h $(PREFIX)/include/webp
 else
 	cd $< && $(HOSTVARS) ./configure $(HOSTCONF)
 	cd $< && $(MAKE)
