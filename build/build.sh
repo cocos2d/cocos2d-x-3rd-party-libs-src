@@ -396,7 +396,7 @@ do
 
             for dep_archive in ${original_dependent_archive_list[@]}
             do
-                local_library_install_path=$cfg_platform_name/$original_arch_name
+                local_library_install_path=$cfg_platform_name/$original_arch_name/libs
                 mkdir -p $local_library_install_path
                 cp $top_dir/contrib/$install_library_path/$arch/lib/lib${dep_archive}.a $local_library_install_path/lib${dep_archive}.a
 
