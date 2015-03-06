@@ -391,7 +391,7 @@ do
         parse_dependent_archive_list=${lib}_dependent_archive_list
         original_dependent_archive_list=${!parse_dependent_archive_list}
         if [ ! -z $original_dependent_archive_list ];then
-            echo "copying dependent archives..."
+            echo "Copying dependent archives..."
             original_dependent_archive_list=(${original_dependent_archive_list//,/ })
 
             for dep_archive in ${original_dependent_archive_list[@]}
@@ -404,7 +404,7 @@ do
         fi
 
 
-        echo "Copying needed heder files"
+        echo "Copying needed header files..."
         #determine the real folder name
         parse_original_library_folder_name=${lib}_header_files_folder
         library_include_folder_name=${!parse_original_library_folder_name}
@@ -429,7 +429,6 @@ do
         if [ $cfg_platform_name = "ios" ] || [ $cfg_platform_name = "mac" ];then
             destination_header_path=$cfg_platform_name/include/$library_include_folder_name
         fi
-
         
         if [ -d "$src_directory" ];then
             cp  -r $src_directory/* $destination_header_path
