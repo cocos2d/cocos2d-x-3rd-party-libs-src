@@ -384,23 +384,30 @@ do
             original_archive_name=$archive_name
         fi
 
-        #copy .a archive from install-platform folder
-        cp $top_dir/contrib/$install_library_path/$arch/lib/lib$original_archive_name.a $local_library_install_path/lib$archive_name.a
+        #whether to copy the archive file or not
+        parse_ignore_archive=${lib}_ignore_archive
+        original_ignore_archive=${!parse_ignore_archive}
+        if [ "${original_ignore_archive}" != "yes" ];then
 
-        #copy dependent .a archive
-        parse_dependent_archive_list=${lib}_dependent_archive_list
-        original_dependent_archive_list=${!parse_dependent_archive_list}
-        if [ ! -z $original_dependent_archive_list ];then
-            echo "copying dependent archives..."
-            original_dependent_archive_list=(${original_dependent_archive_list//,/ })
+            #copy .a archive from install-platform folder
+            cp $top_dir/contrib/$install_library_path/$arch/lib/lib$original_archive_name.a $local_library_install_path/lib$archive_name.a
 
-            for dep_archive in ${original_dependent_archive_list[@]}
-            do
-                local_library_install_path=$cfg_platform_name/$original_arch_name/libs
-                mkdir -p $local_library_install_path
-                cp $top_dir/contrib/$install_library_path/$arch/lib/lib${dep_archive}.a $local_library_install_path/lib${dep_archive}.a
+            #copy dependent .a archive
+            parse_dependent_archive_list=${lib}_dependent_archive_list
+            original_dependent_archive_list=${!parse_dependent_archive_list}
+            if [ ! -z $original_dependent_archive_list ];then
+                echo "copying dependent archives..."
+                original_dependent_archive_list=(${original_dependent_archive_list//,/ })
 
-            done
+                for dep_archive in ${original_dependent_archive_list[@]}
+                do
+                    local_library_install_path=$cfg_platform_name/$original_arch_name/libs
+                    mkdir -p $local_library_install_path
+                    cp $top_dir/contrib/$install_library_path/$arch/lib/lib${dep_archive}.a $local_library_install_path/lib${dep_archive}.a
+
+                done
+            fi
+
         fi
 
 
@@ -446,20 +453,22 @@ do
     done
 
     # echo $cfg_build_fat_library
-    if [ $cfg_build_fat_library = "yes" ];then
+    if [ "${original_ignore_archive}" != "yes" ];then
+        if [ $cfg_build_fat_library = "yes" ];then
 
-        create_fat_library $archive_name
+            create_fat_library $archive_name
 
-        parse_dependent_archive_list=${lib}_dependent_archive_list
-        original_dependent_archive_list=${!parse_dependent_archive_list}
-        if [ ! -z $original_dependent_archive_list ];then
-            echo "create fat library for dependent archives..."
-            original_dependent_archive_list=(${original_dependent_archive_list//,/ })
+            parse_dependent_archive_list=${lib}_dependent_archive_list
+            original_dependent_archive_list=${!parse_dependent_archive_list}
+            if [ ! -z $original_dependent_archive_list ];then
+                echo "create fat library for dependent archives..."
+                original_dependent_archive_list=(${original_dependent_archive_list//,/ })
 
-            for dep_archive in ${original_dependent_archive_list[@]}
-            do
-                create_fat_library $dep_archive
-            done
+                for dep_archive in ${original_dependent_archive_list[@]}
+                do
+                    create_fat_library $dep_archive
+                done
+            fi
         fi
     fi
 
