@@ -384,56 +384,75 @@ do
             original_archive_name=$archive_name
         fi
 
-        #copy .a archive from install-platform folder
-        cp $top_dir/contrib/$install_library_path/$arch/lib/lib$original_archive_name.a $local_library_install_path/lib$archive_name.a
+        #whether to copy the archive file or not
+        parse_ignore_archive=${lib}_ignore_archive
+        original_ignore_archive=${!parse_ignore_archive}
+        if [ "${original_ignore_archive}" != "yes" ];then
 
-        #copy dependent .a archive
-        parse_dependent_archive_list=${lib}_dependent_archive_list
-        original_dependent_archive_list=${!parse_dependent_archive_list}
-        if [ ! -z $original_dependent_archive_list ];then
-            echo "Copying dependent archives..."
-            original_dependent_archive_list=(${original_dependent_archive_list//,/ })
+            #determine the lib folder name
+            parse_original_lib_folder_name=${lib}_lib_files_folder
+            original_lib_folder_name=${!parse_original_lib_folder_name}
 
-            for dep_archive in ${original_dependent_archive_list[@]}
-            do
-                local_library_install_path=$cfg_platform_name/$original_arch_name/libs
-                mkdir -p $local_library_install_path
-                cp $top_dir/contrib/$install_library_path/$arch/lib/lib${dep_archive}.a $local_library_install_path/lib${dep_archive}.a
+            if [ -z $original_lib_folder_name ];then
+                original_lib_folder_name=lib
+            fi
 
-            done
+            #copy .a archive from install-platform folder
+            cp $top_dir/contrib/$install_library_path/$arch/${original_lib_folder_name}/lib$original_archive_name.a $local_library_install_path/lib$archive_name.a
+
+            #copy dependent .a archive
+            parse_dependent_archive_list=${lib}_dependent_archive_list
+            original_dependent_archive_list=${!parse_dependent_archive_list}
+            if [ ! -z $original_dependent_archive_list ];then
+                echo "Copying dependent archives..."
+                original_dependent_archive_list=(${original_dependent_archive_list//,/ })
+
+                for dep_archive in ${original_dependent_archive_list[@]}
+                do
+                    local_library_install_path=$cfg_platform_name/$original_arch_name/libs
+                    mkdir -p $local_library_install_path
+                    cp $top_dir/contrib/$install_library_path/$arch/${original_lib_folder_name}/lib${dep_archive}.a $local_library_install_path/lib${dep_archive}.a
+
+                done
+            fi
+
         fi
 
 
         echo "Copying needed header files..."
-        #determine the real folder name
-        parse_original_library_folder_name=${lib}_header_files_folder
-        library_include_folder_name=${!parse_original_library_folder_name}
-        if [ -z $library_include_folder_name ];then
-            library_include_folder_name=$archive_name
-        fi
-        
-        
-        #copy header files for ios & mac
-        if [ $cfg_platform_name = "ios" ] || [ $cfg_platform_name = "mac" ];then
-            if [ ! -d $top_dir/build/$cfg_platform_name/include/$library_include_folder_name ];then
-                mkdir -p $top_dir/build/$cfg_platform_name/include/$library_include_folder_name
+        parse_ignore_header_files=${lib}_ignore_header_files
+        original_ignore_header_files=${!parse_ignore_header_files}
+        if [ "${original_ignore_header_files}" != "yes" ];then
+            #determine the real folder name
+            parse_original_library_folder_name=${lib}_header_files_folder
+            library_include_folder_name=${!parse_original_library_folder_name}
+            if [ -z $library_include_folder_name ];then
+                library_include_folder_name=$archive_name
             fi
-        fi
-        
-        mkdir -p $cfg_platform_name/$original_arch_name/include/$library_include_folder_name
-        copy_include_file_path=${lib}_header_files
-        src_directory=$top_dir/contrib/$install_library_path/$arch/include/${!copy_include_file_path}
-        echo $src_directory
-        destination_header_path=$cfg_platform_name/$original_arch_name/include/$library_include_folder_name
+            
+            
+            #copy header files for ios & mac
+            if [ $cfg_platform_name = "ios" ] || [ $cfg_platform_name = "mac" ];then
+                if [ ! -d $top_dir/build/$cfg_platform_name/include/$library_include_folder_name ];then
+                    mkdir -p $top_dir/build/$cfg_platform_name/include/$library_include_folder_name
+                fi
+            fi
+            
+            mkdir -p $cfg_platform_name/$original_arch_name/include/$library_include_folder_name
+            copy_include_file_path=${lib}_header_files
+            src_directory=$top_dir/contrib/$install_library_path/$arch/include/${!copy_include_file_path}
+            echo $src_directory
+            destination_header_path=$cfg_platform_name/$original_arch_name/include/$library_include_folder_name
 
-        if [ $cfg_platform_name = "ios" ] || [ $cfg_platform_name = "mac" ];then
-            destination_header_path=$cfg_platform_name/include/$library_include_folder_name
-        fi
-        
-        if [ -d "$src_directory" ];then
-            cp  -r $src_directory/* $destination_header_path
-        else
-            cp $src_directory $destination_header_path
+            if [ $cfg_platform_name = "ios" ] || [ $cfg_platform_name = "mac" ];then
+                destination_header_path=$cfg_platform_name/include/$library_include_folder_name
+            fi
+            
+            if [ -d "$src_directory" ];then
+                cp  -r $src_directory/* $destination_header_path
+            else
+                cp $src_directory $destination_header_path
+            fi
         fi
 
 
@@ -445,20 +464,22 @@ do
     done
 
     # echo $cfg_build_fat_library
-    if [ $cfg_build_fat_library = "yes" ];then
+    if [ "${original_ignore_archive}" != "yes" ];then
+        if [ $cfg_build_fat_library = "yes" ];then
 
-        create_fat_library $archive_name
+            create_fat_library $archive_name
 
-        parse_dependent_archive_list=${lib}_dependent_archive_list
-        original_dependent_archive_list=${!parse_dependent_archive_list}
-        if [ ! -z $original_dependent_archive_list ];then
-            echo "create fat library for dependent archives..."
-            original_dependent_archive_list=(${original_dependent_archive_list//,/ })
+            parse_dependent_archive_list=${lib}_dependent_archive_list
+            original_dependent_archive_list=${!parse_dependent_archive_list}
+            if [ ! -z $original_dependent_archive_list ];then
+                echo "create fat library for dependent archives..."
+                original_dependent_archive_list=(${original_dependent_archive_list//,/ })
 
-            for dep_archive in ${original_dependent_archive_list[@]}
-            do
-                create_fat_library $dep_archive
-            done
+                for dep_archive in ${original_dependent_archive_list[@]}
+                do
+                    create_fat_library $dep_archive
+                done
+            fi
         fi
     fi
 
@@ -472,5 +493,14 @@ if [ $cfg_platform_name = "ios" ] || [ $cfg_platform_name = "mac" ];then
        rm -rf $cfg_platform_name/$arch
     done
 fi
+
+#check ios & mac library architecture
+if [ $cfg_platform_name = "ios" ] || [ $cfg_platform_name = "mac" ];then
+    for file in `ls ${cfg_platform_name}/libs`
+    do
+        lipo -info ${cfg_platform_name}/libs/$file
+    done
+fi
+
 
 echo "done!"
