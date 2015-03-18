@@ -384,8 +384,16 @@ do
             original_archive_name=$archive_name
         fi
 
+        #determine the lib folder name
+        parse_original_lib_folder_name=${lib}_lib_files_folder
+        original_lib_folder_name=${!parse_original_lib_folder_name}
+
+        if [ -z $original_lib_folder_name ];then
+            original_lib_folder_name=lib
+        fi
+
         #copy .a archive from install-platform folder
-        cp $top_dir/contrib/$install_library_path/$arch/lib/lib$original_archive_name.a $local_library_install_path/lib$archive_name.a
+        cp $top_dir/contrib/$install_library_path/$arch/${original_lib_folder_name}/lib$original_archive_name.a $local_library_install_path/lib$archive_name.a
 
         #copy dependent .a archive
         parse_dependent_archive_list=${lib}_dependent_archive_list
@@ -398,7 +406,7 @@ do
             do
                 local_library_install_path=$cfg_platform_name/$original_arch_name/libs
                 mkdir -p $local_library_install_path
-                cp $top_dir/contrib/$install_library_path/$arch/lib/lib${dep_archive}.a $local_library_install_path/lib${dep_archive}.a
+                cp $top_dir/contrib/$install_library_path/$arch/${original_lib_folder_name}/lib${dep_archive}.a $local_library_install_path/lib${dep_archive}.a
 
             done
         fi
