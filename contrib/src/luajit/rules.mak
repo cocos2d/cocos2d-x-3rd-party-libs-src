@@ -10,6 +10,7 @@ $(TARBALLS)/luajit-$(LUAJIT_VERSION).tar.gz:
 
 luajit: luajit-$(LUAJIT_VERSION).tar.gz .sum-luajit
 	$(UNPACK)
+	mv LuaJIT-2.0.3 $@-2.0.3
 ifeq ($(LUAJIT_VERSION),2.0.1)
 	$(APPLY) $(SRC)/luajit/v2.0.1_hotfix1.patch
 endif

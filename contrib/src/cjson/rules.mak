@@ -16,9 +16,9 @@ cjson: libcjson-git.tar.xz .sum-cjson
 	$(APPLY) $(SRC)/cjson/cmake-patch.patch
 	$(MOVE)
 
-# DEPS_cjson = lua $(DEPS_lua)
+DEPS_cjson = luajit $(DEPS_luajit)
 
 .cjson: cjson toolchain.cmake
-	cd $< && $(HOSTVARS) ${CMAKE} -DUSE_INTERNAL_FPCONV=1 -DLUA_INCLUDE_DIR=$(PREFIX)
+	cd $< && $(HOSTVARS) ${CMAKE} -DUSE_INTERNAL_FPCONV=1 -DLUA_INCLUDE_DIR=$(PREFIX)/include/luajit-2.0
 	cd $< && $(MAKE) VERBOSE=1 install
 	touch $@

@@ -13,11 +13,12 @@ $(TARBALLS)/libluasocket-git.tar.xz:
 
 luasocket: libluasocket-git.tar.xz .sum-luasocket
 	$(UNPACK)
+	$(APPLY) $(SRC)/luasocket/delete-makefile.patch
 	$(MOVE)
 
-# DEPS_luasocket = lua $(DEPS_lua)
+DEPS_luasocket = luajit $(DEPS_luajit)
 
 .luasocket: luasocket toolchain.cmake
-	cd $< && $(HOSTVARS) ${CMAKE} -DLUA_INCLUDE_DIR=$(PREFIX) -DCMAKE_INSTALL_PREFIX:PATH=$(PREFIX)
+	cd $< && $(HOSTVARS) ${CMAKE} -DLUA_INCLUDE_DIR=$(PREFIX)/include/luajit-2.0 -DCMAKE_INSTALL_PREFIX:PATH=$(PREFIX)
 	cd $< && $(MAKE) VERBOSE=1 install
 	touch $@
