@@ -19,6 +19,7 @@ tiff: tiff-$(TIFF_VERSION).tar.gz .sum-tiff
 		--disable-jpeg \
 		--disable-zlib \
 		--disable-cxx \
+		--disable-lzma \
 		--without-x
 	cd $< && $(MAKE) -C port && $(MAKE) -C libtiff
 	cd $< && $(MAKE) install
