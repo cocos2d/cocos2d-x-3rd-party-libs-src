@@ -119,7 +119,7 @@ function list_all_supported_libraries()
 
     for lib in ${cfg_all_supported_libraries[@]}
     do
-        all_supported_libraries=$(find  ../contrib/src -type f | grep SHA512SUMS | xargs cat | awk 'match ($0, /.tgz|.tar.gz|.zip|.tar.xz/) { print substr($2,0,length($2)-RLENGTH)}' | grep -i $lib | awk '{print $1}')
+        all_supported_libraries=$(find  ../contrib/src -type f | grep SHA512SUMS | xargs cat | awk 'match ($0, /.tgz|.tar.gz|.zip|.tar.xz|.7z/) { print substr($2,0,length($2)-RLENGTH)}' | grep -i $lib | awk '{print $1}')
         echo $all_supported_libraries | awk '{ print $1}'
     done
 }
