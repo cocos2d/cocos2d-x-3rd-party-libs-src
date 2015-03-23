@@ -444,14 +444,23 @@ do
             echo $src_directory
             destination_header_path=$cfg_platform_name/$original_arch_name/include/$library_include_folder_name
 
-            if [ $cfg_platform_name = "ios" ] || [ $cfg_platform_name = "mac" ];then
-                destination_header_path=$cfg_platform_name/include/$library_include_folder_name
-            fi
             
             if [ -d "$src_directory" ];then
                 cp  -r $src_directory/* $destination_header_path
             else
                 cp $src_directory $destination_header_path
+            fi
+
+            if [ $cfg_platform_name = "ios" ] || [ $cfg_platform_name = "mac" ];then
+                if [ "${lib}" = "curl" ];then
+                    if [ "${arch}" = "i386" ]; then
+                        mv $destination_header_path/curlbuild.h $destination_header_path/curlbuild-32.h
+                    fi
+                    
+                    if [ "${arch}" = "x86_64" ]; then
+                        mv $destination_header_path/curlbuild.h $destination_header_path/curlbuild-64.h
+                    fi
+                fi
             fi
         fi
 
@@ -485,9 +494,19 @@ do
 
 done
 
+# patch 32bit & 64bit header files for CURL
+# now only iOS platform need to patch
+if [ $cfg_platform_name = "ios" ];then
+    if [ -d "${cfg_platform_name}/include/curl" ];then
+        cp -r ${cfg_platform_name}/i386/include/curl/ ${cfg_platform_name}/include/curl
+        cp -r ${cfg_platform_name}/x86_64/include/curl/ ${cfg_platform_name}/include/curl
+        cp ../contrib/src/curl/curlbuild.h ${cfg_platform_name}/include/curl
+    fi
+fi
+
 # do some cleanup work
 if [ $cfg_platform_name = "ios" ] || [ $cfg_platform_name = "mac" ];then
-    build_arches=("arm64" "armv7" "armv7s" "i386" "x86_64")
+    build_arches=$cfg_all_supported_arches
     for arch in ${build_arches[@]}
     do
        rm -rf $cfg_platform_name/$arch
