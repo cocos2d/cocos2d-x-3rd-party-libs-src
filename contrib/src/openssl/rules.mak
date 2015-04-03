@@ -1,5 +1,5 @@
 # OPENSSL
-OPENSSL_VERSION := 1.0.1j
+OPENSSL_VERSION := 1.0.1l
 OPENSSL_URL := https://www.openssl.org/source/openssl-$(OPENSSL_VERSION).tar.gz
 
 
@@ -18,12 +18,12 @@ endif
 ifdef HAVE_LINUX
 ifeq ($(MY_TARGET_ARCH),x86_64)
 OPENSSL_CONFIG_VARS="linux-x86_64"
-OPENSSL_ARCH=-m64 -no-ssl2
+OPENSSL_ARCH=-m64
 endif
 
 ifeq ($(MY_TARGET_ARCH),i386)
 OPENSSL_CONFIG_VARS="linux-generic32"
-OPENSSL_ARCH=-m32 -no-ssl2
+OPENSSL_ARCH=-m32
 endif
 endif
 
