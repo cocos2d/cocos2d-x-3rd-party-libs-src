@@ -1,7 +1,7 @@
 # chipmunk
 
-CHIPMUNK_VERSION := 6.2.1
-CHIPMUNK_URL := https://chipmunk-physics.net/release/Chipmunk-6.x/Chipmunk-$(CHIPMUNK_VERSION).tgz
+CHIPMUNK_VERSION := 6.2.2
+CHIPMUNK_URL := http://chipmunk-physics.net/release/Chipmunk-6.x/Chipmunk-$(CHIPMUNK_VERSION).tgz
 
 $(TARBALLS)/Chipmunk-$(CHIPMUNK_VERSION).tgz:
 	$(call download,$(CHIPMUNK_URL))
