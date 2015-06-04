@@ -38,6 +38,7 @@
 /contrib/install-android/
 /contrib/install-ios/
 /contrib/install-mac/
+/contrib/install-winrt/
 /contrib/ios-arm64/
 /contrib/ios-armv7/
 /contrib/ios-armv7s/
@@ -45,3 +46,5 @@
 /contrib/ios-x86_64/
 /contrib/mac-x86_64/
 /contrib/src copy/
+**/winrt/install
+**/winrt/temp
