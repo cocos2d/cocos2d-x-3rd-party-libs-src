@@ -9,7 +9,6 @@ set SHA=e4adca80c6d98cbca8ed0f7e564876e07d82d988
 set OGG_URL=http://downloads.xiph.org/releases/ogg/%OGG.TAR.GZ%
 set VORBIS_URL=http://downloads.xiph.org/releases/vorbis/%VORBIS.TAR.GZ%
 
-
 if exist temp (
 	rm -rf temp
 )
@@ -75,71 +74,41 @@ popd
 
 echo Installing Ogg...
 
+rem copy include files
 xcopy "temp\libogg\include\ogg" "install\winrt_8.1-specific\OggDecoder\include\ogg" /iycqs
 xcopy "temp\libvorbis\include\vorbis" "install\winrt_8.1-specific\OggDecoder\include\vorbis" /iycqs
 xcopy "temp\libogg\include\ogg" "install\wp_8.1-specific\OggDecoder\include\ogg" /iycqs
 xcopy "temp\libvorbis\include\vorbis" "install\wp_8.1-specific\OggDecoder\include\vorbis" /iycqs
 
-rem Windows 8.1 Store Release Win32
-set INDIR=temp\libogg\win32\VS2013\Win32\Release\libOgg.Windows
-set OUTDIR=install\winrt_8.1-specific\OggDecoder\prebuilt\win32
-xcopy "%INDIR%\libogg.lib" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\libogg.dll" "%OUTDIR%\*" /iycq
-
-set INDIR=temp\libvorbis\win32\VS2013\Win32\Release\libvorbis.Windows
-xcopy "%INDIR%\libvorbis.lib" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\libvorbis.dll" "%OUTDIR%\*" /iycq
-
-set INDIR=temp\libvorbis\win32\VS2013\Win32\Release\libvorbisfile.Windows
-xcopy "%INDIR%\libvorbisfile.lib" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\libvorbisfile.dll" "%OUTDIR%\*" /iycq
-
-rem Windows 8.1 Store Release ARM
-set INDIR=temp\libogg\win32\VS2013\ARM\Release\libOgg.Windows
-set OUTDIR=install\winrt_8.1-specific\OggDecoder\prebuilt\arm
-xcopy "%INDIR%\libogg.lib" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\libogg.dll" "%OUTDIR%\*" /iycq
-
-set INDIR=temp\libvorbis\win32\VS2013\ARM\Release\libvorbis.Windows
-xcopy "%INDIR%\libvorbis.lib" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\libvorbis.dll" "%OUTDIR%\*" /iycq
-
-set INDIR=temp\libvorbis\win32\VS2013\ARM\Release\libvorbisfile.Windows
-xcopy "%INDIR%\libvorbisfile.lib" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\libvorbisfile.dll" "%OUTDIR%\*" /iycq
-
-rem Windows Phone 8.1 Store Release Win32
-set INDIR=temp\libogg\win32\VS2013\Win32\Release\libOgg.WindowsPhone
-set OUTDIR=install\wp_8.1-specific\OggDecoder\prebuilt\win32
-xcopy "%INDIR%\libogg.lib" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\libogg.dll" "%OUTDIR%\*" /iycq
-
-set INDIR=temp\libvorbis\win32\VS2013\Win32\Release\libvorbis.WindowsPhone
-xcopy "%INDIR%\libvorbis.lib" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\libvorbis.dll" "%OUTDIR%\*" /iycq
-
-set INDIR=temp\libvorbis\win32\VS2013\Win32\Release\libvorbisfile.WindowsPhone
-xcopy "%INDIR%\libvorbisfile.lib" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\libvorbisfile.dll" "%OUTDIR%\*" /iycq
-
-rem Windows Phone 8.1 Store Release ARM
-set INDIR=temp\libogg\win32\VS2013\ARM\Release\libOgg.WindowsPhone
-set OUTDIR=install\wp_8.1-specific\OggDecoder\prebuilt\arm
-xcopy "%INDIR%\libogg.lib" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\libogg.dll" "%OUTDIR%\*" /iycq
-
-set INDIR=temp\libvorbis\win32\VS2013\ARM\Release\libvorbis.WindowsPhone
-xcopy "%INDIR%\libvorbis.lib" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\libvorbis.dll" "%OUTDIR%\*" /iycq
-
-set INDIR=temp\libvorbis\win32\VS2013\ARM\Release\libvorbisfile.WindowsPhone
-xcopy "%INDIR%\libvorbisfile.lib" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\libvorbisfile.dll" "%OUTDIR%\*" /iycq
-
-
-
-
-
-
+rem copy libs and dlls
+call:CopyOggFiles Windows win32 winrt_8.1
+call:CopyOggFiles Windows arm winrt_8.1
+call:CopyOggFiles WindowsPhone win32 wp_8.1
+call:CopyOggFiles WindowsPhone arm wp_8.1
 
 echo Ogg build complete.
+
+goto:eof
+
+:CopyOggFiles   
+set INDIR=temp\libogg\win32\VS2013\%~2\Release\libOgg.%~1
+set OUTDIR=install\%~3-specific\OggDecoder\prebuilt\%~2
+
+echo INDIR=%INDIR%
+echo OUTDIR=%OUTDIR%
+xcopy "%INDIR%\libogg.lib" "%OUTDIR%\*" /iycq
+xcopy "%INDIR%\libogg.dll" "%OUTDIR%\*" /iycq
+
+set INDIR=temp\libvorbis\win32\VS2013\%~2\Release\libvorbis.%~1
+echo INDIR=%INDIR%
+
+xcopy "%INDIR%\libvorbis.lib" "%OUTDIR%\*" /iycq
+xcopy "%INDIR%\libvorbis.dll" "%OUTDIR%\*" /iycq
+
+set INDIR=temp\libvorbis\win32\VS2013\%~2\Release\libvorbisfile.%~1
+echo INDIR=%INDIR%
+
+xcopy "%INDIR%\libvorbisfile.lib" "%OUTDIR%\*" /iycq
+xcopy "%INDIR%\libvorbisfile.dll" "%OUTDIR%\*" /iycq
+goto:eof
+
