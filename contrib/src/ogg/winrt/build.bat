@@ -4,8 +4,6 @@ set OGG_VERSION="1.3.2"
 set VORBIS_VERSION="1.3.5"
 set OGG.TAR.GZ=libogg-%OGG_VERSION%.tar.gz
 set VORBIS.TAR.GZ=libvorbis-%VORBIS_VERSION%.tar.gz
-
-set SHA=e4adca80c6d98cbca8ed0f7e564876e07d82d988
 set OGG_URL=http://downloads.xiph.org/releases/ogg/%OGG.TAR.GZ%
 set VORBIS_URL=http://downloads.xiph.org/releases/vorbis/%VORBIS.TAR.GZ%
 
@@ -44,31 +42,19 @@ call "%VS120COMNTOOLS%vsvars32.bat"
 
 set SOLUTION=libogg\win32\VS2013\libogg-win8.1-universal.sln
 
-echo Building Ogg Windows 8.1 Store Release/Win32...
+echo Building Ogg Windows 8.1 Release/Win32...
 msbuild %SOLUTION% /p:Configuration="Release" /p:Platform="Win32" /m
 
-echo Building Ogg Windows 8.1 Store Release/ARM...
+echo Building Ogg Windows 8.1 Release/ARM...
 msbuild %SOLUTION% /p:Configuration="Release" /p:Platform="ARM" /m
-
-echo Building Ogg Windows 8.1 Phone Release/Win32...
-msbuild %SOLUTION% /p:Configuration="Release"  /p:Platform="Win32" /m
-
-echo Building Ogg Windows 8.1 Phone Release/ARM...
-msbuild %SOLUTION% /p:Configuration="Release"  /p:Platform="ARM" /m
 
 set SOLUTION=libvorbis\win32\VS2013\libvorbis-win8.1-universal.sln
 
-echo Building Vorbis Windows 8.1 Store Release/Win32...
+echo Building Ogg Windows 8.1 Release/Win32...
 msbuild %SOLUTION% /p:Configuration="Release" /p:Platform="Win32" /m
 
-echo Building Vorbis Windows 8.1 Store Release/ARM...
+echo Building Ogg Windows 8.1 Release/ARM...
 msbuild %SOLUTION% /p:Configuration="Release" /p:Platform="ARM" /m
-
-echo Building Vorbis Windows 8.1 Phone Release/Win32...
-msbuild %SOLUTION% /p:Configuration="Release"  /p:Platform="Win32" /m
-
-echo Building Vorbis Windows 8.1 Phone Release/ARM...
-msbuild %SOLUTION% /p:Configuration="Release"  /p:Platform="ARM" /m
 
 popd
 
