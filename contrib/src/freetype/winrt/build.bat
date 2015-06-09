@@ -82,21 +82,21 @@ popd
 echo Installing freetype...
 
 set INDIR=temp\wp_8.1\win32\install
-set OUTDIR=install\freetype\prebuilt\wp_8.1\win32
+set OUTDIR=install\freetype2\prebuilt\wp_8.1\win32
 xcopy "%INDIR%\include" "install\freetype\include\wp_8.1" /iycqs
 xcopy "%INDIR%\lib\freetype.lib" "%OUTDIR%\*" /iycq
 
 set INDIR=temp\wp_8.1\arm\install
-set OUTDIR=install\freetype\prebuilt\wp_8.1\arm
+set OUTDIR=install\freetype2\prebuilt\wp_8.1\arm
 xcopy "%INDIR%\lib\freetype.lib" "%OUTDIR%\*" /iycq
 
 set INDIR=temp\ws_8.1\win32\install
-set OUTDIR=install\freetype\prebuilt\winrt_8.1\win32
+set OUTDIR=install\freetype2\prebuilt\winrt_8.1\win32
 xcopy "%INDIR%\include" "install\freetype\include\winrt_8.1" /iycqs
 xcopy "%INDIR%\lib\freetype.lib" "%OUTDIR%\*" /iycq
 
 set INDIR=temp\ws_8.1\arm\install
-set OUTDIR=install\freetype\prebuilt\winrt_8.1\arm
+set OUTDIR=install\freetype2\prebuilt\winrt_8.1\arm
 xcopy "%INDIR%\lib\freetype.lib" "%OUTDIR%\*" /iycq
 	
 echo freetype build complete.
