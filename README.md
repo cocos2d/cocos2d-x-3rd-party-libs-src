@@ -57,7 +57,12 @@ sudo apt-get install libtool
 sudo apt-get install git
 ```
 
-### For Windows users
+
+### For Windows 8.1 Universal App users
+The build script for Windows 8.1 Universal Apps in in build\build_winrt.bat. In order to run the script you will need to install Git for Windows from https://msysgit.github.io/. During the install, make sure you select the "Use Git and optional Unix tools from the Windows Command Prompt" in the "Adjusting your Path Environment" step. build_winrt.bat uses some of the binaries installed by Git for Windows. After build_winrt.bat is complete, the built libs wil be in contrib\install-winrt.
+
+
+### For Windows (Win32) users
 In order to run these scripts, you should install [msys2](http://msys2.github.io/) and update the system packages.
 
 After that, you should also install the following dependencies:
