@@ -4,10 +4,6 @@ set VERSION=3081002
 set PHONE_URL=https://www.sqlite.org/2015/sqlite-wp81-winrt-%VERSION%.vsix
 set WINRT_URL=https://www.sqlite.org/2015/sqlite-winrt81-%VERSION%.vsix
 
-rem sqlite-winrt-3081002.zip
-rem sqlite-wp81-winrt-3081002.vsix
-
-
 if exist temp (
 	rm -rf temp
 )
@@ -19,9 +15,7 @@ if exist install (
 mkdir temp
 mkdir install
 
-
 pushd temp
-
 	if not exist sqlite-winrt81-%VERSION%.vsix (
 		curl -O -L %WINRT_URL%
 	)
@@ -32,7 +26,6 @@ pushd temp
 
 	unzip sqlite-winrt81-%VERSION%.vsix -d winrt_8.1
 	unzip sqlite-wp81-winrt-%VERSION%.vsix	-d wp_8.1
-
 popd
 
 echo Installing sqlite...
