@@ -86,17 +86,17 @@ popd
 echo Installing libwebsockets...
 
 set INDIR=temp\wp_8.1\win32\install
-xcopy "%INDIR%\include" "install\libwebsockets\include\winrt_8.1" /iycqs
-xcopy "%INDIR%\include" "install\libwebsockets\include\wp_8.1" /iycqs
+xcopy "%INDIR%\include" "install\libwebsockets\include\winrt_8.1\*" /iycqs
+xcopy "%INDIR%\include" "install\libwebsockets\include\wp_8.1\*" /iycqs
 
-xcopy "%SRC%\win32port\win32helpers" "install\libwebsockets\include\winrt_8.1" /iycqs
-xcopy "%SRC%\win32port\win32helpers" "install\libwebsockets\include\wp_8.1" /iycqs
+xcopy "%SRC%\win32port\win32helpers" "install\libwebsockets\include\winrt_8.1\win32helpers\*" /iycqs
+xcopy "%SRC%\win32port\win32helpers" "install\libwebsockets\include\wp_8.1\win32helpers\*" /iycqs
 
-xcopy "%SRC%\lib\private-libwebsockets.h" "install\libwebsockets\include\winrt_8.1" /iycqs
-xcopy "%SRC%\lib\private-libwebsockets.h" "install\libwebsockets\include\wp_8.1" /iycqs
+xcopy "%SRC%\lib\private-libwebsockets.h" "install\libwebsockets\include\winrt_8.1\*" /iycq
+xcopy "%SRC%\lib\private-libwebsockets.h" "install\libwebsockets\include\wp_8.1\*" /iycq
 
-xcopy "temp\wp_8.1\win32\lws_config.h" "install\libwebsockets\include\winrt_8.1" /iycqs
-xcopy "temp\ws_8.1\win32\lws_config.h" "install\libwebsockets\include\wp_8.1" /iycqs
+xcopy "temp\wp_8.1\win32\lws_config.h" "install\libwebsockets\include\winrt_8.1\*" /iycq
+xcopy "temp\ws_8.1\win32\lws_config.h" "install\libwebsockets\include\wp_8.1\*" /iycq
 
 set OUTDIR=install\libwebsockets\prebuilt\wp_8.1\win32
 xcopy "%INDIR%\lib\libwebsockets.lib" "%OUTDIR%\*" /iycq
