@@ -79,24 +79,24 @@ popd
 echo Installing zlib...
 
 set INDIR=temp\wp_8.1\win32\install
-set OUTDIR=install\wp_8.1-specific\zlib\prebuilt\win32
+set OUTDIR=install\zlib\prebuilt\wp_8.1\win32
 xcopy "%INDIR%\include" "install\wp_8.1-specific\zlib\include\" /iycqs
 xcopy "%INDIR%\lib\zlib.lib" "%OUTDIR%\*" /iycq
 xcopy "%INDIR%\bin\zlib.dll" "%OUTDIR%\*" /iycq
 
 set INDIR=temp\wp_8.1\arm\install
-set OUTDIR=install\wp_8.1-specific\zlib\prebuilt\arm
+set OUTDIR=install\zlib\prebuilt\wp_8.1\arm
 xcopy "%INDIR%\lib\zlib.lib" "%OUTDIR%\*" /iycq
 xcopy "%INDIR%\bin\zlib.dll" "%OUTDIR%\*" /iycq
 
 set INDIR=temp\ws_8.1\win32\install
-set OUTDIR=install\winrt_8.1-specific\zlib\prebuilt\win32
+set OUTDIR=install\zlib\prebuilt\winrt_8.1\win32
 xcopy "%INDIR%\include" "install\winrt_8.1-specific\zlib\include\" /iycqs
 xcopy "%INDIR%\lib\zlib.lib" "%OUTDIR%\*" /iycq
 xcopy "%INDIR%\bin\zlib.dll" "%OUTDIR%\*" /iycq
 
 set INDIR=temp\ws_8.1\arm\install
-set OUTDIR=install\winrt_8.1-specific\zlib\prebuilt\arm
+set OUTDIR=install\zlib\prebuilt\winrt_8.1\arm
 xcopy "%INDIR%\lib\zlib.lib" "%OUTDIR%\*" /iycq
 xcopy "%INDIR%\bin\zlib.dll" "%OUTDIR%\*" /iycq
 	
