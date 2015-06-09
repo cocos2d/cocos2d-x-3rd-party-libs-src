@@ -14,6 +14,7 @@ call:winrt_build angle
 call:winrt_build chipmunk
 call:winrt_build freetype
 call:winrt_build ogg
+call:winrt_build sqlite
 call:winrt_build websockets
 goto:eof
 
