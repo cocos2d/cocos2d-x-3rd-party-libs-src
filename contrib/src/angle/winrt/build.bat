@@ -1,6 +1,6 @@
 @echo off
 
-set SHA=e4adca80c6d98cbca8ed0f7e564876e07d82d988
+set SHA=ff68ed35a5fe07283e804849d56ae3993756faa4
 set URL=https://github.com/msopentech/angle/archive/%SHA%.tar.gz
 
 if exist temp (
@@ -13,6 +13,8 @@ if exist install (
 
 mkdir temp
 mkdir install
+
+SET PATCH=%cd%\patch\winrt.props
 
 pushd temp
 
