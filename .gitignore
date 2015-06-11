@@ -48,3 +48,4 @@
 /contrib/src copy/
 **/winrt/install
 **/winrt/temp
+**/winrt/cmake/install
