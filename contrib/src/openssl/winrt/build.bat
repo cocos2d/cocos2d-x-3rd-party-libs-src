@@ -85,5 +85,3 @@ xcopy "%INDIR%\libeay32.dll" "%OUTDIR%\*" /iycq
 xcopy "%INDIR%\libeay32.lib" "%OUTDIR%\*" /iycq
 
 echo OpenSSL build complete.
-
-pause
