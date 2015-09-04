@@ -15,6 +15,9 @@ ifdef HAVE_ANDROID
 ifeq ($(MY_TARGET_ARCH),arm64-v8a)
 	$(APPLY) $(SRC)/websockets/android-arm64.patch
 endif
+ifeq ($(MY_TARGET_ARCH),armeabi-v7a)
+	$(APPLY) $(SRC)/websockets/android-armv7.patch
+endif
 endif
 	$(MOVE)
 

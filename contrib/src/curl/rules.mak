@@ -27,9 +27,12 @@ endif
 		--with-ssl=$(PREFIX) \
 		--with-zlib \
 		--disable-ldap \
+		--enable-shared=no \
+		--enable-static=yes \
 		$(configure_option)
-# ifdef HAVE_ANDROID
-# 	$(APPLY) $(SRC)/curl/android.patch
-# endif
+ifdef HAVE_ANDROID
+	$(APPLY) $(SRC)/curl/android.patch
+endif
+
 	cd $< && $(MAKE) install
 	touch $@
