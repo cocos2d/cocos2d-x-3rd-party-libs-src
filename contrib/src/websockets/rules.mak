@@ -10,6 +10,9 @@ $(TARBALLS)/libwebsockets-1.3-chrome37-firefox30.zip:
 
 websockets: libwebsockets-1.3-chrome37-firefox30.zip .sum-websockets
 	$(UNPACK)
+# ONLY FOR DEBUG!
+# uncomment this line if you want to accept self signed cerdificates
+#	$(APPLY) $(SRC)/websockets/websocket-ssl-self-signed-cert.patch
 ifdef HAVE_ANDROID
 	$(APPLY) $(SRC)/websockets/websocket_android.patch
 ifeq ($(MY_TARGET_ARCH),arm64-v8a)
