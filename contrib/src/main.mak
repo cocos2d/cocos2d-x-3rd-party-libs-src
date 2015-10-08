@@ -145,7 +145,7 @@ endif #end of HAVE_CROSS_COMPILE
 
 CCAS=$(CC) -c
 
-ifdef HAVE_IOS
+ifneq "$(or $(HAVE_IOS),$(HAVE_TVOS))" ""
 CC=xcrun clang
 CXX=xcrun clang++
 ifdef HAVE_NEON
