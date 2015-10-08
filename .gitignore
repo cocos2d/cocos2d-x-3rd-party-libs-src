@@ -37,6 +37,7 @@
 /contrib/android-x86/
 /contrib/include/
 /contrib/install-android/
+/contrib/install-tvos/
 /contrib/install-ios/
 /contrib/install-mac/
 /contrib/tvos-arm64/
