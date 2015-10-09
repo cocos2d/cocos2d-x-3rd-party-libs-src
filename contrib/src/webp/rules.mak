@@ -1,6 +1,6 @@
 # webp
 
-WEBP_VERSION := 0.4.2
+WEBP_VERSION := 0.4.3
 WEBP_URL := http://downloads.webmproject.org/releases/webp/libwebp-$(WEBP_VERSION).tar.gz
 
 $(TARBALLS)/libwebp-$(WEBP_VERSION).tar.gz:

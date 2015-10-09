@@ -162,6 +162,10 @@ RANLIB=xcrun ranlib
 # CXXCPP=xcrun c++ -E
 endif
 
+ifdef HAVE_TVOS
+EXTRA_CFLAGS += -fembed-bitcode
+endif
+
 ifdef HAVE_WIN32
 ifneq ($(shell $(CC) $(CFLAGS) -E -dM -include _mingw.h - < /dev/null | grep -E __MINGW64_VERSION_MAJOR),)
 HAVE_MINGW_W64 := 1
