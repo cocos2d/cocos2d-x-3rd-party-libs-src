@@ -17,6 +17,9 @@ endif
 ifdef HAVE_IOS
 LUA_TARGET := ios
 endif
+ifdef HAVE_TVOS
+LUA_TARGET := tvos
+endif
 ifdef HAVE_WIN32
 LUA_TARGET := mingw
 endif

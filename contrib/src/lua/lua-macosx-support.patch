@@ -7,7 +7,7 @@ index 6e78f66..5deea66 100644
  
  # Convenience platforms targets.
 -PLATS= aix ansi bsd freebsd generic linux macosx mingw posix solaris
-+PLATS= aix ansi bsd freebsd generic linux ios macosx mingw posix solaris
++PLATS= aix ansi bsd freebsd generic linux tvos ios macosx mingw posix solaris
  
  # What to install.
  TO_BIN= lua luac
@@ -23,11 +23,14 @@ index e4a3cd6..dca4284 100644
  CC= gcc
  CFLAGS= -O2 -Wall $(MYCFLAGS)
  AR= ar rcu
-@@ -98,8 +97,11 @@ generic:
+@@ -98,8 +97,14 @@ generic:
  linux:
  	$(MAKE) all MYCFLAGS=-DLUA_USE_LINUX MYLIBS="-Wl,-E -ldl -lreadline -lhistory -lncurses"
  
 +ios:
++	$(MAKE) all
++
++tvos:
 +	$(MAKE) all
 +
  macosx:
