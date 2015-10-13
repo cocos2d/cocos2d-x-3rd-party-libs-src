@@ -40,6 +40,9 @@ lua: lua-$(LUA_VERSION).tar.gz .sum-lua
 	$(APPLY) $(SRC)/lua/luac-32bits.patch
 	$(APPLY) $(SRC)/lua/no-localeconv.patch
 	$(APPLY) $(SRC)/lua/lua-macosx-support.patch
+ifdef HAVE_TVOS
+	$(APPLY) $(SRC)/lua/lua-no-system.patch
+endif
 
 	(cd $(UNPACK_DIR) && \
 	sed -e 's%gcc%$(CC)%' \
