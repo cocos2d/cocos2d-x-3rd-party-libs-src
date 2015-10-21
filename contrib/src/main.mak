@@ -145,7 +145,7 @@ endif #end of HAVE_CROSS_COMPILE
 
 CCAS=$(CC) -c
 
-ifdef HAVE_IOS
+ifneq "$(strip $(HAVE_IOS) $(HAVE_APPLETV))" ""
 CC=xcrun clang
 CXX=xcrun clang++
 ifdef HAVE_NEON
@@ -408,7 +408,11 @@ ifdef HAVE_DARWIN_OS
 ifdef HAVE_IOS
 	echo "set(CMAKE_OSX_SYSROOT $(IOS_SDK))" >> $@
 else
-	echo "set(CMAKE_OSX_SYSROOT $(MACOSX_SDK))" >> $@
+	ifdef HAVE_APPLETV
+	    echo "set(CMAKE_OSX_SYSROOT $(APPLETV_SDK))" >> $@
+	else
+	    echo "set(CMAKE_OSX_SYSROOT $(MACOSX_SDK))" >> $@
+	endif
 endif
 endif
 ifdef HAVE_CROSS_COMPILE
