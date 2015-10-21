@@ -23,6 +23,10 @@ ifdef HAVE_IOS
 CMAKE_DEFINE=IOS
 endif
 
+ifdef HAVE_APPLETV
+CMAKE_DEFINE=IOS
+endif
+
 .convertutf: convertutf toolchain.cmake
 	cd $< && $(HOSTVARS) ${CMAKE} -D${CMAKE_DEFINE}=1
 	cd $< && $(MAKE)  VERBOSE=1 install

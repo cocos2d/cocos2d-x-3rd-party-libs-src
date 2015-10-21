@@ -72,6 +72,9 @@ endif
 ifdef HAVE_IOS
 	cd $< && perl -i -pe "s|^CC= xcrun clang|CC= xcrun cc -arch ${MY_TARGET_ARCH} -miphoneos-version-min=6.0 |g" Makefile
 	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= -isysroot ${IOS_SDK} ${OPTIM} |g" Makefile
+elif HAVE_APPLETV
+	cd $< && perl -i -pe "s|^CC= xcrun clang|CC= xcrun cc -arch ${MY_TARGET_ARCH} -mappletvos-version-min=9.0 |g" Makefile
+	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= -isysroot ${APPLETV_SDK} ${OPTIM} |g" Makefile
 endif
 ifdef HAVE_LINUX
 	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= ${EXTRA_CFLAGS} ${OPTIM} |g" Makefile

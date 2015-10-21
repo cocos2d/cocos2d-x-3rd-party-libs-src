@@ -38,7 +38,7 @@ function usage()
     echo "    ./build.sh  -p=PLATFORM (-l | --list)"
     echo ""
     echo "Arguments:"
-    echo "    PLATFORM:    Platform names, valid values are: mac,ios,android,win32,tizen,linux"
+    echo "    PLATFORM:    Platform names, valid values are: mac,ios,appletv,android,win32,tizen,linux"
     echo "    LIBRARY:     Library names, valid values are platform dependent(png,jpeg,lua,chipmunk,etc)"
     echo "    ARCH:        Build arches, valid values are platform dependent(arm,arm64,armv7,i386,etc)"
     echo "    MODE:        Build mode, valid values are: release and debug"
@@ -240,8 +240,11 @@ function create_fat_library()
 {
     library_name=$1
     #strip & create fat library
-    LIPO="xcrun -sdk iphoneos lipo"
-    STRIP="xcrun -sdk iphoneos strip"
+    #LIPO="xcrun -sdk iphoneos lipo"
+    #STRIP="xcrun -sdk iphoneos strip"
+
+    LIPO="xcrun -sdk appletvos lipo"
+    STRIP="xcrun -sdk appletvos strip"
 
     all_static_libs=$(find $cfg_platform_name  -type f -name "lib$library_name.a")
 
@@ -294,7 +297,7 @@ do
         ignore_arch_library=${lib}_ignore_arch_list
         ignore_arch_list=(${!ignore_arch_library})
         ignore_arch_list_array=(${ignore_arch_list//,/ })
-        if [ ! -z ${ignore_arch_list} ] && [ $cfg_platform_name = "ios" ]; then
+        if [ ! -z ${ignore_arch_list} ] && ([ $cfg_platform_name = "ios" ] || [ $cfg_platform_name = "appletv" ]); then
             echo ${ignore_arch_list}
             if [ $(contains "${ignore_arch_list_array[@]}" $arch) == "y" ];then
                 echo "ingore $lib for $arch"
@@ -339,6 +342,10 @@ do
         # TODO: add more build and target options here
         if [ $cfg_platform_name = "ios" ];then
             export BUILDFORIOS="yes"
+        fi
+
+        if [ $cfg_platform_name = "appletv" ];then
+            export BUILDFORAPPLETV="yes"
         fi
 
         if [ $cfg_platform_name = "android" ];then
@@ -431,8 +438,8 @@ do
             fi
             
             
-            #copy header files for ios & mac
-            if [ $cfg_platform_name = "ios" ] || [ $cfg_platform_name = "mac" ];then
+            #copy header files for ios, appletv & mac
+            if [ $cfg_platform_name = "ios" ] || [ $cfg_platform_name = "appletv" ] || [ $cfg_platform_name = "mac" ];then
                 if [ ! -d $top_dir/build/$cfg_platform_name/include/$library_include_folder_name ];then
                     mkdir -p $top_dir/build/$cfg_platform_name/include/$library_include_folder_name
                 fi
@@ -451,7 +458,7 @@ do
                 cp $src_directory $destination_header_path
             fi
 
-            if [ $cfg_platform_name = "ios" ] || [ $cfg_platform_name = "mac" ];then
+            if [ $cfg_platform_name = "ios" ] || [ $cfg_platform_name = "appletv" ] || [ $cfg_platform_name = "mac" ];then
                 if [ "${lib}" = "curl" ];then
                     if [ "${arch}" = "i386" ]; then
                         mv $destination_header_path/curlbuild.h $destination_header_path/curlbuild-32.h
@@ -495,8 +502,8 @@ do
 done
 
 # patch 32bit & 64bit header files for CURL
-# now only iOS platform need to patch
-if [ $cfg_platform_name = "ios" ];then
+# now only iOS && appletv platform need to patch
+if [ $cfg_platform_name = "ios" ] || [ $cfg_platform_name = "appletv" ];then
     if [ -d "${cfg_platform_name}/include/curl" ];then
         cp -r ${cfg_platform_name}/i386/include/curl/ ${cfg_platform_name}/include/curl
         cp -r ${cfg_platform_name}/x86_64/include/curl/ ${cfg_platform_name}/include/curl
@@ -505,7 +512,7 @@ if [ $cfg_platform_name = "ios" ];then
 fi
 
 # do some cleanup work
-if [ $cfg_platform_name = "ios" ] || [ $cfg_platform_name = "mac" ];then
+if [ $cfg_platform_name = "ios" ] || [ $cfg_platform_name = "appletv" ] || [ $cfg_platform_name = "mac" ];then
     build_arches=$cfg_all_supported_arches
     for arch in ${build_arches[@]}
     do
@@ -514,7 +521,7 @@ if [ $cfg_platform_name = "ios" ] || [ $cfg_platform_name = "mac" ];then
 fi
 
 #check ios & mac library architecture
-if [ $cfg_platform_name = "ios" ] || [ $cfg_platform_name = "mac" ];then
+if [ $cfg_platform_name = "ios" ] || [ $cfg_platform_name = "appletv" ] || [ $cfg_platform_name = "mac" ];then
     for file in `ls ${cfg_platform_name}/libs`
     do
         lipo -info ${cfg_platform_name}/libs/$file

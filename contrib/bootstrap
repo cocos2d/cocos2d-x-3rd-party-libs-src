@@ -175,6 +175,53 @@ check_ios_sdk()
    add_make "EXTRA_LDFLAGS := -L${SDKROOT}/usr/lib -arch ${MY_TARGET_ARCH} -isysroot ${SDKROOT} -miphoneos-version-min=6.0"
 }
 
+check_appletv_sdk()
+{
+   [ -z "${MY_TARGET_ARCH}" ] && echo "You must set MY_TARGET_ARCH environment variable" && exit 1
+    if [ $MY_TARGET_ARCH = "i386" ] || [ $MY_TARGET_ARCH = "x86_64" ];then
+        APPLETV_PLATFORM="Simulator"
+    else
+        APPLETV_PLATFORM="OS"
+    fi
+   
+   SDK_VERSION=$(xcodebuild -showsdks | grep appletv | sort | tail -n 1 | awk '{print substr($NF,10)}')
+   
+   if test -z "$SDKROOT"
+   then
+      SDKROOT=`xcode-select -print-path`/Platforms/AppleTV${APPLETV_PLATFORM}.platform/Developer/SDKs/AppleTV${APPLETV_PLATFORM}${SDK_VERSION}.sdk
+      echo "SDKROOT not specified, assuming $SDKROOT"
+   else
+      SDKROOT="$SDKROOT"
+      fi
+
+   if [ ! -d "${SDKROOT}" ]
+   then
+      echo "*** ${SDKROOT} does not exist, please install required SDK, or set SDKROOT manually. ***"
+      exit 1
+   fi
+   add_make "APPLETV_SDK=${SDKROOT}"
+   add_make "APPLETV_TOOLCHAIN=${SDKROOT}/../../usr/bin/"
+
+   if [ "$APPLETV_PLATFORM" = "OS" ]; then
+       export AS="gas-preprocessor.pl ${CC}"
+       export ASCPP="gas-preprocessor.pl ${CC}"
+       export CCAS="gas-preprocessor.pl ${CC}"
+   else
+       export ASCPP="xcrun as"
+   fi
+    
+   if [ "$APPLETV_PLATFORM" = "OS" ]; then
+       EX_CFLAGS="-isysroot ${SDKROOT} -arch ${MY_TARGET_ARCH} -mappletvos-version-min=9.0"
+       if [ "${MY_TARGET_ARCH}" != "arm64" ]; then
+           EX_CFLAGS="${EX_CFLAGS} -mcpu=cortex-a8"
+       fi
+   else
+       EX_CFLAGS="-isysroot ${SDKROOT} -arch ${MY_TARGET_ARCH} -mappletvos-version-min=9.0"
+   fi
+   add_make "EXTRA_CFLAGS := ${EX_CFLAGS}"
+   add_make "EXTRA_LDFLAGS := -L${SDKROOT}/usr/lib -arch ${MY_TARGET_ARCH} -isysroot ${SDKROOT} -mappletvos-version-min=9.0"
+}
+
 check_macosx_sdk()
 {
    if [ -z "${OSX_VERSION}" ]
@@ -303,13 +350,19 @@ OS="${HOST#*-}" # strip architecture
 echo "The host is $OS"
 case "${OS}" in
 	apple-darwin*)
-		if test -z "$BUILDFORIOS"
+		if test -z "{$BUILDFORIOS}{$BUILDFORAPPLETV}"
 		then
-			check_macosx_sdk
-			add_make_enabled "HAVE_MACOSX" "HAVE_DARWIN_OS" "HAVE_BSD"
+      check_macosx_sdk
+      add_make_enabled "HAVE_MACOSX" "HAVE_DARWIN_OS" "HAVE_BSD"
 		else
-			check_ios_sdk
-			add_make_enabled "HAVE_IOS" "HAVE_DARWIN_OS" "HAVE_BSD"  "HAVE_ARMV7A" "HAVE_NEON"
+      if test -z "$BUILDFORAPPLETV"
+      then
+        check_ios_sdk
+        add_make_enabled "HAVE_IOS" "HAVE_DARWIN_OS" "HAVE_BSD"  "HAVE_ARMV7A" "HAVE_NEON"
+      else
+			  check_appletv_sdk
+			  add_make_enabled "HAVE_APPLETV" "HAVE_DARWIN_OS" "HAVE_BSD"  "HAVE_ARMV7A" "HAVE_NEON"
+      fi
 		fi
 		;;
 	*bsd*)
