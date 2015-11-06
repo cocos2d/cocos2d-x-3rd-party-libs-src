@@ -29,6 +29,7 @@
 /contrib/tarballs/mozilla-release/
 /contrib/tarballs/openssl-1.0.1l/
 /build/android/
+/build/tvos/
 /build/ios/
 /build/mac/
 /contrib/android-arm/
@@ -36,8 +37,11 @@
 /contrib/android-x86/
 /contrib/include/
 /contrib/install-android/
+/contrib/install-tvos/
 /contrib/install-ios/
 /contrib/install-mac/
+/contrib/tvos-arm64/
+/contrib/tvos-x86_64/
 /contrib/ios-arm64/
 /contrib/ios-armv7/
 /contrib/ios-armv7s/

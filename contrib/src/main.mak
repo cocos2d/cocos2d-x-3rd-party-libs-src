@@ -145,7 +145,7 @@ endif #end of HAVE_CROSS_COMPILE
 
 CCAS=$(CC) -c
 
-ifdef HAVE_IOS
+ifneq "$(or $(HAVE_IOS),$(HAVE_TVOS))" ""
 CC=xcrun clang
 CXX=xcrun clang++
 ifdef HAVE_NEON
@@ -160,6 +160,10 @@ STRIP=xcrun strip
 RANLIB=xcrun ranlib
 # CPP=xcrun cc -E
 # CXXCPP=xcrun c++ -E
+endif
+
+ifdef HAVE_TVOS
+EXTRA_CFLAGS += -fembed-bitcode
 endif
 
 ifdef HAVE_WIN32
@@ -405,7 +409,9 @@ ifdef HAVE_DARWIN_OS
 	echo "set(CMAKE_CXX_FLAGS $(CFLAGS))" >> $@
 	echo "set(CMAKE_LD_FLAGS $(LDFLAGS))" >> $@
 	echo "set(CMAKE_AR ar CACHE FILEPATH "Archiver")" >> $@
-ifdef HAVE_IOS
+ifdef HAVE_TVOS
+	echo "set(CMAKE_OSX_SYSROOT $(TVOS_SDK))" >> $@
+else ifdef HAVE_IOS
 	echo "set(CMAKE_OSX_SYSROOT $(IOS_SDK))" >> $@
 else
 	echo "set(CMAKE_OSX_SYSROOT $(MACOSX_SDK))" >> $@

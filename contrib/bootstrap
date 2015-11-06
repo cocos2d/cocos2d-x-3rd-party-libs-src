@@ -128,6 +128,53 @@ add_make_enabled()
 	done
 }
 
+check_tvos_sdk()
+{
+   [ -z "${MY_TARGET_ARCH}" ] && echo "You must set MY_TARGET_ARCH environment variable" && exit 1
+    if [ $MY_TARGET_ARCH = "x86_64" ];then
+        TVOS_PLATFORM="Simulator"
+    else
+        TVOS_PLATFORM="OS"
+    fi
+   
+   SDK_VERSION=$(xcodebuild -showsdks | grep appletvos | sort | tail -n 1 | awk '{print substr($NF,10)}')
+   
+   if test -z "$SDKROOT"
+   then
+      SDKROOT=`xcode-select -print-path`/Platforms/AppleTV${TVOS_PLATFORM}.platform/Developer/SDKs/AppleTV${TVOS_PLATFORM}${SDK_VERSION}.sdk
+      echo "SDKROOT not specified, assuming $SDKROOT"
+   else
+      SDKROOT="$SDKROOT"
+      fi
+
+   if [ ! -d "${SDKROOT}" ]
+   then
+      echo "*** ${SDKROOT} does not exist, please install required SDK, or set SDKROOT manually. ***"
+      exit 1
+   fi
+   add_make "TVOS_SDK=${SDKROOT}"
+   add_make "TVOS_TOOLCHAIN=${SDKROOT}/../../usr/bin/"
+
+   if [ "$TVOS_PLATFORM" = "OS" ]; then
+       export AS="gas-preprocessor.pl ${CC}"
+       export ASCPP="gas-preprocessor.pl ${CC}"
+       export CCAS="gas-preprocessor.pl ${CC}"
+   else
+       export ASCPP="xcrun as"
+   fi
+    
+   if [ "$TVOS_PLATFORM" = "OS" ]; then
+       EX_CFLAGS="-isysroot ${SDKROOT} -arch ${MY_TARGET_ARCH}"
+       if [ "${MY_TARGET_ARCH}" != "arm64" ]; then
+           EX_CFLAGS="${EX_CFLAGS} -mcpu=cortex-a8"
+       fi
+   else
+       EX_CFLAGS="-isysroot ${SDKROOT} -arch ${MY_TARGET_ARCH}"
+   fi
+   add_make "EXTRA_CFLAGS := ${EX_CFLAGS}"
+   add_make "EXTRA_LDFLAGS := -L${SDKROOT}/usr/lib -arch ${MY_TARGET_ARCH} -isysroot ${SDKROOT}"
+}
+
 check_ios_sdk()
 {
    [ -z "${MY_TARGET_ARCH}" ] && echo "You must set MY_TARGET_ARCH environment variable" && exit 1
@@ -303,13 +350,17 @@ OS="${HOST#*-}" # strip architecture
 echo "The host is $OS"
 case "${OS}" in
 	apple-darwin*)
-		if test -z "$BUILDFORIOS"
+		if test -n "$BUILDFORIOS"
 		then
-			check_macosx_sdk
-			add_make_enabled "HAVE_MACOSX" "HAVE_DARWIN_OS" "HAVE_BSD"
-		else
 			check_ios_sdk
 			add_make_enabled "HAVE_IOS" "HAVE_DARWIN_OS" "HAVE_BSD"  "HAVE_ARMV7A" "HAVE_NEON"
+		elif test -n "$BUILDFORTVOS"
+		then
+			check_tvos_sdk
+			add_make_enabled "HAVE_TVOS" "HAVE_DARWIN_OS" "HAVE_BSD" "HAVE_NEON"
+		else
+			check_macosx_sdk
+			add_make_enabled "HAVE_MACOSX" "HAVE_DARWIN_OS" "HAVE_BSD"
 		fi
 		;;
 	*bsd*)

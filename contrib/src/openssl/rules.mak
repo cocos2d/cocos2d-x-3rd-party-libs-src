@@ -55,6 +55,15 @@ OPENSSL_CONFIG_VARS="darwin64-x86_64-cc"
 endif
 endif
 
+ifdef HAVE_TVOS
+ifeq ($(MY_TARGET_ARCH),arm64)
+OPENSSL_CONFIG_VARS="BSD-generic64"
+endif
+ifeq ($(MY_TARGET_ARCH),x86_64)
+OPENSSL_CONFIG_VARS="darwin64-x86_64-cc"
+endif
+endif
+
 $(TARBALLS)/openssl-$(OPENSSL_VERSION).tar.gz:
 	$(call download,$(OPENSSL_URL))
 
@@ -72,6 +81,10 @@ endif
 ifdef HAVE_IOS
 	cd $< && perl -i -pe "s|^CC= xcrun clang|CC= xcrun cc -arch ${MY_TARGET_ARCH} -miphoneos-version-min=6.0 |g" Makefile
 	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= -isysroot ${IOS_SDK} ${OPTIM} |g" Makefile
+endif
+ifdef HAVE_TVOS
+	cd $< && perl -i -pe "s|^CC= xcrun clang|CC= xcrun cc -arch ${MY_TARGET_ARCH} |g" Makefile
+	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= -DHAVE_FORK=0 -isysroot ${TVOS_SDK} ${OPTIM} |g" Makefile
 endif
 ifdef HAVE_LINUX
 	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= ${EXTRA_CFLAGS} ${OPTIM} |g" Makefile
