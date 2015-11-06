@@ -148,6 +148,7 @@ CCAS=$(CC) -c
 ifneq "$(or $(HAVE_IOS),$(HAVE_TVOS))" ""
 CC=xcrun clang
 CXX=xcrun clang++
+EXTRA_CFLAGS += -fembed-bitcode
 ifdef HAVE_NEON
 AS=perl $(abspath ../../extras/tools/bin/gas-preprocessor.pl) $(CC)
 CCAS=gas-preprocessor.pl $(CC) -c
@@ -160,10 +161,6 @@ STRIP=xcrun strip
 RANLIB=xcrun ranlib
 # CPP=xcrun cc -E
 # CXXCPP=xcrun c++ -E
-endif
-
-ifdef HAVE_TVOS
-EXTRA_CFLAGS += -fembed-bitcode
 endif
 
 ifdef HAVE_WIN32
