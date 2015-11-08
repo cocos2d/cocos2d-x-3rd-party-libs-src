@@ -145,9 +145,10 @@ endif #end of HAVE_CROSS_COMPILE
 
 CCAS=$(CC) -c
 
-ifdef HAVE_IOS
+ifneq "$(or $(HAVE_IOS),$(HAVE_TVOS))" ""
 CC=xcrun clang
 CXX=xcrun clang++
+EXTRA_CFLAGS += -fembed-bitcode
 ifdef HAVE_NEON
 AS=perl $(abspath ../../extras/tools/bin/gas-preprocessor.pl) $(CC)
 CCAS=gas-preprocessor.pl $(CC) -c
@@ -405,7 +406,9 @@ ifdef HAVE_DARWIN_OS
 	echo "set(CMAKE_CXX_FLAGS $(CFLAGS))" >> $@
 	echo "set(CMAKE_LD_FLAGS $(LDFLAGS))" >> $@
 	echo "set(CMAKE_AR ar CACHE FILEPATH "Archiver")" >> $@
-ifdef HAVE_IOS
+ifdef HAVE_TVOS
+	echo "set(CMAKE_OSX_SYSROOT $(TVOS_SDK))" >> $@
+else ifdef HAVE_IOS
 	echo "set(CMAKE_OSX_SYSROOT $(IOS_SDK))" >> $@
 else
 	echo "set(CMAKE_OSX_SYSROOT $(MACOSX_SDK))" >> $@

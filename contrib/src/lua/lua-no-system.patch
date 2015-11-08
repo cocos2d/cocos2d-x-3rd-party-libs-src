@@ -1,0 +1,12 @@
+diff --git a/src/loslib.c b/src/loslib.c
+index e4a3cd6..dca4284 100644
+--- a/src/loslib.c
++++ b/src/loslib.c
+@@ -36,7 +36,7 @@
+
+ 
+ static int os_execute (lua_State *L) {
+-  lua_pushinteger(L, system(luaL_optstring(L, 1, NULL)));
++  lua_pushinteger(L, 0);
+   return 1;
+ }

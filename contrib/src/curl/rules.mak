@@ -21,6 +21,10 @@ ifdef HAVE_LINUX
 configure_option=--without-libidn --without-librtmp
 endif
 
+ifdef HAVE_TVOS
+configure_option+=--disable-ntlm-wb
+endif
+
 .curl: curl .zlib .openssl
 	$(RECONF)
 	cd $< && $(HOSTVARS_PIC) ./configure $(HOSTCONF) \
