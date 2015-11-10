@@ -1,5 +1,5 @@
 # GLFW
-GLFW_VERSION := 3.0.4
+GLFW_VERSION := 3.1.2
 GLFW_URL := $(SF)/glfw/$(GLFW_VERSION)/glfw-$(GLFW_VERSION).tar.gz
 
 
