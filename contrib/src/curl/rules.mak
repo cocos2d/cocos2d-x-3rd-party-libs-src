@@ -27,6 +27,7 @@ endif
 		--with-ssl=$(PREFIX) \
 		--with-zlib \
 		--disable-ldap \
+		--enable-ipv6 \
 		--enable-shared=no \
 		--enable-static=yes \
 		$(configure_option)
