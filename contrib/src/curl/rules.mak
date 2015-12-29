@@ -30,6 +30,7 @@ endif
 	cd $< && $(HOSTVARS_PIC) ./configure $(HOSTCONF) \
 		--with-ssl=$(PREFIX) \
 		--with-zlib \
+		--enable-ipv6 \
 		--disable-ldap \
 		$(configure_option)
 # ifdef HAVE_ANDROID
