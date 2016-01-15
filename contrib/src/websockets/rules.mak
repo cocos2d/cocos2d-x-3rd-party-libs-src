@@ -1,24 +1,16 @@
 # websockets
 
-WEBSOCKETS_VERSION := v1.3-chrome37-firefox30.zip
-WEBSOCKETS_URL := https://github.com/warmcat/libwebsockets/archive/$(WEBSOCKETS_VERSION)
+WEBSOCKETS_GITURL := https://github.com/warmcat/libwebsockets
 
-$(TARBALLS)/libwebsockets-1.3-chrome37-firefox30.zip:
-	$(call download,$(WEBSOCKETS_URL))
+$(TARBALLS)/libwebsockets-git.tar.xz:
+	$(call download_git,$(WEBSOCKETS_GITURL),master,0e8403e)
 
-.sum-websockets: libwebsockets-1.3-chrome37-firefox30.zip
+.sum-websockets: libwebsockets-git.tar.xz
+	$(warning $@ not implemented)
+	touch $@
 
-websockets: libwebsockets-1.3-chrome37-firefox30.zip .sum-websockets
+websockets: libwebsockets-git.tar.xz .sum-websockets
 	$(UNPACK)
-# ONLY FOR DEBUG!
-# uncomment this line if you want to accept self signed cerdificates
-#	$(APPLY) $(SRC)/websockets/websocket-ssl-self-signed-cert.patch
-ifdef HAVE_ANDROID
-	$(APPLY) $(SRC)/websockets/websocket_android.patch
-ifeq ($(MY_TARGET_ARCH),arm64-v8a)
-	$(APPLY) $(SRC)/websockets/android-arm64.patch
-endif
-endif
 	$(MOVE)
 
 ifdef HAVE_TIZEN
@@ -27,13 +19,12 @@ endif
 
 
 DEPS_websockets = zlib $(DEPS_zlib)
-DEPS_websockets = openssl $(DEPS_openssl)
 
 ifdef HAVE_TVOS
 	make_option=-DLWS_WITHOUT_DAEMONIZE=1
 endif
 
-.websockets: websockets .zlib .openssl toolchain.cmake
-	cd $< && $(HOSTVARS) CFLAGS="$(CFLAGS) $(EX_ECFLAGS)" $(CMAKE) -DLWS_WITH_SSL=1 -DLWS_WITHOUT_TEST_PING=1 -DLWS_WITHOUT_TEST_SERVER_EXTPOLL=1 $(make_option)
+.websockets: websockets .zlib toolchain.cmake
+	cd $< && $(HOSTVARS) CFLAGS="$(CFLAGS) $(EX_ECFLAGS)" $(CMAKE) -DLWS_WITH_SSL=0 -DLWS_WITHOUT_SERVER=1 -DLWS_WITHOUT_TEST_SERVER=1 -DLWS_WITHOUT_TEST_SERVER_EXTPOLL=1 -DLWS_WITHOUT_TEST_PING=1 -DLWS_WITHOUT_TEST_SERVER_EXTPOLL=1 $(make_option)
 	cd $< && $(MAKE) VERBOSE=1 install
 	touch $@
