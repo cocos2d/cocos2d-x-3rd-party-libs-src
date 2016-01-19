@@ -38,6 +38,8 @@ brew install autoconf
 brew install automake
 brew install libtool
 ```
+**Note:**
+If you have an old version autoconf installed, you may need uninstall it first, then reinstall the new version. Directly upgrade to new version by `brew upgrade` command may cause build always failed.
 
 - If you want to build static libraries for iOS and Mac, you should install the latest version of XCode.  You should also install the `Command Line Tools` bundled with XCode.
 
