@@ -58,15 +58,8 @@ sudo apt-get install git
 ```
 
 ### For Windows users
-In order to run these scripts, you should install [msys2](http://msys2.github.io/) and update the system packages.
 
-After that, you should also install the following dependencies:
-
-```
-pacman -S mingw-w64-i686-toolchain
-pacman -S git make mingw-w64-i686-cmake tar autoconf automake libtool automake
-
-```
+Refer to [https://github.com/MSOpenTech/cocos2d-x-3rd-party-libs-src](https://github.com/MSOpenTech/cocos2d-x-3rd-party-libs-src) for more information about how to build for Windows.
 
 ## How to use
 We have one build script for each platform, it is under `build` directory.
@@ -129,9 +122,9 @@ cd build
 
 1. Download Android NDK r10c and set the ANDROID_NDK to point to the Android ndk r10c path. Don't forget to `source ~/.bash_profile`.
 
-2. Modify the android.ini config file. Change `cfg_default_build_api=21` and `cfg_default_gcc_version=4.9`.
+2. Modify the android.ini config file and set the following: `cfg_default_build_api=21` and `cfg_default_gcc_version=4.9`.
 
-3. Pass `--arch=64` to build the libraries with arm64 support.
+3. Pass `--arch=arm64` to build the libraries with arm64 support.
 
 Note:
 If you build `webp` with arm64, you will get `cpu-features.h` header file not found error. This is a known issue of Android NDK r10c. You could simply create a empty header file
