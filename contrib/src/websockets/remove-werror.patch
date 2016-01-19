@@ -1,0 +1,13 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 61468b0..8fef246 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -491,8 +491,6 @@ if (CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR (CMAKE_C_COMPILER_ID
+                 set(VISIBILITY_FLAG -fvisibility=hidden)
+     endif()
+     if (UNIX)
+-               set(CMAKE_C_FLAGS "-Wall -Werror ${VISIBILITY_FLAG} ${CMAKE_C_FLAGS}" )
+-    else(UNIX)
+                set(CMAKE_C_FLAGS "-Wall ${VISIBILITY_FLAG} ${CMAKE_C_FLAGS}" )
+     endif(UNIX)
+ endif ()
