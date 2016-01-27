@@ -18,12 +18,12 @@ endif
 ifdef HAVE_IOS
 
 ifeq ($(MY_TARGET_ARCH),armv7)
-LUAJIT_TARGET_FLAGS="-arch armv7 -isysroot $(IOS_SDK) $(OPTIM)"
+LUAJIT_TARGET_FLAGS="-arch armv7 -isysroot $(IOS_SDK) $(OPTIM) -fembed-bitcode"
 LUAJIT_HOST_CC="gcc -m32 -arch i386"
 endif
 
 ifeq ($(MY_TARGET_ARCH),armv7s)
-LUAJIT_TARGET_FLAGS="-arch armv7s -isysroot $(IOS_SDK) $(OPTIM)"
+LUAJIT_TARGET_FLAGS="-arch armv7s -isysroot $(IOS_SDK) $(OPTIM) -fembed-bitcode"
 LUAJIT_HOST_CC="gcc -m32 -arch i386"
 endif
 endif #endof HAVE_IOS
