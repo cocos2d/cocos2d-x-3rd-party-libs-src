@@ -13,6 +13,10 @@ ifdef HAVE_TIZEN
 EX_ECFLAGS = -fPIC
 endif
 
+ifdef HAVE_LINUX
+EX_ECFLAGS = -fPIC
+endif
+
 ifdef HAVE_WIN32
 extra_makefile=-fwin32/Makefile.gcc
 endif

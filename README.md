@@ -59,6 +59,18 @@ sudo apt-get install libtool
 sudo apt-get install git
 ```
 
+- If you want to build 32-bit libs on a 64-bit linux system, you should install *gcc-multilib*
+
+```
+sudo apt-get update
+sudo apt-get install gcc-multilib
+```
+Then use command as follow to build 32-bit libs
+
+```
+./build.sh -p=platform --libs=libs --arch=i386 --mode=mode
+```
+
 ### For Windows users
 
 Refer to [https://github.com/MSOpenTech/cocos2d-x-3rd-party-libs-src](https://github.com/MSOpenTech/cocos2d-x-3rd-party-libs-src) for more information about how to build for Windows.
