@@ -1,3 +1,15 @@
+diff --git a/include/chipmunk/chipmunk.h b/include/chipmunk/chipmunk.h
+index 616bfe0..0eb6eee 100644
+--- a/include/chipmunk/chipmunk.h
++++ b/include/chipmunk/chipmunk.h
+@@ -117,6 +117,7 @@ typedef struct cpSpace cpSpace;
+ #include "cpConstraint.h"
+ 
+ #include "cpSpace.h"
++#include "cpHastySpace.h"
+ 
+ // Chipmunk 7.0.1
+ #define CP_VERSION_MAJOR 7
 diff --git a/include/chipmunk/chipmunk_types.h b/include/chipmunk/chipmunk_types.h
 index 0816727..7aee0c7 100644
 --- a/include/chipmunk/chipmunk_types.h
