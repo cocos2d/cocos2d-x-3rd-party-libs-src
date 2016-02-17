@@ -51,3 +51,17 @@ index 0816727..7aee0c7 100644
  #endif
  
  /// @defgroup basicTypes Basic Types
+diff --git a/src/cpHastySpace.c b/src/cpHastySpace.c
+index 4e1bf2c..6f69ecc 100644
+--- a/src/cpHastySpace.c
++++ b/src/cpHastySpace.c
+@@ -6,7 +6,9 @@
+ 
+ #include <pthread.h>
+ //#include <sys/param.h >
++#ifdef __APPLE__
+ #include <sys/sysctl.h>
++#endif
+ 
+ #include "chipmunk/chipmunk_private.h"
+ #include "chipmunk/cpHastySpace.h"
