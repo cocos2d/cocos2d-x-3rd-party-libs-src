@@ -10,6 +10,7 @@ $(TARBALLS)/glfw-$(GLFW_VERSION).tar.gz:
 
 glfw: glfw-$(GLFW_VERSION).tar.gz .sum-glfw
 	$(UNPACK)
+	$(APPLY) $(SRC)/glfw/fix-pr567.patch
 	$(MOVE)
 
 .glfw: glfw
