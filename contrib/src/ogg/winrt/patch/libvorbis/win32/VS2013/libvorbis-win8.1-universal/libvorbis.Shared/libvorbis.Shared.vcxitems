@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <ItemsProjectGuid>{7fa79064-8e30-4a9d-872c-0a2edc6f4ba7}</ItemsProjectGuid>
+    <ItemsRootNamespace>libvorbis</ItemsRootNamespace>
+    <ItemsProjectName>libvorbis.Shared</ItemsProjectName>
+    <CodeSharingProject>248F659F-DAC5-46E8-AC09-60EC9FC95053</CodeSharingProject>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectCapability Include="SourceItemsFromImports" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\analysis.c" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\bitrate.c" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\block.c" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\codebook.c" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\envelope.c" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\floor0.c" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\floor1.c" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\info.c" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\lookup.c" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\lpc.c" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\lsp.c" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\mapping0.c" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\mdct.c" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\psy.c" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\registry.c" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\res0.c" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\sharedbook.c" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\smallft.c" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\synthesis.c" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\vorbisenc.c" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\vorbisfile.c" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\window.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\include\vorbis\codec.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\include\vorbis\vorbisenc.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\include\vorbis\vorbisfile.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\backends.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\bitrate.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\books\coupled\res_books_51.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\books\coupled\res_books_stereo.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\books\floor\floor_books.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\books\uncoupled\res_books_uncoupled.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\codebook.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\codec_internal.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\envelope.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\highlevel.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\lookup.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\lookup_data.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\lpc.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\lsp.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\masking.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\mdct.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\misc.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\modes\floor_all.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\modes\psych_11.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\modes\psych_16.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\modes\psych_44.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\modes\psych_8.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\modes\residue_16.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\modes\residue_44.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\modes\residue_44p51.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\modes\residue_44u.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\modes\residue_8.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\modes\setup_11.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\modes\setup_16.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\modes\setup_22.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\modes\setup_32.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\modes\setup_44.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\modes\setup_44p51.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\modes\setup_44u.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\modes\setup_8.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\modes\setup_X.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\os.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\psy.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\registry.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\scales.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\smallft.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\..\..\..\lib\window.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)..\..\..\vorbis.def" />
+  </ItemGroup>
+</Project>
