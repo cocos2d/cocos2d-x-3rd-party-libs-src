@@ -6,7 +6,7 @@ This repository includes the source code of the 3rd party libraries (binary) tha
 This repository is needed for cocos2d-x developers and/or people who want to:
 
 * generate a updated version of a certain library (eg: upgrade libpng 1.6.2 to 1.6.14)
-* port cocos2d-x to other platforms (eg: port it to Android ARM64, or Xbox One, etc)
+* port cocos2d-x to other platforms (eg: port it to Android ARM64, or Tizen, etc)
 * generate DEBUG versions of all the 3rd party library
 
 
@@ -14,9 +14,9 @@ This repository is needed for cocos2d-x developers and/or people who want to:
 
 - We use MacOSX to build all the static libraries for iOS, Android, Mac and Tizen.
 
-- We use Windows to build all the static libraries for Win32, WP8 and WinRT.
-
 - We use Ubuntu to build all the static libraries for Linux.
+
+- Windows is not supported yet
 
 Other configuration were not tested. Compiling the Android binaries from a Linux
 or Windows machine were not tested, so we don't know if it works or not.
@@ -59,6 +59,17 @@ sudo apt-get install libtool
 sudo apt-get install git
 ```
 
+- If you want to build 32-bit libs on a 64-bit linux system, you should install *gcc-multilib*
+
+```
+sudo apt-get update
+sudo apt-get install gcc-multilib
+```
+Then use command as follow to build 32-bit libs
+
+```
+./build.sh -p=platform --libs=libs --arch=i386 --mode=mode
+```
 
 ### For Windows 8.1 Universal App users
 The build script for Windows 8.1 Universal Apps in in build\build_winrt.bat. In order to run the script you will need to install Git for Windows from https://msysgit.github.io/. During the install, make sure you select the "Use Git and optional Unix tools from the Windows Command Prompt" in the "Adjusting your Path Environment" step. build_winrt.bat uses some of the binaries installed by Git for Windows. 
