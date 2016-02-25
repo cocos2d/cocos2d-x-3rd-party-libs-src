@@ -68,8 +68,15 @@ You will also need to install Perl http://www.activestate.com/activeperl/downloa
 After build_winrt.bat is complete, the built libs wil be in contrib\install-winrt.
 
 
-### For Windows (Win32) users
+### For Windows (Win32) and  Windows 10 Universal App users
 
+To build static libraries for Win32 and Windows 10 Universal is straightfoward, you could just setup a new static libary project with VisualStudio
+and import all the needed source files and header files into the project.
+
+Note: Some libraries use configure system to generate the required header files for Windows platform. If you find some 
+header files are missing, please check the README file of the 3rd libs. In general, it will provide a VS project to 
+build the static libs for Windows. Some libs also provide a CMakeLists.txt file, you could use CMake GUI tool to generate
+a static library project. Don't forgt to Google the error messages when you can't compile the libs successfully.
 
 
 ## How to use
