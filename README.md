@@ -59,9 +59,18 @@ sudo apt-get install libtool
 sudo apt-get install git
 ```
 
-### For Windows users
 
-Refer to [https://github.com/MSOpenTech/cocos2d-x-3rd-party-libs-src](https://github.com/MSOpenTech/cocos2d-x-3rd-party-libs-src) for more information about how to build for Windows.
+### For Windows 8.1 Universal App users
+The build script for Windows 8.1 Universal Apps in in build\build_winrt.bat. In order to run the script you will need to install Git for Windows from https://msysgit.github.io/. During the install, make sure you select the "Use Git and optional Unix tools from the Windows Command Prompt" in the "Adjusting your Path Environment" step. build_winrt.bat uses some of the binaries installed by Git for Windows. 
+
+You will also need to install Perl http://www.activestate.com/activeperl/downloads in order to build OpenSSL.
+
+After build_winrt.bat is complete, the built libs wil be in contrib\install-winrt.
+
+
+### For Windows (Win32) users
+
+
 
 ## How to use
 We have one build script for each platform, it is under `build` directory.
