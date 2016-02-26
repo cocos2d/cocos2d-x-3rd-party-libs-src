@@ -6,7 +6,7 @@ This repository includes the source code of the 3rd party libraries (binary) tha
 This repository is needed for cocos2d-x developers and/or people who want to:
 
 * generate a updated version of a certain library (eg: upgrade libpng 1.6.2 to 1.6.14)
-* port cocos2d-x to other platforms (eg: port it to Android ARM64, or Xbox One, etc)
+* port cocos2d-x to other platforms (eg: port it to Android ARM64, or Tizen, etc)
 * generate DEBUG versions of all the 3rd party library
 
 
@@ -14,9 +14,9 @@ This repository is needed for cocos2d-x developers and/or people who want to:
 
 - We use MacOSX to build all the static libraries for iOS, Android, Mac and Tizen.
 
-- We use Windows to build all the static libraries for Win32, WP8 and WinRT.
-
 - We use Ubuntu to build all the static libraries for Linux.
+
+- Windows is not supported yet
 
 Other configuration were not tested. Compiling the Android binaries from a Linux
 or Windows machine were not tested, so we don't know if it works or not.
