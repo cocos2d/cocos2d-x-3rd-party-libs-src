@@ -1,7 +1,7 @@
 @echo off
 
-set VERSION="6.2.2"
-set URL=http://chipmunk-physics.net/release/Chipmunk-6.x/Chipmunk-%VERSION%.tgz
+set VERSION="7.0.1"
+set URL=http://chipmunk-physics.net/release/Chipmunk-7.x/Chipmunk-%VERSION%.tgz
 set ARGS=-DBUILD_DEMOS:BOOL="0" -DBUILD_SHARED:BOOL="0"
 
 if exist temp (
