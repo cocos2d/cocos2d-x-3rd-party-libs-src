@@ -1,7 +1,7 @@
 @echo off
 
-set VERSION="6.2.2"
-set URL=http://chipmunk-physics.net/release/Chipmunk-6.x/Chipmunk-%VERSION%.tgz
+set VERSION="7.0.1"
+set URL=http://chipmunk-physics.net/release/Chipmunk-7.x/Chipmunk-%VERSION%.tgz
 set ARGS=-DBUILD_DEMOS:BOOL="0" -DBUILD_SHARED:BOOL="0"
 
 if exist temp (
@@ -17,15 +17,17 @@ mkdir install
 
 SET PATCH=%cd%\patch\winrt.props
 
+if not exist ../../../tarballs\Chipmunk-%VERSION%.tgz (
+	curl -o ../../../tarballs/Chipmunk-%VERSION%.tgz -L %URL%
+)
+
 pushd temp
 
-	if not exist Chipmunk-%VERSION%.tgz (
-		curl -O -L %URL%
-	)
+	tar -xzvf ../../../../tarballs/Chipmunk-%VERSION%.tgz
 
-	tar -xzvf Chipmunk-%VERSION%.tgz
-
-	pushd chipmunk-%VERSION%
+	pushd Chipmunk-%VERSION%
+		patch -p1 < ../../../cocos2d.patch
+		patch -p1 < ../../../cocos2d_winrt.patch
 		set SRC=%cd%
 	popd
 	
