@@ -1,3 +1,37 @@
+diff --git a/include/chipmunk/cpHastySpace.h b/include/chipmunk/cpHastySpace.h
+index 6de2283..1cd5e8b 100644
+--- a/include/chipmunk/cpHastySpace.h
++++ b/include/chipmunk/cpHastySpace.h
+@@ -1,6 +1,9 @@
+ // Copyright 2013 Howling Moon Software. All rights reserved.
+ // See http://chipmunk2d.net/legal.php for more information.
+ 
++// Don't compile for Microsoft
++#ifndef _MSC_VER
++
+ /// cpHastySpace is exclusive to Chipmunk Pro
+ /// Currently it enables ARM NEON optimizations in the solver, but in the future will include other optimizations such as
+ /// a multi-threaded solver and multi-threaded collision broadphases.
+@@ -25,3 +28,6 @@ CP_EXPORT unsigned long cpHastySpaceGetThreads(cpSpace *space);
+ 
+ /// When stepping a hasty space, you must use this function.
+ CP_EXPORT void cpHastySpaceStep(cpSpace *space, cpFloat dt);
++
++// Don't compile for Microsoft
++#endif // _MSC_VER
+diff --git a/include/chipmunk/cpShape.h b/include/chipmunk/cpShape.h
+index cc20f80..c78ed05 100644
+--- a/include/chipmunk/cpShape.h
++++ b/include/chipmunk/cpShape.h
+@@ -104,7 +104,7 @@ CP_EXPORT cpBody* cpShapeGetBody(const cpShape *shape);
+ CP_EXPORT void cpShapeSetBody(cpShape *shape, cpBody *body);
+ 
+ /// Get the mass of the shape if you are having Chipmunk calculate mass properties for you.
+-cpFloat cpShapeGetMass(cpShape *shape);
++CP_EXPORT cpFloat cpShapeGetMass(cpShape *shape);
+ /// Set the mass of this shape to have Chipmunk calculate mass properties for you.
+ CP_EXPORT void cpShapeSetMass(cpShape *shape, cpFloat mass);
+ 
 diff --git a/src/cpHastySpace.c b/src/cpHastySpace.c
 index a71fc33..3b25b04 100644
 --- a/src/cpHastySpace.c
