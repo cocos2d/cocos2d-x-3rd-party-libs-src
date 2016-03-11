@@ -17,15 +17,17 @@ mkdir install
 
 SET PATCH=%cd%\patch\winrt.props
 
+if not exist ../../../tarballs\Chipmunk-%VERSION%.tgz (
+	curl -o ../../../tarballs/Chipmunk-%VERSION%.tgz -L %URL%
+)
+
 pushd temp
 
-	if not exist Chipmunk-%VERSION%.tgz (
-		curl -O -L %URL%
-	)
+	tar -xzvf ../../../../tarballs/Chipmunk-%VERSION%.tgz
 
-	tar -xzvf Chipmunk-%VERSION%.tgz
-
-	pushd chipmunk-%VERSION%
+	pushd Chipmunk-%VERSION%
+		patch -p1 < ../../../cocos2d.patch
+		patch -p1 < ../../../cocos2d_winrt.patch
 		set SRC=%cd%
 	popd
 	

@@ -1,0 +1,79 @@
+diff --git a/src/cpHastySpace.c b/src/cpHastySpace.c
+index a71fc33..3b25b04 100644
+--- a/src/cpHastySpace.c
++++ b/src/cpHastySpace.c
+@@ -1,6 +1,9 @@
+ // Copyright 2013 Howling Moon Software. All rights reserved.
+ // See http://chipmunk2d.net/legal.php for more information.
+ 
++// Don't compile for Microsoft
++#ifndef _MSC_VER
++
+ #include <stdlib.h>
+ #include <stdio.h>
+ 
+@@ -490,3 +493,6 @@ cpHastySpaceStep(cpSpace *space, cpFloat dt)
+ 		}
+ 	} cpSpaceUnlock(space, cpTrue);
+ }
++
++// Don't compile for Microsoft
++#endif //_MSC_VER
+diff --git a/src/cpPolyline.c b/src/cpPolyline.c
+index 2be7e1a..8592fc1 100644
+--- a/src/cpPolyline.c
++++ b/src/cpPolyline.c
+@@ -49,7 +49,7 @@ static cpPolyline *
+ cpPolylineShrink(cpPolyline *line)
+ {
+ 	line->capacity = line->count;
+-	return cprealloc(line, cpPolylineSizeForCapacity(line->count));
++	return (cpPolyline*)cprealloc(line, cpPolylineSizeForCapacity(line->count));
+ }
+ 
+ void
+@@ -69,7 +69,7 @@ cpPolylineGrow(cpPolyline *line, int count)
+   
+   if(line->capacity < capacity){
+     line->capacity = capacity;
+-		line = cprealloc(line, cpPolylineSizeForCapacity(capacity));
++		line = (cpPolyline*)cprealloc(line, cpPolylineSizeForCapacity(capacity));
+   }
+ 	
+ 	return line;
+@@ -244,7 +244,7 @@ cpPolylineSetInit(cpPolylineSet *set)
+ {
+ 	set->count = 0;
+ 	set->capacity = 8;
+-	set->lines = cpcalloc(set->capacity, sizeof(cpPolyline));
++	set->lines = (cpPolyline**)cpcalloc(set->capacity, sizeof(cpPolyline));
+ 	
+   return set;
+ }
+@@ -313,7 +313,7 @@ cpPolylineSetPush(cpPolylineSet *set, cpPolyline *line)
+   set->count++;
+   if(set->count > set->capacity){
+     set->capacity *= 2;
+-    set->lines = cprealloc(set->lines, set->capacity*sizeof(cpPolyline));
++    set->lines = (cpPolyline**)cprealloc(set->lines, set->capacity*sizeof(cpPolyline));
+   }
+   
+ 	set->lines[set->count - 1] = line;
+@@ -599,7 +599,7 @@ static void
+ ApproximateConcaveDecomposition(cpVect *verts, int count, cpFloat tol, cpPolylineSet *set)
+ {
+ 	int first;
+-	cpVect *hullVerts = alloca(count*sizeof(cpVect));
++	cpVect *hullVerts = (cpVect*)alloca(count*sizeof(cpVect));
+ 	int hullCount = cpConvexHull(count, verts, hullVerts, &first, 0.0);
+ 	
+ 	if(hullCount != count){
+@@ -615,7 +615,7 @@ ApproximateConcaveDecomposition(cpVect *verts, int count, cpFloat tol, cpPolylin
+ 				// Vertex counts NOT including the steiner point.
+ 				int sub1_count = (steiner_i - notch.i + count)%count + 1;
+ 				int sub2_count = count - (steiner_i - notch.i + count)%count;
+-				cpVect *scratch = alloca((IMAX(sub1_count, sub2_count) + 1)*sizeof(cpVect));
++				cpVect *scratch = (cpVect*)alloca((IMAX(sub1_count, sub2_count) + 1)*sizeof(cpVect));
+ 				
+ 				for(int i=0; i<sub1_count; i++) scratch[i] = verts[(notch.i + i)%count];
+ 				scratch[sub1_count] = steiner;
