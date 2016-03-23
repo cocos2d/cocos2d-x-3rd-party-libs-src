@@ -34,7 +34,7 @@ pushd temp
 		mkdir win32
 		pushd win32
 			set INSTALL=%CD%\install
-			cmake -G"Visual Studio 12 2013" -DCMAKE_SYSTEM_NAME=WindowsPhone -DCMAKE_SYSTEM_VERSION=8.1  -DCMAKE_INSTALL_PREFIX:PATH=%INSTALL% %CMAKE_ARGS% %SRC%
+			cmake -G"Visual Studio 12 2013" -DCMAKE_SYSTEM_NAME=WindowsPhone -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX:PATH=%INSTALL% %CMAKE_ARGS% %SRC%
 		popd
 		mkdir arm
 		pushd arm
@@ -48,7 +48,7 @@ pushd temp
 		mkdir win32
 		pushd win32
 			set INSTALL=%CD%\install
-			cmake -G"Visual Studio 12 2013" -DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=8.1  -DCMAKE_INSTALL_PREFIX:PATH=%INSTALL% %CMAKE_ARGS% %SRC%
+			cmake -G"Visual Studio 12 2013" -DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX:PATH=%INSTALL% %CMAKE_ARGS% %SRC%
 		popd
 		mkdir arm
 		pushd arm
@@ -82,22 +82,26 @@ set INDIR=temp\wp_8.1\win32\install
 set OUTDIR=install\zlib\prebuilt\wp_8.1\win32
 xcopy "%INDIR%\include" "install\wp_8.1-specific\zlib\include\" /iycqs
 xcopy "%INDIR%\lib\zlib.lib" "%OUTDIR%\*" /iycq
+xcopy "%INDIR%\lib\zlibstatic.lib" "%OUTDIR%\*" /iycq
 xcopy "%INDIR%\bin\zlib.dll" "%OUTDIR%\*" /iycq
 
 set INDIR=temp\wp_8.1\arm\install
 set OUTDIR=install\zlib\prebuilt\wp_8.1\arm
 xcopy "%INDIR%\lib\zlib.lib" "%OUTDIR%\*" /iycq
+xcopy "%INDIR%\lib\zlibstatic.lib" "%OUTDIR%\*" /iycq
 xcopy "%INDIR%\bin\zlib.dll" "%OUTDIR%\*" /iycq
 
 set INDIR=temp\ws_8.1\win32\install
 set OUTDIR=install\zlib\prebuilt\winrt_8.1\win32
 xcopy "%INDIR%\include" "install\winrt_8.1-specific\zlib\include\" /iycqs
 xcopy "%INDIR%\lib\zlib.lib" "%OUTDIR%\*" /iycq
+xcopy "%INDIR%\lib\zlibstatic.lib" "%OUTDIR%\*" /iycq
 xcopy "%INDIR%\bin\zlib.dll" "%OUTDIR%\*" /iycq
 
 set INDIR=temp\ws_8.1\arm\install
 set OUTDIR=install\zlib\prebuilt\winrt_8.1\arm
 xcopy "%INDIR%\lib\zlib.lib" "%OUTDIR%\*" /iycq
+xcopy "%INDIR%\lib\zlibstatic.lib" "%OUTDIR%\*" /iycq
 xcopy "%INDIR%\bin\zlib.dll" "%OUTDIR%\*" /iycq
 	
 echo zlib build complete.
