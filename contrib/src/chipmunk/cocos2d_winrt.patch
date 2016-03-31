@@ -111,31 +111,3 @@ index 2be7e1a..8592fc1 100644
  				
  				for(int i=0; i<sub1_count; i++) scratch[i] = verts[(notch.i + i)%count];
  				scratch[sub1_count] = steiner;
-
-diff --git a/include/chipmunk/chipmunk_private.h b/include/chipmunk/chipmunk_private.h
-index a27fdec..bed2cbc 100644
---- a/include/chipmunk/chipmunk_private.h
-+++ b/include/chipmunk/chipmunk_private.h
-@@ -279,6 +279,7 @@ bias_coef(cpFloat errorBias, cpFloat dt)
- void cpSpaceSetStaticBody(cpSpace *space, cpBody *body);
- 
- extern cpCollisionHandler cpCollisionHandlerDoNothing;
-+extern CP_EXPORT cpCollisionHandler* get_cpCollisionHandlerDoNothing();
- 
- void cpSpaceProcessComponents(cpSpace *space, cpFloat dt);
- 
-diff --git a/src/cpSpace.c b/src/cpSpace.c
-index 079752d..bfd9bbc 100644
---- a/src/cpSpace.c
-+++ b/src/cpSpace.c
-@@ -102,6 +102,11 @@ cpCollisionHandler cpCollisionHandlerDoNothing = {
- 	AlwaysCollide, AlwaysCollide, DoNothing, DoNothing, NULL
- };
- 
-+CP_EXPORT cpCollisionHandler * get_cpCollisionHandlerDoNothing()
-+{
-+    return &cpCollisionHandlerDoNothing;
-+}
-+
- // function to get the estimated velocity of a shape for the cpBBTree.
- static cpVect ShapeVelocityFunc(cpShape *shape){return shape->body->v;}
