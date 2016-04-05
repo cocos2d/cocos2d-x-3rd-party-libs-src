@@ -1,6 +1,6 @@
 # curl
 
-CURL_VERSION := 7.40.0
+CURL_VERSION := 7.46.0
 CURL_URL :=  http://curl.haxx.se/download/curl-$(CURL_VERSION).tar.gz
 
 $(TARBALLS)/curl-$(CURL_VERSION).tar.gz:
