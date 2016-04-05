@@ -80,11 +80,11 @@ endif
 	cd $< && $(HOSTVARS_PIC)  ./Configure $(OPENSSL_CONFIG_VARS)  --prefix=$(PREFIX) $(OPENSSL_COMPILER) ${OPENSSL_ARCH}
 ifdef HAVE_IOS
 	cd $< && perl -i -pe "s|^CC= xcrun clang|CC= xcrun cc -arch ${MY_TARGET_ARCH} -miphoneos-version-min=6.0 |g" Makefile
-	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= -isysroot ${IOS_SDK} ${OPTIM} -fembed-bitcode |g" Makefile
+	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= -isysroot ${IOS_SDK} ${OPTIM} ${ENABLE_BITCODE} |g" Makefile
 endif
 ifdef HAVE_TVOS
 	cd $< && perl -i -pe "s|^CC= xcrun clang|CC= xcrun cc -arch ${MY_TARGET_ARCH} |g" Makefile
-	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= -DHAVE_FORK=0 -isysroot ${TVOS_SDK} ${OPTIM} |g" Makefile
+	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= -DHAVE_FORK=0 -isysroot ${TVOS_SDK} ${OPTIM} ${ENABLE_BITCODE} |g" Makefile
 endif
 ifdef HAVE_LINUX
 	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= ${EXTRA_CFLAGS} ${OPTIM} |g" Makefile

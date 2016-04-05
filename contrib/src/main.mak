@@ -148,7 +148,7 @@ CCAS=$(CC) -c
 ifneq "$(or $(HAVE_IOS),$(HAVE_TVOS))" ""
 CC=xcrun clang
 CXX=xcrun clang++
-EXTRA_CFLAGS += -fembed-bitcode
+EXTRA_CFLAGS += $(ENABLE_BITCODE)
 ifdef HAVE_NEON
 AS=perl $(abspath ../../extras/tools/bin/gas-preprocessor.pl) $(CC)
 CCAS=gas-preprocessor.pl $(CC) -c

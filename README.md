@@ -159,6 +159,16 @@ Note:
 If you build `webp` with arm64, you will get `cpu-features.h` header file not found error. This is a known issue of Android NDK r10c. You could simply create a empty header file
 named `cpu-features.h` under `{ANDROID_NDK}/platforms/android-21/arch-arm64/usr/include`.
 
+### Enable bitcode for iOS
+On default, when building static libs for TVOS, it will enable bitcode, but iOS doesn't.
+
+You should change `cgf_build_bitcode` in `ios.ini` to `-fembed-bitcode`.
+
+Here is the example code:
+
+```
+cfg_build_bitcode="-fembed-bitcode"
+```
 
 ## How to build a DEBUG and RELEASE version
 You can add flag "--mode=[debug | release]" for building DEBUG and RELEASE version.

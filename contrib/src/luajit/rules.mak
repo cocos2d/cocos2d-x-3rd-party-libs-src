@@ -18,12 +18,12 @@ endif
 ifdef HAVE_IOS
 
 ifeq ($(MY_TARGET_ARCH),armv7)
-LUAJIT_TARGET_FLAGS="-arch armv7 -isysroot $(IOS_SDK) $(OPTIM) -fembed-bitcode"
+LUAJIT_TARGET_FLAGS="-arch armv7 -isysroot $(IOS_SDK) $(OPTIM) $(ENABLE_BITCODE)"
 LUAJIT_HOST_CC="gcc -m32 -arch i386"
 endif
 
 ifeq ($(MY_TARGET_ARCH),armv7s)
-LUAJIT_TARGET_FLAGS="-arch armv7s -isysroot $(IOS_SDK) $(OPTIM) -fembed-bitcode"
+LUAJIT_TARGET_FLAGS="-arch armv7s -isysroot $(IOS_SDK) $(OPTIM) $(ENABLE_BITCODE)"
 LUAJIT_HOST_CC="gcc -m32 -arch i386"
 endif
 endif #endof HAVE_IOS
@@ -40,9 +40,11 @@ endif
 ifdef HAVE_ANDROID
 	cd $< && $(MAKE) HOST_CC="gcc -m32 $(OPTIM)" CROSS=$(HOST)- TARGET_SYS=Linux TARGET_FLAGS="${NDKF} ${EXTRA_CFLAGS}" TARGET_LDFLAGS=$(LUAJIT_LDFLAGS)
 endif
+
 ifdef HAVE_MACOSX
 	cd $< && $(HOSTVARS_PIC) $(MAKE) HOST_CC="$(CC)" HOST_CFLAGS="$(CFLAGS)"
 endif
+
 ifdef HAVE_IOS
 ifeq ($(MY_TARGET_ARCH),armv7)
 	cd $< && make HOST_CC=$(LUAJIT_HOST_CC) TARGET_FLAGS=$(LUAJIT_TARGET_FLAGS) TARGET=arm TARGET_SYS=iOS

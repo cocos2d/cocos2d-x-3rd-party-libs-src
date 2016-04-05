@@ -370,6 +370,9 @@ do
 
         echo "MY_TARGET_ARCH := ${MY_TARGET_ARCH}" >> config.mak
         echo "OPTIM := ${OPTIM}" >> config.mak
+        ENABLE_BITCODE=$cfg_build_bitcode
+        export ENABLE_BITCODE
+        echo "ENABLE_BITCODE := ${cfg_build_bitcode}" >> config.mak
 
         make
 
