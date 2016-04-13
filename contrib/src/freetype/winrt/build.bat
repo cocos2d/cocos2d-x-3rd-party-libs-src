@@ -21,10 +21,12 @@ SET PATCH=%cd%\patch\winrt.props
 pushd temp
 
 	if not exist freetype-%VERSION%.tar.gz (
-		curl -O -L %URL%
+		echo Downloading freetype-%VERSION%.tar.gz
+		curl -O -L %URL% 
 	)
 
-	tar -xzvf freetype-%VERSION%.tar.gz
+	echo Decompressing freetype-%VERSION%.tar.gz
+	tar -xzf freetype-%VERSION%.tar.gz
 
 	pushd freetype-%VERSION%
 		set SRC=%cd%
@@ -37,12 +39,12 @@ pushd temp
 		mkdir win32
 		pushd win32
 			set INSTALL=%CD%\install
-			cmake -G"Visual Studio 12 2013" -DCMAKE_SYSTEM_NAME=WindowsPhone -DCMAKE_SYSTEM_VERSION=8.1  -DCMAKE_INSTALL_PREFIX:PATH=%INSTALL% %ARGS%  %SRC%
+			cmake -G"Visual Studio 14 2015" -DCMAKE_SYSTEM_NAME=WindowsPhone -DCMAKE_SYSTEM_VERSION=8.1  -DCMAKE_INSTALL_PREFIX:PATH=%INSTALL% %ARGS%  %SRC%
 		popd
 		mkdir arm
 		pushd arm
 			set INSTALL=%CD%\install
-			cmake -G"Visual Studio 12 2013 ARM" -DCMAKE_SYSTEM_NAME=WindowsPhone -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX:PATH=%INSTALL% %ARGS% %SRC%
+			cmake -G"Visual Studio 14 2015 ARM" -DCMAKE_SYSTEM_NAME=WindowsPhone -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX:PATH=%INSTALL% %ARGS% %SRC%
 		popd
 	popd
 	
@@ -51,16 +53,30 @@ pushd temp
 		mkdir win32
 		pushd win32
 			set INSTALL=%CD%\install
-			cmake -G"Visual Studio 12 2013" -DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=8.1  -DCMAKE_INSTALL_PREFIX:PATH=%INSTALL% %ARGS%  %SRC%
+			cmake -G"Visual Studio 14 2015" -DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=8.1  -DCMAKE_INSTALL_PREFIX:PATH=%INSTALL% %ARGS%  %SRC%
 		popd
 		mkdir arm
 		pushd arm
 			set INSTALL=%CD%\install
-			cmake -G"Visual Studio 12 2013 ARM" -DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX:PATH=%INSTALL% %ARGS% %SRC%
+			cmake -G"Visual Studio 14 2015 ARM" -DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=8.1 -DCMAKE_INSTALL_PREFIX:PATH=%INSTALL% %ARGS% %SRC%
+		popd
+	popd
+	
+	mkdir win10
+	pushd win10 
+		mkdir win32
+		pushd win32
+			set INSTALL=%CD%\install
+			cmake -G"Visual Studio 14 2015" -DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=10.0  -DCMAKE_INSTALL_PREFIX:PATH=%INSTALL% %ARGS%  %SRC%
+		popd
+		mkdir arm
+		pushd arm
+			set INSTALL=%CD%\install
+			cmake -G"Visual Studio 14 2015 ARM" -DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=10.0 -DCMAKE_INSTALL_PREFIX:PATH=%INSTALL% %ARGS% %SRC%
 		popd
 	popd
 		
-	call "%VS120COMNTOOLS%vsvars32.bat"
+	call "%VS140COMNTOOLS%vsvars32.bat"
 
 	echo Building freetype Windows 8.1 Phone Release/Win32...
 	msbuild wp_8.1\win32\freetype.sln /p:Configuration="MinSizeRel" /p:Platform="Win32" /p:ForceImportBeforeCppTargets=%PATCH% /m
@@ -77,6 +93,14 @@ pushd temp
 	echo Building freetype Windows 8.1 Store Release/ARM...
 	msbuild ws_8.1\arm\freetype.sln /p:Configuration="MinSizeRel" /p:Platform="ARM" /p:ForceImportBeforeCppTargets=%PATCH% /m
 	msbuild ws_8.1\arm\INSTALL.vcxproj /p:Configuration="MinSizeRel" /p:Platform="ARM" /p:ForceImportBeforeCppTargets=%PATCH% /m
+	
+	echo Building freetype Windows 10.0 Store Release/Win32...
+	msbuild win10\win32\freetype.sln /p:Configuration="MinSizeRel" /p:Platform="Win32" /p:ForceImportBeforeCppTargets=%PATCH% /m
+	msbuild win10\win32\INSTALL.vcxproj /p:Configuration="MinSizeRel" /p:Platform="Win32" /p:ForceImportBeforeCppTargets=%PATCH% /m
+
+	echo Building freetype Windows 10.0 Store Release/ARM...
+	msbuild win10\arm\freetype.sln /p:Configuration="MinSizeRel" /p:Platform="ARM" /p:ForceImportBeforeCppTargets=%PATCH% /m
+	msbuild win10\arm\INSTALL.vcxproj /p:Configuration="MinSizeRel" /p:Platform="ARM" /p:ForceImportBeforeCppTargets=%PATCH% /m
 popd
 
 echo Installing freetype...
@@ -97,6 +121,15 @@ xcopy "%INDIR%\lib\freetype.lib" "%OUTDIR%\*" /iycq
 
 set INDIR=temp\ws_8.1\arm\install
 set OUTDIR=install\freetype2\prebuilt\winrt_8.1\arm
+xcopy "%INDIR%\lib\freetype.lib" "%OUTDIR%\*" /iycq
+
+set INDIR=temp\win10\win32\install
+set OUTDIR=install\freetype2\prebuilt\win10\win32
+xcopy "%INDIR%\include" "install\freetype2\include\win10" /iycqs
+xcopy "%INDIR%\lib\freetype.lib" "%OUTDIR%\*" /iycq
+
+set INDIR=temp\win10\arm\install
+set OUTDIR=install\freetype2\prebuilt\win10\arm
 xcopy "%INDIR%\lib\freetype.lib" "%OUTDIR%\*" /iycq
 	
 echo freetype build complete.
