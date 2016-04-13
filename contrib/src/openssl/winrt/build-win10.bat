@@ -1,7 +1,10 @@
 @echo off
 
+Building OpenSSL for Windows 10.0...
+
 pushd temp
 	pushd openssl
+		echo creating Windows 10.0 Visual Studio projects...
 		call ms\do_vsprojects14.bat
 	popd
 
@@ -14,6 +17,8 @@ pushd temp
 	echo Building OpenSSL Windows 10.0 Release/ARM...
 	msbuild %SOLUTION% /p:Configuration="Release" /p:Platform="ARM" /m
 
+	echo Building OpenSSL Windows 10.0 Release/x64...
+	msbuild %SOLUTION% /p:Configuration="Release" /p:Platform="x64" /m
 
 	pushd openssl
 		call ms\do_packwinuniversal.bat
