@@ -136,7 +136,7 @@
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <ModuleDefinitionFile>..\..\..\vorbis.def</ModuleDefinitionFile>
-      <AdditionalLibraryDirectories>..\..\..\..\..\libogg\win32\VS2013\$(Platform)\$(Configuration)\libogg.Windows;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\..\..\libogg\win32\VS2013\$(Platform)\$(Configuration)\libogg.Windows;</AdditionalLibraryDirectories>
       <AdditionalDependencies>libogg.lib;kernel32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -202,12 +202,16 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DisableSpecificWarnings>4244;4305;4101;</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>..\..\..\..\include;..\..\..\..\..\libogg\include;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>LIBVORBIS_EXPORTS;_CRT_SECURE_NO_WARNINGS;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <ModuleDefinitionFile>..\..\..\vorbis.def</ModuleDefinitionFile>
+      <AdditionalLibraryDirectories>..\..\..\..\..\libogg\win32\VS2013\$(Platform)\$(Configuration)\libogg.Windows;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libogg.lib;kernel32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -217,6 +221,8 @@
       <DebugInformationFormat>None</DebugInformationFormat>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <DisableSpecificWarnings>4244;4305;4101;</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>..\..\..\..\include;..\..\..\..\..\libogg\include;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>LIBVORBIS_EXPORTS;_CRT_SECURE_NO_WARNINGS;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -224,6 +230,8 @@
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <ModuleDefinitionFile>..\..\..\vorbis.def</ModuleDefinitionFile>
       <LinkTimeCodeGeneration />
+      <AdditionalLibraryDirectories>..\..\..\..\..\libogg\win32\VS2013\$(Platform)\$(Configuration)\libogg.Windows;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libogg.lib;kernel32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

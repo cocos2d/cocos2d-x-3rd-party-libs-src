@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.22823.1
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libvorbis", "libvorbis-win10-universal\libvorbis-win10-universal.vcxproj", "{005F04F8-7C70-4340-9E2E-4B8966886D9D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libvorbisfile", "libvorbisfile-win10-universal\libvorbisfile-win10-universal.vcxproj", "{9E831B2C-88DC-48BF-B2E0-67A15AF3384B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libogg", "..\..\..\libogg\win32\VS2015\libogg-win10-universal\libogg-win10-universal.vcxproj", "{EFC56075-DE7F-4025-A94A-9EBF386D0112}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +43,18 @@ Global
 		{9E831B2C-88DC-48BF-B2E0-67A15AF3384B}.Release|x64.Build.0 = Release|x64
 		{9E831B2C-88DC-48BF-B2E0-67A15AF3384B}.Release|x86.ActiveCfg = Release|Win32
 		{9E831B2C-88DC-48BF-B2E0-67A15AF3384B}.Release|x86.Build.0 = Release|Win32
+		{EFC56075-DE7F-4025-A94A-9EBF386D0112}.Debug|ARM.ActiveCfg = Debug|ARM
+		{EFC56075-DE7F-4025-A94A-9EBF386D0112}.Debug|ARM.Build.0 = Debug|ARM
+		{EFC56075-DE7F-4025-A94A-9EBF386D0112}.Debug|x64.ActiveCfg = Debug|x64
+		{EFC56075-DE7F-4025-A94A-9EBF386D0112}.Debug|x64.Build.0 = Debug|x64
+		{EFC56075-DE7F-4025-A94A-9EBF386D0112}.Debug|x86.ActiveCfg = Debug|Win32
+		{EFC56075-DE7F-4025-A94A-9EBF386D0112}.Debug|x86.Build.0 = Debug|Win32
+		{EFC56075-DE7F-4025-A94A-9EBF386D0112}.Release|ARM.ActiveCfg = Release|ARM
+		{EFC56075-DE7F-4025-A94A-9EBF386D0112}.Release|ARM.Build.0 = Release|ARM
+		{EFC56075-DE7F-4025-A94A-9EBF386D0112}.Release|x64.ActiveCfg = Release|x64
+		{EFC56075-DE7F-4025-A94A-9EBF386D0112}.Release|x64.Build.0 = Release|x64
+		{EFC56075-DE7F-4025-A94A-9EBF386D0112}.Release|x86.ActiveCfg = Release|Win32
+		{EFC56075-DE7F-4025-A94A-9EBF386D0112}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
