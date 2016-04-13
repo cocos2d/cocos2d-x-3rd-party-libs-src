@@ -1,0 +1,139 @@
+diff -rupN curl-7.48.0/CMakeLists.txt curl-7.48.0-1/CMakeLists.txt
+--- curl-7.48.0/CMakeLists.txt	2016-03-22 00:15:38.000000000 -0700
++++ curl-7.48.0-1/CMakeLists.txt	2016-04-12 14:12:28.724654200 -0700
+@@ -289,7 +289,14 @@ check_function_exists(gethostname HAVE_G
+ set(OPENSSL_DEFAULT ON)
+ if(WIN32)
+   set(OPENSSL_DEFAULT OFF)
+-  check_library_exists_concat("ws2_32" getch        HAVE_LIBWS2_32)
++  # Assume ws2_32 lib exists in Windows 8.1, Windows Phone 8.1
++  if((CMAKE_SYSTEM_VERSION STREQUAL "8.1") AND ((CMAKE_SYSTEM_NAME STREQUAL "WindowsStore") OR (CMAKE_SYSTEM_NAME STREQUAL "WindowsPhone")))
++    set(HAVE_LIBWS2_32 1)
++    list(APPEND CURL_LIBS ws2_32)
++  else()
++    check_library_exists_concat("ws2_32" getch        HAVE_LIBWS2_32)
++  endif()
++
+   check_library_exists_concat("winmm"  getch        HAVE_LIBWINMM)
+ endif()
+ 
+@@ -1012,8 +1019,15 @@ include(CMake/OtherTests.cmake)
+ 
+ add_definitions(-DHAVE_CONFIG_H)
+ 
+-# For windows, do not allow the compiler to use default target (Vista).
+-if(WIN32)
++if((CMAKE_SYSTEM_NAME STREQUAL "WindowsStore") OR (CMAKE_SYSTEM_NAME STREQUAL "WindowsPhone"))
++	add_definitions(-DHAVE_STRUCT_POLLFD -D_WINSOCK_DEPRECATED_NO_WARNINGS)
++	# Set correct winnt version
++	if(CMAKE_SYSTEM_VERSION STREQUAL "10.0")
++		add_definitions(-D_WIN32_WINNT=0x0A00)
++	elseif(CMAKE_SYSTEM_VERSION STREQUAL "8.1")
++		add_definitions(-D_WIN32_WINNT=0x0603)
++	endif()
++elseif(WIN32)
+   add_definitions(-D_WIN32_WINNT=0x0501)
+ endif(WIN32)
+ 
+diff -rupN curl-7.48.0/lib/config-win32.h curl-7.48.0-1/lib/config-win32.h
+--- curl-7.48.0/lib/config-win32.h	2016-03-22 00:15:38.000000000 -0700
++++ curl-7.48.0-1/lib/config-win32.h	2016-04-12 09:16:08.077747400 -0700
+@@ -516,21 +516,21 @@
+    /* The minimum build target for VS2012 is Vista unless Update 1 is installed
+       and the v110_xp toolset is choosen. */
+ #  if defined(_USING_V110_SDK71_)
+-#    define VS2012_MIN_TARGET 0x0501
++#    define VS2012_MIN_TARGET 0x0A00
+ #  else
+-#    define VS2012_MIN_TARGET 0x0600
++#    define VS2012_MIN_TARGET 0x0A00
+ #  endif
+ 
+    /* VS2008 default build target is Windows Vista. We override default target
+       to be Windows XP. */
+-#  define VS2008_DEF_TARGET 0x0501
++#  define VS2008_DEF_TARGET 0x0A00
+ 
+    /* VS2012 default build target is Windows Vista unless Update 1 is installed
+       and the v110_xp toolset is choosen. */
+ #  if defined(_USING_V110_SDK71_)
+-#    define VS2012_DEF_TARGET 0x0501
++#    define VS2012_DEF_TARGET 0x0A00
+ #  else
+-#    define VS2012_DEF_TARGET 0x0600
++#    define VS2012_DEF_TARGET 0x0A00
+ #  endif
+ #endif
+ 
+@@ -584,7 +584,7 @@ Vista
+ #    define HAVE_GETADDRINFO            1
+ #    define HAVE_GETADDRINFO_THREADSAFE 1
+ #    define HAVE_GETNAMEINFO            1
+-#  elif defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0501)
++#  elif defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0A00)
+ #    define HAVE_FREEADDRINFO           1
+ #    define HAVE_GETADDRINFO            1
+ #    define HAVE_GETADDRINFO_THREADSAFE 1
+diff -rupN curl-7.48.0/lib/connect.c curl-7.48.0-1/lib/connect.c
+--- curl-7.48.0/lib/connect.c	2016-03-22 00:15:38.000000000 -0700
++++ curl-7.48.0-1/lib/connect.c	2016-04-12 09:16:08.082056200 -0700
+@@ -953,6 +953,9 @@ void Curl_sndbufset(curl_socket_t sockfd
+       if(osver.dwMajorVersion >= majorVersion)
+         detectOsState = DETECT_OS_VISTA_OR_LATER;
+     }
++#elif defined(_WIN32_WINNT) && defined(_WIN32_WINNT_WINBLUE) && (_WIN32_WINNT >= _WIN32_WINNT_WINBLUE) && defined(WINAPI_FAMILY) && \
++	((WINAPI_FAMILY == WINAPI_FAMILY_APP) || (WINAPI_FAMILY == WINAPI_FAMILY_PC_APP) || (WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP))
++	// Do nothing since VerSetConditionMask & VerifyVersionInfo API are not supported in Windows Apps environment.
+ #else
+     ULONGLONG cm;
+     OSVERSIONINFOEX osver;
+diff -rupN curl-7.48.0/lib/getenv.c curl-7.48.0-1/lib/getenv.c
+--- curl-7.48.0/lib/getenv.c	2016-03-22 00:15:38.000000000 -0700
++++ curl-7.48.0-1/lib/getenv.c	2016-04-12 09:16:08.085264200 -0700
+@@ -30,8 +30,10 @@
+ static
+ char *GetEnv(const char *variable)
+ {
+-#ifdef _WIN32_WCE
+-  return NULL;
++#if defined _WIN32_WCE || \
++    (defined(_WIN32_WINNT) && defined(_WIN32_WINNT_WINBLUE) && (_WIN32_WINNT >= _WIN32_WINNT_WINBLUE) && \
++    defined(WINAPI_FAMILY) && ((WINAPI_FAMILY == WINAPI_FAMILY_APP) || (WINAPI_FAMILY == WINAPI_FAMILY_PC_APP) || (WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)))
++   return NULL;
+ #else
+ #ifdef WIN32
+   char env[MAX_PATH]; /* MAX_PATH is from windef.h */
+diff -rupN curl-7.48.0/lib/smb.c curl-7.48.0-1/lib/smb.c
+--- curl-7.48.0/lib/smb.c	2016-03-22 00:15:38.000000000 -0700
++++ curl-7.48.0-1/lib/smb.c	2016-04-12 09:16:08.088731000 -0700
+@@ -354,7 +354,15 @@ static void smb_format_message(struct co
+   h->flags2 = smb_swap16(SMB_FLAGS2_IS_LONG_NAME | SMB_FLAGS2_KNOWS_LONG_NAME);
+   h->uid = smb_swap16(smbc->uid);
+   h->tid = smb_swap16(req->tid);
+-  pid = getpid();
++
++#if defined(_WIN32_WINNT) && defined(_WIN32_WINNT_WINBLUE) && (_WIN32_WINNT >= _WIN32_WINNT_WINBLUE) && defined(WINAPI_FAMILY) && \
++	((WINAPI_FAMILY == WINAPI_FAMILY_APP) || (WINAPI_FAMILY == WINAPI_FAMILY_PC_APP) || (WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP))
++	// Use Windows specific API when building for Windows Apps as getpid() is not a supported API
++	pid = GetCurrentProcessId();
++#else
++	pid = getpid();
++#endif
++
+   h->pid_high = smb_swap16((unsigned short)(pid >> 16));
+   h->pid = smb_swap16((unsigned short) pid);
+ }
+diff -rupN curl-7.48.0/lib/strerror.c curl-7.48.0-1/lib/strerror.c
+--- curl-7.48.0/lib/strerror.c	2016-03-22 00:15:38.000000000 -0700
++++ curl-7.48.0-1/lib/strerror.c	2016-04-12 09:16:08.092766000 -0700
+@@ -638,7 +638,9 @@ const char *Curl_strerror(struct connect
+ 
+ #ifdef USE_WINSOCK
+ 
+-#ifdef _WIN32_WCE
++#if defined _WIN32_WCE || \
++    (defined(_WIN32_WINNT) && defined(_WIN32_WINNT_WINBLUE) && (_WIN32_WINNT >= _WIN32_WINNT_WINBLUE) && \
++    defined(WINAPI_FAMILY) && ((WINAPI_FAMILY == WINAPI_FAMILY_APP) || (WINAPI_FAMILY == WINAPI_FAMILY_PC_APP) || (WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)))
+   {
+     wchar_t wbuf[256];
+     wbuf[0] = L'\0';
