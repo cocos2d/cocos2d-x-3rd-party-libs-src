@@ -94,8 +94,8 @@ CXX := $(HOST)-g++ --sysroot=$(ANDROID_NDK)/platforms/$(ANDROID_API)/arch-$(PLAT
 endif
 
 ifdef HAVE_TIZEN
-CC := ${HOST}-gcc --sysroot=$(TIZEN_SDK)/platforms/mobile-2.3/rootstraps/mobile-2.3-device.core
-CXX := ${HOST}-g++ --sysroot=$(TIZEN_SDK)/platforms/mobile-2.3/rootstraps/mobile-2.3-device.core
+CC := ${HOST}-gcc --sysroot=$(TIZEN_SDK)/platforms/tizen-2.4/mobile/rootstraps/mobile-2.4-device.core
+CXX := ${HOST}-g++ --sysroot=$(TIZEN_SDK)/platforms/tizen-2.4/mobile/rootstraps/mobile-2.4-device.core
 endif
 
 ifdef HAVE_MACOSX
