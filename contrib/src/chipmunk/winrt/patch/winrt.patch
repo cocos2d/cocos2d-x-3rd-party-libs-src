@@ -1,6 +1,6 @@
-diff -rupN Chipmunk-7.0.1/CMakeLists.txt "Chipmunk-7.0.1 - Copy/CMakeLists.txt"
+diff -rupN Chipmunk-7.0.1/CMakeLists.txt Chipmunk-7.0.1-1/CMakeLists.txt
 --- Chipmunk-7.0.1/CMakeLists.txt	2015-07-02 09:24:47.000000000 -0700
-+++ "Chipmunk-7.0.1 - Copy/CMakeLists.txt"	2016-03-11 07:59:33.178140000 -0800
++++ Chipmunk-7.0.1-1/CMakeLists.txt	2016-04-15 06:35:29.530018300 -0700
 @@ -60,6 +60,7 @@ if(NOT MSVC)
    endif()
    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -ffast-math") # extend release-profile with fast-math
@@ -9,9 +9,25 @@ diff -rupN Chipmunk-7.0.1/CMakeLists.txt "Chipmunk-7.0.1 - Copy/CMakeLists.txt"
  endif()
  
  add_subdirectory(src)
-diff -rupN Chipmunk-7.0.1/src/chipmunk.c "Chipmunk-7.0.1 - Copy/src/chipmunk.c"
+diff -rupN Chipmunk-7.0.1/include/chipmunk/chipmunk.h Chipmunk-7.0.1-1/include/chipmunk/chipmunk.h
+--- Chipmunk-7.0.1/include/chipmunk/chipmunk.h	2015-07-02 09:24:47.000000000 -0700
++++ Chipmunk-7.0.1-1/include/chipmunk/chipmunk.h	2016-04-15 06:36:17.959673500 -0700
+@@ -28,7 +28,11 @@
+ #ifdef WIN32
+ 	// For alloca().
+ 	#include <malloc.h>
+-	#define CP_EXPORT __declspec(dllexport)
++    #if !defined(WINAPI_FAMILY) || (WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP)
++        #define CP_EXPORT __declspec(dllexport)
++    #else
++	    #define CP_EXPORT
++    #endif
+ #else
+ 	#include <alloca.h>
+ 	#define CP_EXPORT
+diff -rupN Chipmunk-7.0.1/src/chipmunk.c Chipmunk-7.0.1-1/src/chipmunk.c
 --- Chipmunk-7.0.1/src/chipmunk.c	2015-07-02 09:24:47.000000000 -0700
-+++ "Chipmunk-7.0.1 - Copy/src/chipmunk.c"	2016-03-11 07:58:04.364585500 -0800
++++ Chipmunk-7.0.1-1/src/chipmunk.c	2016-04-15 06:35:29.545645300 -0700
 @@ -43,7 +43,7 @@ cpMessage(const char *condition, const c
  #define STR(s) #s
  #define XSTR(s) STR(s)
