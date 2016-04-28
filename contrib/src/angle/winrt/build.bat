@@ -1,6 +1,6 @@
 @echo off
 
-set VERSION=2.1.7
+set VERSION=2.1.8
 set ANGLE_URL=http://api.nuget.org/packages/angle.windowsstore.%VERSION%.nupkg
 
 
@@ -17,12 +17,12 @@ mkdir install
 
 pushd temp
 	echo downloading ANGLE version %VERSION%
-	if not exist angle.windowsstore.2.1.7.nupkg (
+	if not exist angle.windowsstore.%VERSION%.nupkg (
 		curl -O -L %ANGLE_URL%
 	)
 	
 
-	unzip angle.windowsstore.2.1.7.nupkg -d angle
+	unzip angle.windowsstore.%VERSION%.nupkg -d angle
 popd
 
 echo Installing ANGLE...
