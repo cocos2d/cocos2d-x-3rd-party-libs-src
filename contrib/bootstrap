@@ -171,8 +171,8 @@ check_tvos_sdk()
    else
        EX_CFLAGS="-isysroot ${SDKROOT} -arch ${MY_TARGET_ARCH}"
    fi
-   add_make "EXTRA_CFLAGS := ${EX_CFLAGS}"
-   add_make "EXTRA_LDFLAGS := -L${SDKROOT}/usr/lib -arch ${MY_TARGET_ARCH} -isysroot ${SDKROOT}"
+   add_make "EXTRA_CFLAGS := ${EX_CFLAGS} -mtvos-version-min=9.0"
+   add_make "EXTRA_LDFLAGS := -L${SDKROOT}/usr/lib -arch ${MY_TARGET_ARCH} -isysroot ${SDKROOT} -mtvos-version-min=9.0"
 }
 
 check_ios_sdk()
