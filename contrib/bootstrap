@@ -307,7 +307,12 @@ check_android_sdk()
             add_make_enabled "HAVE_NEON"
             add_make_enabled "HAVE_ARMV7A"
             add_make "EXTRA_CFLAGS := -march=armv7-a -mfpu=neon -mfloat-abi=softfp  ${THUMB_FLAG} -fomit-frame-pointer -fno-strict-aliasing -DANDROID  -Wa,--noexecstack -Wformat "
-            add_make "EXTRA_LDFLAGS := -march=armv7-a -Wl,--fix-cortex-a8"
+            if [ $BUILD_LIB = "webp" ]; then
+                add_make "EXTRA_LDFLAGS := -march=armv7-a -Wl,--fix-cortex-a8 -lcpufeatures"
+            else
+                add_make "EXTRA_LDFLAGS := -march=armv7-a -Wl,--fix-cortex-a8"
+            fi
+
         fi
         
 	if [ ${ANDROID_ABI} = "armeabi" -a -z "${NO_ARMV6}" ];then
