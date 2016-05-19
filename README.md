@@ -89,6 +89,15 @@ header files are missing, please check the README file of the 3rd libs. In gener
 build the static libs for Windows. Some libs also provide a CMakeLists.txt file, you could use CMake GUI tool to generate
 a static library project. Don't forgt to Google the error messages when you can't compile the libs successfully.
 
+### For Tizen Users
+To build static libraries for Tizen, you should install Tizen SDK at first. Currently we only support Tizen SDK version 2.4, you could download Tizen 2.4 SDK from
+[here](https://developer.tizen.org/development/tools/download).
+
+Note: If you want to build static libraries with other Tizen SDK version, you should change `cfg_default_tizen_sdk_version` in `tizen.ini` file.
+
+After downloading the SDK, you should also install the native packages with the **Tizen Update Manager**.
+
+When finished the above setup, you should set a **TIZEN_SDK** environment variable to your shell configure file. (Normally .bash_profile for bash and .zshrc for zsh).
 
 ## How to use
 We have one build script for each platform, it is under `build` directory.
