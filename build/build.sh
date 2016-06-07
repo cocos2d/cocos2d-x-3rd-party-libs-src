@@ -366,6 +366,8 @@ do
             cfg_build_machine=${!my_target_host}
         fi
 
+        export BUILD_LIB=$lib
+
         ../bootstrap --enable-$lib \
                      --build=$cfg_build_machine \
                      --host=${!my_target_host} \
