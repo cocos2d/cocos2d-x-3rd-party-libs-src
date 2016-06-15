@@ -1,7 +1,6 @@
 # GLFW
-GLFW_VERSION := 3.1.2
+GLFW_VERSION := 3.2
 GLFW_URL := $(SF)/glfw/$(GLFW_VERSION)/glfw-$(GLFW_VERSION).tar.gz
-
 
 $(TARBALLS)/glfw-$(GLFW_VERSION).tar.gz:
 	$(call download,$(GLFW_URL))
@@ -10,7 +9,6 @@ $(TARBALLS)/glfw-$(GLFW_VERSION).tar.gz:
 
 glfw: glfw-$(GLFW_VERSION).tar.gz .sum-glfw
 	$(UNPACK)
-	$(APPLY) $(SRC)/glfw/fix-pr567.patch
 	$(MOVE)
 
 .glfw: glfw
