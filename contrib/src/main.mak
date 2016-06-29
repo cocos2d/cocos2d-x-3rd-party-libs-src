@@ -23,6 +23,8 @@ VPATH := $(TARBALLS)
 # Common download locations
 GNU := http://ftp.gnu.org/gnu
 SF := http://heanet.dl.sourceforge.net/sourceforge
+GITHUB := https://github.com
+
 
 #
 # Machine-dependent variables
