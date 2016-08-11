@@ -348,7 +348,11 @@ do
 
         if [ $cfg_platform_name = "android" ];then
             export ANDROID_GCC_VERSION=$build_gcc_version
-            export ANDROID_API=android-$build_api
+            if [ $MY_TARGET_ARCH = "arm64-v8a" ];then
+                export ANDROID_API=android-$cfg_default_arm64_build_api
+            else
+                export ANDROID_API=android-$build_api
+            fi
         fi
 
         if [ $cfg_platform_name = "tizen" ];then
