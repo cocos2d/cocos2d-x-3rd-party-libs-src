@@ -1,6 +1,6 @@
 # luajit
 
-LUAJIT_VERSION := 2.0.1
+LUAJIT_VERSION := 2.1.0-beta2
 LUAJIT_URL := http://luajit.org/download/LuaJIT-$(LUAJIT_VERSION).tar.gz
 
 $(TARBALLS)/luajit-$(LUAJIT_VERSION).tar.gz:
