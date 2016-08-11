@@ -83,7 +83,7 @@ ifdef HAVE_IOS
 	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= -isysroot ${IOS_SDK} ${OPTIM} ${ENABLE_BITCODE} |g" Makefile
 endif
 ifdef HAVE_TVOS
-	cd $< && perl -i -pe "s|^CC= xcrun clang|CC= xcrun cc -arch ${MY_TARGET_ARCH} |g" Makefile
+	cd $< && perl -i -pe "s|^CC= xcrun clang|CC= xcrun cc -arch ${MY_TARGET_ARCH} -mtvos-version-min=9.0 |g" Makefile
 	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= -DHAVE_FORK=0 -isysroot ${TVOS_SDK} ${OPTIM} ${ENABLE_BITCODE} |g" Makefile
 endif
 ifdef HAVE_LINUX
