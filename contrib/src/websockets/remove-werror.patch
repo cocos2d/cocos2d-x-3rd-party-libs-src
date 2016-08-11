@@ -1,8 +1,8 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 61468b0..8fef246 100644
+index 061fe0a..e11b7fb 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -491,8 +491,6 @@ if (CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR (CMAKE_C_COMPILER_ID
+@@ -602,8 +602,6 @@ if (CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR (CMAKE_C_COMPILER_ID
                  set(VISIBILITY_FLAG -fvisibility=hidden)
      endif()
      if (UNIX)
