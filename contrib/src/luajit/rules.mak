@@ -13,6 +13,7 @@ luajit: luajit-$(LUAJIT_VERSION).tar.gz .sum-luajit
 ifeq ($(LUAJIT_VERSION),2.0.1)
 	$(APPLY) $(SRC)/luajit/v2.0.1_hotfix1.patch
 endif
+	$(APPLY) $(SRC)/luajit/lua-log-size.patch
 	$(MOVE)
 
 ifdef HAVE_IOS
@@ -38,7 +39,7 @@ endif
 
 .luajit: luajit
 ifdef HAVE_ANDROID
-	cd $< && $(MAKE) HOST_CC="gcc -m32 $(OPTIM)" CROSS=$(HOST)- TARGET_SYS=Linux TARGET_FLAGS="${NDKF} ${EXTRA_CFLAGS}" TARGET_LDFLAGS=$(LUAJIT_LDFLAGS)
+	cd $< && $(MAKE) HOST_CC="gcc -m64 $(OPTIM)" CROSS=$(HOST)- TARGET_SYS=Linux TARGET_FLAGS="${NDKF} ${EXTRA_CFLAGS} ${EXTRA_LDFLAGS}" HOST_SYS=Linux
 endif
 
 ifdef HAVE_MACOSX
