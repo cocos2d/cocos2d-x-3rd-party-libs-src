@@ -1,0 +1,26 @@
+diff --git a/src/Makefile b/src/Makefile
+index 3f25192..de0eac5 100644
+--- a/src/Makefile
++++ b/src/Makefile
+@@ -168,7 +168,7 @@ else
+   endif
+   # Use Clang for OSX host.
+   ifeq (Darwin,$(HOST_SYS))
+-    DEFAULT_CC= clang
++    DEFAULT_CC= gcc
+   endif
+ endif
+ 
+diff --git a/src/luaconf.h b/src/luaconf.h
+index 4c24bb1..c633fd6 100644
+--- a/src/luaconf.h
++++ b/src/luaconf.h
+@@ -106,7 +106,7 @@
+ 
+ /* Note: changing the following defines breaks the Lua 5.1 ABI. */
+ #define LUA_INTEGER	ptrdiff_t
+-#define LUA_IDSIZE	60	/* Size of lua_Debug.short_src. */
++#define LUA_IDSIZE	512	/* Size of lua_Debug.short_src. */
+ /*
+ ** Size of lauxlib and io.* on-stack buffers. Weird workaround to avoid using
+ ** unreasonable amounts of stack space, but still retain ABI compatibility.
