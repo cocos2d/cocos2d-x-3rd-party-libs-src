@@ -3,12 +3,12 @@
 LUAJIT_VERSION := 2.1.0-beta2
 LUAJIT_URL := http://luajit.org/download/LuaJIT-$(LUAJIT_VERSION).tar.gz
 
-$(TARBALLS)/luajit-$(LUAJIT_VERSION).tar.gz:
+$(TARBALLS)/LuaJIT-$(LUAJIT_VERSION).tar.gz:
 	$(call download,$(LUAJIT_URL))
 
-.sum-luajit: luajit-$(LUAJIT_VERSION).tar.gz
+.sum-luajit: LuaJIT-$(LUAJIT_VERSION).tar.gz
 
-luajit: luajit-$(LUAJIT_VERSION).tar.gz .sum-luajit
+luajit: LuaJIT-$(LUAJIT_VERSION).tar.gz .sum-luajit
 	$(UNPACK)
 ifeq ($(LUAJIT_VERSION),2.0.1)
 	$(APPLY) $(SRC)/luajit/v2.0.1_hotfix1.patch
@@ -67,8 +67,6 @@ LUAJIT_TARGET_FLAGS="${NDKF} ${EXTRA_CFLAGS} ${EXTRA_LDFLAGS}"
 LUAJIT_CROSS_HOST=$(HOST)-
 endif
 
-SDKROOT="/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk"
-
 .luajit: luajit
 ifdef HAVE_ANDROID
 	cd $< && $(MAKE) -j8 HOST_CC=$(LUAJIT_HOST_CC) CROSS=$(LUAJIT_CROSS_HOST) TARGET_SYS=Linux TARGET_FLAGS=$(LUAJIT_TARGET_FLAGS)
@@ -81,7 +79,13 @@ endif
 ifndef HAVE_ANDROID
 
 ifdef HAVE_LINUX
+
+ifeq ($(MY_TARGET_ARCH),x86_64)
 	cd $< && $(HOSTVARS_PIC) $(MAKE) -j8 HOST_CC="$(CC)" HOST_CFLAGS="$(CFLAGS)"
+else
+	cd $< && $(HOSTVARS_PIC) $(MAKE) -j8 HOST_CC="$(CC) -m32" HOST_CFLAGS="$(CFLAGS)"
+endif
+
 endif #ifdef HAVE_LINUX
 
 endif #ifndef HAVE_ANDROID
