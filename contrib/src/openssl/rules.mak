@@ -1,5 +1,5 @@
 # OPENSSL
-OPENSSL_VERSION := 1.0.2g
+OPENSSL_VERSION := 1.1.0b
 OPENSSL_URL := https://www.openssl.org/source/openssl-$(OPENSSL_VERSION).tar.gz
 
 
@@ -32,7 +32,25 @@ OPENSSL_COMPILER=os/compiler:arm-linux-gnueabi-
 endif
 
 ifdef HAVE_ANDROID
-OPENSSL_COMPILER=os/compiler:$(HOST)
+ifeq ($(MY_TARGET_ARCH),arm64-v8a)
+OPENSSL_CONFIG_VARS="android64-aarch64"
+# OPENSSL_COMPILER=os/compiler:android64-aarch64
+endif
+
+ifeq ($(MY_TARGET_ARCH),armeabi-v7a)
+# OPENSSL_COMPILER=os/compiler:android-armeabi
+OPENSSL_CONFIG_VARS="android-armeabi"
+endif
+
+ifeq ($(MY_TARGET_ARCH),armeabi)
+OPENSSL_CONFIG_VARS="android-armeabi"
+# OPENSSL_COMPILER=os/compiler:android-armeabi
+endif
+
+ifeq ($(MY_TARGET_ARCH),x86)
+# OPENSSL_COMPILER=os/compiler:android-x86
+OPENSSL_CONFIG_VARS="android-x86"
+endif
 endif
 
 ifdef HAVE_IOS
