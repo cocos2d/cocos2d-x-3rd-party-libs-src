@@ -10,7 +10,7 @@ $(TARBALLS)/glfw-$(GLFW_VERSION).zip:
 
 glfw: glfw-$(GLFW_VERSION).zip .sum-glfw
 	$(UNPACK)
-#	$(APPLY) $(SRC)/glfw/fix-pr567.patch
+	$(APPLY) $(SRC)/glfw/fix-mac-os-10-12.patch
 	$(APPLY) $(SRC)/glfw/dont_include_applicationservices.patch
 	$(MOVE)
 
