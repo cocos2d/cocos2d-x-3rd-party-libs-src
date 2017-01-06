@@ -1,5 +1,5 @@
 # OPENSSL
-OPENSSL_VERSION := 1.1.0b
+OPENSSL_VERSION := 1.0.2j
 OPENSSL_URL := https://www.openssl.org/source/openssl-$(OPENSSL_VERSION).tar.gz
 
 
@@ -56,28 +56,38 @@ endif
 endif
 
 ifdef HAVE_IOS
+
 ifeq ($(MY_TARGET_ARCH),armv7)
-OPENSSL_CONFIG_VARS="BSD-generic32"
+IOS_PLATFORM="OS"
+OPENSSL_CONFIG_VARS="ios-cross"
 endif
 
 ifeq ($(MY_TARGET_ARCH),i386)
-OPENSSL_CONFIG_VARS="BSD-generic32"
+IOS_PLATFORM="Simulator"
+OPENSSL_CONFIG_VARS="darwin-i386-cc"
 endif
 
 ifeq ($(MY_TARGET_ARCH),arm64)
-OPENSSL_CONFIG_VARS="BSD-generic64"
+IOS_PLATFORM="OS"
+OPENSSL_CONFIG_VARS="ios64-cross"
 endif
 ifeq ($(MY_TARGET_ARCH),armv7s)
-OPENSSL_CONFIG_VARS="BSD-generic32"
+IOS_PLATFORM="OS"
+OPENSSL_CONFIG_VARS="ios-cross"
 endif
 ifeq ($(MY_TARGET_ARCH),x86_64)
+IOS_PLATFORM="Simulator"
 OPENSSL_CONFIG_VARS="darwin64-x86_64-cc"
 endif
+
+export CROSS_TOP=`xcode-select -print-path`/Platforms/iPhone${IOS_PLATFORM}.platform/Developer
+export CROSS_SDK=iPhone${IOS_PLATFORM}.sdk
+
 endif
 
 ifdef HAVE_TVOS
 ifeq ($(MY_TARGET_ARCH),arm64)
-OPENSSL_CONFIG_VARS="BSD-generic64"
+OPENSSL_CONFIG_VARS="ios64-cross"
 endif
 ifeq ($(MY_TARGET_ARCH),x86_64)
 OPENSSL_CONFIG_VARS="darwin64-x86_64-cc"
