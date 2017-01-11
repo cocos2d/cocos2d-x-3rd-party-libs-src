@@ -1,6 +1,6 @@
 # curl
 
-CURL_VERSION := 7.50.0
+CURL_VERSION := 7.52.1
 CURL_URL :=  http://curl.haxx.se/download/curl-$(CURL_VERSION).tar.gz
 
 $(TARBALLS)/curl-$(CURL_VERSION).tar.gz:
@@ -33,8 +33,6 @@ endif
 		--enable-ipv6 \
 		--disable-ldap \
 		$(configure_option)
-# ifdef HAVE_ANDROID
-# 	$(APPLY) $(SRC)/curl/android.patch
-# endif
+
 	cd $< && $(MAKE) install
 	touch $@
