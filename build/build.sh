@@ -1,4 +1,6 @@
 #!/bin/bash
+# exit this script if any commmand fails
+set -e
 
 source `pwd`/main.ini
 #
