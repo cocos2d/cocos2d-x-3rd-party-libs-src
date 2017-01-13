@@ -24,7 +24,7 @@ OPENSSL_ARCH=-m64
 endif
 
 ifeq ($(MY_TARGET_ARCH),i386)
-OPENSSL_CONFIG_VARS=linux-generic32
+OPENSSL_CONFIG_VARS=linux-elf
 OPENSSL_ARCH=-m32
 endif
 endif
