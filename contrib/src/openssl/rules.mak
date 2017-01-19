@@ -66,11 +66,6 @@ OPENSSL_CONFIG_VARS=ios-cross
 OPENSSL_EXTRA_CONFIG_2=no-asm
 endif
 
-ifeq ($(MY_TARGET_ARCH),i386)
-IOS_PLATFORM=Simulator
-OPENSSL_CONFIG_VARS=darwin-i386-cc
-endif
-
 ifeq ($(MY_TARGET_ARCH),arm64)
 IOS_PLATFORM=OS
 OPENSSL_CONFIG_VARS=ios64-cross
@@ -80,12 +75,24 @@ IOS_PLATFORM=OS
 OPENSSL_CONFIG_VARS=ios-cross
 OPENSSL_EXTRA_CONFIG_2=no-asm
 endif
-ifeq ($(MY_TARGET_ARCH),x86_64)
+
+ifeq ($(MY_TARGET_ARCH),i386)
 IOS_PLATFORM=Simulator
-OPENSSL_CONFIG_VARS=darwin64-x86_64-cc
+OPENSSL_CONFIG_VARS=ios-sim-cross-i386
 endif
 
-export CROSS_TOP=`xcode-select -print-path`/Platforms/iPhone${IOS_PLATFORM}.platform/Developer
+ifeq ($(MY_TARGET_ARCH),x86_64)
+IOS_PLATFORM=Simulator
+OPENSSL_CONFIG_VARS=ios-sim-cross-x86_64
+endif
+
+CUR_MAKEFILE_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+
+# Set reference to custom configuration (OpenSSL 1.1.0)
+# See: https://github.com/openssl/openssl/commit/afce395cba521e395e6eecdaf9589105f61e4411
+export OPENSSL_LOCAL_CONFIG_DIR=${CUR_MAKEFILE_DIR}/config
+
+export CROSS_TOP=$(shell xcode-select -print-path)/Platforms/iPhone${IOS_PLATFORM}.platform/Developer
 export CROSS_SDK=iPhone${IOS_PLATFORM}.sdk
 
 endif
@@ -112,23 +119,20 @@ endif
 	$(MOVE)
 
 .openssl: openssl
-	cd $< && $(HOSTVARS_PIC)  ./Configure $(OPENSSL_CONFIG_VARS) --prefix=$(PREFIX) $(OPENSSL_COMPILER) ${OPENSSL_ARCH} $(OPENSSL_EXTRA_CONFIG_1) $(OPENSSL_EXTRA_CONFIG_2)
+	cd $< && $(HOSTVARS_PIC) ./Configure $(OPENSSL_CONFIG_VARS) --prefix=$(PREFIX) $(OPENSSL_COMPILER) ${OPENSSL_ARCH} $(OPENSSL_EXTRA_CONFIG_1) $(OPENSSL_EXTRA_CONFIG_2)
 ifdef HAVE_IOS
-	cd $< && perl -i -pe "s|^CC= xcrun clang|CC= xcrun cc -arch ${MY_TARGET_ARCH} -miphoneos-version-min=6.0 |g" Makefile
-	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= -isysroot ${IOS_SDK} ${OPTIM} ${ENABLE_BITCODE} |g" Makefile
-endif
-ifdef HAVE_TVOS
-	cd $< && perl -i -pe "s|^CC= xcrun clang|CC= xcrun cc -arch ${MY_TARGET_ARCH} -mtvos-version-min=9.0 |g" Makefile
-	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= -DHAVE_FORK=0 -isysroot ${TVOS_SDK} ${OPTIM} ${ENABLE_BITCODE} |g" Makefile
+	cd $< && perl -i -pe "s|^CFLAGS=(.*) -DNDEBUG (.*)-O3|CFLAGS=\\1 \\2 ${OPTIM} ${ENABLE_BITCODE}|g" Makefile
+	cd $< && perl -i -pe "s|^CFLAGS_Q=(.*) -DNDEBUG (.*)|CFLAGS_Q=\\1 \\2 ${OPTIM} ${ENABLE_BITCODE}|g" Makefile
 endif
 ifdef HAVE_LINUX
 ifndef HAVE_ANDROID
-	cd $< && perl -i -pe "s|^CFLAGS= (.*)|CFLAGS= ${EXTRA_CFLAGS} ${OPTIM} |g" Makefile
+	cd $< && perl -i -pe "s|^CFLAGS=(.*) -DNDEBUG (.*)-O3|CFLAGS=\\1 \\2 ${EXTRA_CFLAGS} ${OPTIM}|g" Makefile
+	cd $< && perl -i -pe "s|^CFLAGS_Q=(.*) -DNDEBUG (.*)|CFLAGS_Q=\\1 \\2 ${EXTRA_CFLAGS} ${OPTIM}|g" Makefile
 endif
 endif
 ifdef HAVE_MACOSX
-	cd $< && perl -i -pe "s|^CC= xcrun clang|CC= xcrun cc -arch ${MY_TARGET_ARCH} -mmacosx-version-min=10.7 -DMACOSX_DEPLOYMENT_TARGET=10.7 |g" Makefile
-	cd $< && perl -i -pe "s|^CFLAG= (.*)|CFLAG= -isysroot ${MACOSX_SDK} ${OPTIM} ${OPENSSL_ARCH} -mmacosx-version-min=10.7 -DMACOSX_DEPLOYMENT_TARGET=10.7 |g" Makefile
+	cd $< && perl -i -pe "s|^CFLAGS=(.*) -DNDEBUG (.*)-O3|CFLAGS=\\1 \\2 ${OPTIM}|g" Makefile
+	cd $< && perl -i -pe "s|^CFLAGS_Q=(.*) -DNDEBUG (.*)|CFLAGS_Q=\\1 \\2 ${OPTIM}|g" Makefile
 endif
 	cd $< && $(MAKE) install
 	touch $@
