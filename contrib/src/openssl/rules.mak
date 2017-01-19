@@ -134,5 +134,5 @@ ifdef HAVE_MACOSX
 	cd $< && perl -i -pe "s|^CFLAGS=(.*) -DNDEBUG (.*)-O3|CFLAGS=\\1 \\2 ${OPTIM}|g" Makefile
 	cd $< && perl -i -pe "s|^CFLAGS_Q=(.*) -DNDEBUG (.*)|CFLAGS_Q=\\1 \\2 ${OPTIM}|g" Makefile
 endif
-	cd $< && $(MAKE) install
+	cd $< && $(MAKE) install_sw
 	touch $@
