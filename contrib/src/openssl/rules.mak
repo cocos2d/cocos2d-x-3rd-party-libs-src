@@ -63,27 +63,30 @@ ifeq ($(MY_TARGET_ARCH),armv7)
 IOS_PLATFORM=OS
 OPENSSL_CONFIG_VARS=ios-cross
 # Adds no-asm option to avoid crash at startup on armv7/armv7s iOS devices.
-OPENSSL_EXTRA_CONFIG_2=no-asm
+OPENSSL_EXTRA_CONFIG_2=no-asm no-async
 endif
 
 ifeq ($(MY_TARGET_ARCH),arm64)
 IOS_PLATFORM=OS
 OPENSSL_CONFIG_VARS=ios64-cross
+OPENSSL_EXTRA_CONFIG_2=no-async
 endif
 ifeq ($(MY_TARGET_ARCH),armv7s)
 IOS_PLATFORM=OS
 OPENSSL_CONFIG_VARS=ios-cross
-OPENSSL_EXTRA_CONFIG_2=no-asm
+OPENSSL_EXTRA_CONFIG_2=no-asm no-async
 endif
 
 ifeq ($(MY_TARGET_ARCH),i386)
 IOS_PLATFORM=Simulator
 OPENSSL_CONFIG_VARS=ios-sim-cross-i386
+OPENSSL_EXTRA_CONFIG_2=no-async
 endif
 
 ifeq ($(MY_TARGET_ARCH),x86_64)
 IOS_PLATFORM=Simulator
 OPENSSL_CONFIG_VARS=ios-sim-cross-x86_64
+OPENSSL_EXTRA_CONFIG_2=no-async
 endif
 
 CUR_MAKEFILE_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
