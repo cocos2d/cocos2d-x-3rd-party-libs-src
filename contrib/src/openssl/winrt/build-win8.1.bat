@@ -1,12 +1,15 @@
 @echo off
 
+Building OpenSSL for Windows 8.1...
+
 pushd temp
 
 	pushd openssl
+		echo creating Windows 8.1 Visual Studio projects...
 		call ms\do_vsprojects.bat
 	popd
 
-	call "%VS120COMNTOOLS%vsvars32.bat"
+	call "%VS140COMNTOOLS%vsvars32.bat"
 
 	set SOLUTION=openssl\vsout\NT-Phone-8.1-Dll-Unicode\NT-Phone-8.1-Dll-Unicode.vcxproj
 	echo Building OpenSSL Windows 8.1 Phone Release/Win32...
@@ -17,7 +20,7 @@ pushd temp
 
 	set SOLUTION=openssl\vsout\NT-Store-8.1-Dll-Unicode\NT-Store-8.1-Dll-Unicode.vcxproj
 	echo Building OpenSSL Windows 8.1 Store Release/Win32...
-	msbuild %SOLUTION% /p:Configuration="Release"  /p:Platform="Win32" /m
+	msbuild %SOLUTION% /p:Configuration="Release"  /p:Platform="x86" /m
 
 	echo Building OpenSSL Windows 8.1 Store Release/ARM...
 	msbuild %SOLUTION% /p:Configuration="Release"  /p:Platform="ARM" /m

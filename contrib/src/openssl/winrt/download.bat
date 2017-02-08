@@ -1,7 +1,9 @@
 @echo off
 
-set SHA=b4da0d80af262ff0aa431fef88fc0c1ca76abac9
-set URL=https://github.com/Microsoft/openssl/archive/%SHA%.tar.gz
+set branch=remotes/origin/OpenSSL_1_0_2_WinRT-stable
+set URL=https://github.com/Microsoft/openssl.git
+
+echo Cloning OpenSSL source code from %URL%...
 
 if exist temp (
 	rm -rf temp
@@ -15,13 +17,10 @@ mkdir temp
 mkdir install
 
 pushd temp
-	if not exist %SHA%.tar.gz (
-		curl -O -L %URL%
-	)
-	
-	echo Decompressing source code...
-	tar -xzf %SHA%.tar.gz
-	mv openssl-%SHA% openssl
+	git clone %URL%
+	cd openssl
+	echo Checking out git branch %BRANCH%...
+	git checkout %BRANCH%
 popd
 
 echo Download complete.

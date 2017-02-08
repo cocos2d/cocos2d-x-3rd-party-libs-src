@@ -1,7 +1,7 @@
 @echo off
 
-set SHA=ccee5a6f7a281e325cbb9a09deab5fcc76336b26
-set URL=https://github.com/msopentech/angle/archive/%SHA%.tar.gz
+set VERSION=2.1.8
+set ANGLE_URL=http://api.nuget.org/packages/angle.windowsstore.%VERSION%.nupkg
 
 
 if exist temp (
@@ -15,99 +15,41 @@ if exist install (
 mkdir temp
 mkdir install
 
-SET PATCH=%cd%\patch\winrt.props
-
 pushd temp
+	echo downloading ANGLE version %VERSION%
+	if not exist angle.windowsstore.%VERSION%.nupkg (
+		curl -O -L %ANGLE_URL%
+	)
+	
 
-if not exist %SHA%.tar.gz (
-	echo Downloading Angle commit sha %SHA%...
-	curl -O -L %URL%
-)
-
-echo Decompressing Angle commit sha %SHA%...
-tar -xzf %SHA%.tar.gz
-
-call "%VS140COMNTOOLS%vsvars32.bat"
-
-set SOLUTION=angle-%SHA%\winrt\10\build\angle.sln
-echo Building Angle Windows 10.0 UWP Release/Win32...
-msbuild %SOLUTION% /p:Configuration="Release"  /p:Platform="Win32" /m
-echo Building Angle Windows 10.0 UWP Release/ARM...
-msbuild %SOLUTION% /p:Configuration="Release"  /p:Platform="ARM" /m
-
-set SOLUTION=angle-%SHA%\winrt\8.1\windows\src\angle.sln
-echo Building Angle Windows 8.1 Store Release/Win32...
-msbuild %SOLUTION% /p:Configuration="Release" /p:Platform="Win32" /m
-echo Building Angle Windows 8.1 Store Release/ARM...
-msbuild %SOLUTION% /p:Configuration="Release" /p:Platform="ARM" /m
-
-set SOLUTION=angle-%SHA%\winrt\8.1\windowsphone\src\angle.sln
-echo Building Angle Windows 8.1 Phone Release/Win32...
-msbuild %SOLUTION% /p:Configuration="Release"  /p:Platform="Win32" /m
-echo Building Angle Windows 8.1 Phone Release/ARM...
-msbuild %SOLUTION% /p:Configuration="Release"  /p:Platform="ARM" /m
-
+	unzip angle.windowsstore.%VERSION%.nupkg -d angle
 popd
 
-echo Installing Angle...
+echo Installing ANGLE...
 
-xcopy "temp\angle-%SHA%\include" "install\win10-specific\angle\include\" /iycqs
+set INDIR=temp\angle\
 
-set INDIR=temp\angle-%SHA%\winrt\10\build\Release_Win32
-set OUTDIR=install\win10-specific\angle\prebuilt\win32
-xcopy "%INDIR%\lib\libEGL.lib" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\libEGL.dll" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\libEGL.pdb" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\lib\libGLESv2.lib" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\libGLESv2.dll" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\libGLESv2.pdb" "%OUTDIR%\*" /iycq
+set OUTDIR=install\win10-specific\angle\include
+xcopy "%INDIR%\Include" "%OUTDIR%" /iycqs
+set OUTDIR=install\win10-specific\angle\prebuilt
+xcopy "%INDIR%\bin\UAP\Win32" "%OUTDIR%\win32" /iycqs
+xcopy "%INDIR%\bin\UAP\ARM" "%OUTDIR%\arm" /iycqs
 
-set INDIR=temp\angle-%SHA%\winrt\10\build\Release_ARM
-set OUTDIR=install\win10-specific\angle\prebuilt\arm
-xcopy "%INDIR%\lib\libEGL.lib" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\libEGL.dll" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\libEGL.pdb" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\lib\libGLESv2.lib" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\libGLESv2.dll" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\libGLESv2.pdb" "%OUTDIR%\*" /iycq
+set OUTDIR=install\winrt_8.1-specific\angle\include
+xcopy "%INDIR%\Include" "%OUTDIR%" /iycqs
+set OUTDIR=install\winrt_8.1-specific\angle\prebuilt
+xcopy "%INDIR%\bin\Windows\Win32" "%OUTDIR%\win32" /iycqs
+xcopy "%INDIR%\bin\Windows\ARM" "%OUTDIR%\arm" /iycqs
 
-xcopy "temp\angle-%SHA%\include" "install\winrt_8.1-specific\angle\include\" /iycqs
+set OUTDIR=install\wp_8.1-specific\angle\include
+xcopy "%INDIR%\Include" "%OUTDIR%" /iycqs
+set OUTDIR=install\wp_8.1-specific\angle\prebuilt
+xcopy "%INDIR%\bin\Phone\Win32" "%OUTDIR%\win32" /iycqs
+xcopy "%INDIR%\bin\Phone\ARM" "%OUTDIR%\arm" /iycqs
 
-set INDIR=temp\angle-%SHA%\winrt\8.1\windows\src\Release_Win32
-set OUTDIR=install\winrt_8.1-specific\angle\prebuilt\win32
-xcopy "%INDIR%\lib\libEGL.lib" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\libEGL.dll" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\libEGL.pdb" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\lib\libGLESv2.lib" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\libGLESv2.dll" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\libGLESv2.pdb" "%OUTDIR%\*" /iycq
+echo ANGLE build complete.
 
-set INDIR=temp\angle-%SHA%\winrt\8.1\windows\src\Release_ARM
-set OUTDIR=install\winrt_8.1-specific\angle\prebuilt\arm
-xcopy "%INDIR%\lib\libEGL.lib" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\libEGL.dll" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\libEGL.pdb" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\lib\libGLESv2.lib" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\libGLESv2.dll" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\libGLESv2.pdb" "%OUTDIR%\*" /iycq
-xcopy "temp\angle-%SHA%\include" "install\wp_8.1-specific\angle\include\" /iycqs
 
-set INDIR=temp\angle-%SHA%\winrt\8.1\windowsphone\src\Release_Win32
-set OUTDIR=install\wp_8.1-specific\angle\prebuilt\win32
-xcopy "%INDIR%\lib\libEGL.lib" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\libEGL.dll" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\libEGL.pdb" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\lib\libGLESv2.lib" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\libGLESv2.dll" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\libGLESv2.pdb" "%OUTDIR%\*" /iycq
 
-set INDIR=temp\angle-%SHA%\winrt\8.1\windowsphone\src\Release_ARM
-set OUTDIR=install\wp_8.1-specific\angle\prebuilt\arm
-xcopy "%INDIR%\lib\libEGL.lib" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\libEGL.dll" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\libEGL.pdb" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\lib\libGLESv2.lib" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\libGLESv2.dll" "%OUTDIR%\*" /iycq
-xcopy "%INDIR%\libGLESv2.pdb" "%OUTDIR%\*" /iycq
 
-echo Angle build complete.
+

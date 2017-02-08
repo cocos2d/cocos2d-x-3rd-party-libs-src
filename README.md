@@ -71,17 +71,17 @@ Then use command as follow to build 32-bit libs
 ./build.sh -p=platform --libs=libs --arch=i386 --mode=mode
 ```
 
-### For Windows 8.1 Universal App users
-The build script for Windows 8.1 Universal Apps in in build\build_winrt.bat. In order to run the script you will need to install Git for Windows from https://msysgit.github.io/. During the install, make sure you select the "Use Git and optional Unix tools from the Windows Command Prompt" in the "Adjusting your Path Environment" step. build_winrt.bat uses some of the binaries installed by Git for Windows. 
+### For Windows 8.1 Universal App and Windows 10 UWP App users
+The build script for Windows 8.1 Universal Apps and Windows 10 UWP Apps is in build\dobuild_winrt.bat. In order to run the script you will need to install Git for Windows from https://msysgit.github.io/. During the install, make sure you select the "Use Git and optional Unix tools from the Windows Command Prompt" in the "Adjusting your Path Environment" step. dobuild_winrt.bat uses some of the binaries installed by Git for Windows. 
 
 You will also need to install Perl http://www.activestate.com/activeperl/downloads in order to build OpenSSL.
 
-After build_winrt.bat is complete, the built libs wil be in contrib\install-winrt.
+After dobuild_winrt.bat is complete, the built libs wil be in contrib\install-winrt.
 
 
-### For Windows (Win32) and  Windows 10 Universal App users
+### For Windows (Win32)
 
-To build static libraries for Win32 and Windows 10 Universal is straightfoward, you could just setup a new static libary project with VisualStudio
+To build static libraries for Win32 is straightfoward, you could just setup a new static libary project with VisualStudio
 and import all the needed source files and header files into the project.
 
 Note: Some libraries use configure system to generate the required header files for Windows platform. If you find some 

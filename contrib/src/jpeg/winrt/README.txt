@@ -1,0 +1,1 @@
+There is no need to build jpeg for the winrt platforms (Win10 UWP and Windows 8.1 Universal). The winrt platforms use WIC to load jpeg files.
