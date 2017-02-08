@@ -1,7 +1,7 @@
 @echo off
 
-SET START_DIR=%cd%
-SET INSTALL_DIR=%cd%\..\contrib\install-win10
+SET START_DIR="%cd%"
+SET INSTALL_DIR=%START_DIR%\..\contrib\install-win10
 echo Install dir: %INSTALL_DIR%
 
 if "%1"=="clean" (
