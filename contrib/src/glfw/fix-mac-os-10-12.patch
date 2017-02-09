@@ -2,7 +2,7 @@ diff --git a/src/cocoa_window.m b/src/cocoa_window.m
 index 5643061..635af38 100644
 --- a/src/cocoa_window.m
 +++ b/src/cocoa_window.m
-@@ -1004,13 +1004,15 @@ static GLFWbool createWindow(_GLFWwindow* window,
+@@ -1004,12 +1004,14 @@ static GLFWbool createWindow(_GLFWwindow* window,
      [window->ns.view setWantsBestResolutionOpenGLSurface:YES];
  #endif /*_GLFW_USE_RETINA*/
  
@@ -17,21 +17,4 @@ index 5643061..635af38 100644
  
 +
      return GLFW_TRUE;
- }
- 
-diff --git a/src/nsgl_context.m b/src/nsgl_context.m
-index 096ef9c..7217801 100644
---- a/src/nsgl_context.m
-+++ b/src/nsgl_context.m
-@@ -39,6 +39,11 @@ static void makeContextCurrent(_GLFWwindow* window)
- 
- static void swapBuffers(_GLFWwindow* window)
- {
-+//    [window->ns.view setWantsLayer:YES];
-+
-+    if (window->context.client != GLFW_NO_API)
-+        [window->context.nsgl.object update];
-+
-     // ARP appears to be unnecessary, but this is future-proof
-     [window->context.nsgl.object flushBuffer];
  }
