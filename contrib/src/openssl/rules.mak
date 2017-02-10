@@ -33,6 +33,7 @@ ifdef HAVE_TIZEN
 ifeq ($(MY_TARGET_ARCH),x86)
 OPENSSL_CONFIG_VARS=linux-elf
 OPENSSL_ARCH=-m32
+OPENSSL_EXTRA_CONFIG_2=no-async
 endif
 ifeq ($(MY_TARGET_ARCH),armv7)
 OPENSSL_CONFIG_VARS=linux-generic32
