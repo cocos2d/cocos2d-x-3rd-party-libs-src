@@ -345,8 +345,8 @@ check_android_sdk()
 
 check_tizen_sdk()
 {
-    [ -z "${TIZEN_SDK}" ] && echo "You must set TIZEN_SDK environment variable" && exit 1
-    add_make "TIZEN_SDK := ${TIZEN_SDK}"
+    [ -z "${TIZEN_STUDIO_HOME}" ] && echo "You must set TIZEN_STUDIO_HOME environment variable" && exit 1
+    add_make "TIZEN_STUDIO_HOME := ${TIZEN_STUDIO_HOME}"
 }
 
 test -z "$PREFIX" || add_make "PREFIX := $PREFIX"

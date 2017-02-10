@@ -97,11 +97,12 @@ endif
 
 ifdef HAVE_TIZEN
 ifeq ($(ARCH),arm)
-CC := ${HOST}-gcc --sysroot=$(TIZEN_SDK)/platforms/tizen-$(TIZEN_SDK_VERSION)/mobile/rootstraps/mobile-$(TIZEN_SDK_VERSION)-device.core
-CXX := ${HOST}-g++ --sysroot=$(TIZEN_SDK)/platforms/tizen-$(TIZEN_SDK_VERSION)/mobile/rootstraps/mobile-$(TIZEN_SDK_VERSION)-device.core
+CC := ${HOST}-gcc --sysroot=$(TIZEN_STUDIO_HOME)/platforms/tizen-$(TIZEN_SDK_VERSION)/mobile/rootstraps/mobile-$(TIZEN_SDK_VERSION)-device.core
+CXX := ${HOST}-g++ --sysroot=$(TIZEN_STUDIO_HOME)/platforms/tizen-$(TIZEN_SDK_VERSION)/mobile/rootstraps/mobile-$(TIZEN_SDK_VERSION)-device.core
 else
-CC := ${HOST}-gcc --sysroot=$(TIZEN_SDK)/platforms/tizen-$(TIZEN_SDK_VERSION)/mobile/rootstraps/mobile-$(TIZEN_SDK_VERSION)-emulator.core
-CXX := ${HOST}-g++ --sysroot=$(TIZEN_SDK)/platforms/tizen-$(TIZEN_SDK_VERSION)/mobile/rootstraps/mobile-$(TIZEN_SDK_VERSION)-emulator.core
+CC := ${HOST}-gcc --sysroot=$(TIZEN_STUDIO_HOME)/platforms/tizen-$(TIZEN_SDK_VERSION)/mobile/rootstraps/mobile-$(TIZEN_SDK_VERSION)-emulator.core
+CXX := ${HOST}-g++ --sysroot=$(TIZEN_STUDIO_HOME)/platforms/tizen-$(TIZEN_SDK_VERSION)/mobile/rootstraps/mobile-$(TIZEN_SDK_VERSION)-emulator.core
+EXTRA_CFLAGS += -ldl -latomic
 endif
 endif
 
