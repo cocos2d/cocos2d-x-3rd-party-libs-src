@@ -90,14 +90,14 @@ build the static libs for Windows. Some libs also provide a CMakeLists.txt file,
 a static library project. Don't forgt to Google the error messages when you can't compile the libs successfully.
 
 ### For Tizen Users
-To build static libraries for Tizen, you should install Tizen SDK at first. Currently we only support Tizen SDK version 2.4, you could download Tizen 2.4 SDK from
-[here](https://developer.tizen.org/development/tools/download).
+To build static libraries for Tizen, you should install Tizen Studio at first. At the time of writing, the latest version of Tizen Studio is v1.1.0, you could download it from
+[here](https://developer.tizen.org/development/tizen-studio/download?langswitch=en).
 
-Note: If you want to build static libraries with other Tizen SDK version, you should change `cfg_default_tizen_sdk_version` in `tizen.ini` file.
+Note: By default, we use Tizen SDK 2.4 to build static libs. If you want to build static libraries with other Tizen SDK version, you should change `cfg_default_tizen_sdk_version` in `tizen.ini` file.
 
-After downloading the SDK, you should also install the native packages with the **Tizen Update Manager**.
+After downloading the Tizen Studio, you should also install the native packages with the **Tizen Update Manager** from the `Tools/Package Manager` menu in Tizen Studio.
 
-When finished the above setup, you should set a **TIZEN_SDK** environment variable to your shell configure file. (Normally .bash_profile for bash and .zshrc for zsh).
+When finished the above setup, you should set a **TIZEN_STUDIO_HOME** environment variable to your shell configure file. (Normally .bash_profile for bash and .zshrc for zsh).
 
 ## How to use
 We have one build script for each platform, it is under `build` directory.
