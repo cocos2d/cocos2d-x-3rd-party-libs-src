@@ -69,8 +69,7 @@ ifdef HAVE_IOS
 ifeq ($(MY_TARGET_ARCH),armv7)
 IOS_PLATFORM=OS
 OPENSSL_CONFIG_VARS=ios-cross
-# Adds no-asm option to avoid crash at startup on armv7/armv7s iOS devices.
-OPENSSL_EXTRA_CONFIG_2=no-asm no-async
+OPENSSL_EXTRA_CONFIG_2=no-async
 endif
 
 ifeq ($(MY_TARGET_ARCH),arm64)
@@ -81,7 +80,7 @@ endif
 ifeq ($(MY_TARGET_ARCH),armv7s)
 IOS_PLATFORM=OS
 OPENSSL_CONFIG_VARS=ios-cross
-OPENSSL_EXTRA_CONFIG_2=no-asm no-async
+OPENSSL_EXTRA_CONFIG_2=no-async
 endif
 
 ifeq ($(MY_TARGET_ARCH),i386)
@@ -123,6 +122,9 @@ $(TARBALLS)/openssl-$(OPENSSL_VERSION).tar.gz:
 
 openssl: openssl-$(OPENSSL_VERSION).tar.gz .sum-openssl
 	$(UNPACK)
+ifdef HAVE_IOS
+	$(APPLY) $(SRC)/openssl/ios-armv7-crash.patch
+endif
 	$(MOVE)
 
 .openssl: openssl
