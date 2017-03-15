@@ -107,12 +107,27 @@ export CROSS_SDK=iPhone${IOS_PLATFORM}.sdk
 endif
 
 ifdef HAVE_TVOS
+
 ifeq ($(MY_TARGET_ARCH),arm64)
-OPENSSL_CONFIG_VARS=ios64-cross
+TVOS_PLATFORM=OS
+OPENSSL_CONFIG_VARS=tvos64-cross-arm64
+OPENSSL_EXTRA_CONFIG_2=no-async
 endif
 ifeq ($(MY_TARGET_ARCH),x86_64)
-OPENSSL_CONFIG_VARS=darwin64-x86_64-cc
+TVOS_PLATFORM=Simulator
+OPENSSL_CONFIG_VARS=tvos-sim-cross-x86_64
+OPENSSL_EXTRA_CONFIG_2=no-async
 endif
+
+CUR_MAKEFILE_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+
+# Set reference to custom configuration (OpenSSL 1.1.0)
+# See: https://github.com/openssl/openssl/commit/afce395cba521e395e6eecdaf9589105f61e4411
+export OPENSSL_LOCAL_CONFIG_DIR=${CUR_MAKEFILE_DIR}/config
+
+export CROSS_TOP=$(shell xcode-select -print-path)/Platforms/AppleTV${TVOS_PLATFORM}.platform/Developer
+export CROSS_SDK=AppleTV${TVOS_PLATFORM}.sdk
+
 endif
 
 $(TARBALLS)/openssl-$(OPENSSL_VERSION).tar.gz:
@@ -130,6 +145,10 @@ endif
 .openssl: openssl
 	cd $< && $(HOSTVARS_PIC) ./Configure $(OPENSSL_CONFIG_VARS) --prefix=$(PREFIX) ${OPENSSL_ARCH} $(OPENSSL_EXTRA_CONFIG_1) $(OPENSSL_EXTRA_CONFIG_2)
 ifdef HAVE_IOS
+	cd $< && perl -i -pe "s|^CFLAGS=(.*) -DNDEBUG (.*)-O3|CFLAGS=\\1 \\2 ${OPTIM} ${ENABLE_BITCODE}|g" Makefile
+	cd $< && perl -i -pe "s|^CFLAGS_Q=(.*) -DNDEBUG (.*)|CFLAGS_Q=\\1 \\2 ${OPTIM} ${ENABLE_BITCODE}|g" Makefile
+endif
+ifdef HAVE_TVOS
 	cd $< && perl -i -pe "s|^CFLAGS=(.*) -DNDEBUG (.*)-O3|CFLAGS=\\1 \\2 ${OPTIM} ${ENABLE_BITCODE}|g" Makefile
 	cd $< && perl -i -pe "s|^CFLAGS_Q=(.*) -DNDEBUG (.*)|CFLAGS_Q=\\1 \\2 ${OPTIM} ${ENABLE_BITCODE}|g" Makefile
 endif
