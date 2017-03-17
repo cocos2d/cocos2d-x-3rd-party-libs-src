@@ -22,7 +22,7 @@ VPATH := $(TARBALLS)
 
 # Common download locations
 GNU := http://ftp.gnu.org/gnu
-SF := http://heanet.dl.sourceforge.net/sourceforge
+SF := https://downloads.sourceforge.net/project
 GITHUB := https://github.com
 
 
