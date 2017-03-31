@@ -63,7 +63,7 @@ index cb4537b22..dcd5f595d 100644
  ################################################################################
  # void gcm_init_v8(u128 Htable[16],const u64 H[2]);
 -- 
-2.11.0
+2.12.2
 
 From 2270f45b811226cd3d91ac657ab7ab3d84726de0 Mon Sep 17 00:00:00 2001
 From: Andy Polyakov <appro@openssl.org>
@@ -111,5 +111,36 @@ index 4215766bf..29534845d 100644
      sigdelset(&all_masked, SIGILL);
      sigdelset(&all_masked, SIGTRAP);
 -- 
-2.11.0
+2.12.2
+
+From 433109aae8a50ce3fee525d4c42d6b5138efd65c Mon Sep 17 00:00:00 2001
+From: Andy Polyakov <appro@openssl.org>
+Date: Sat, 25 Mar 2017 10:58:57 +0100
+Subject: [PATCH] aes/asm/bsaes-armv7.pl: relax stack alignment requirement.
+
+Even though Apple refers to Procedure Call Standard for ARM Architecture
+(AAPCS), they apparently adhere to custom version that doesn't follow
+stack alignment constraints in the said standard. [Why or why? If it's
+vendor lock-in thing, then it would be like worst spot ever.] And since
+bsaes-armv7 relied on standard alignment, it became problematic to
+execute the code on iOS.
+---
+ crypto/aes/asm/bsaes-armv7.pl | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/crypto/aes/asm/bsaes-armv7.pl b/crypto/aes/asm/bsaes-armv7.pl
+index 12091ef9c..9f288660e 100644
+--- a/crypto/aes/asm/bsaes-armv7.pl
++++ b/crypto/aes/asm/bsaes-armv7.pl
+@@ -1365,7 +1365,7 @@ bsaes_cbc_encrypt:
+ 	vmov	@XMM[4],@XMM[15]		@ just in case ensure that IV
+ 	vmov	@XMM[5],@XMM[0]			@ and input are preserved
+ 	bl	AES_decrypt
+-	vld1.8	{@XMM[0]}, [$fp,:64]		@ load result
++	vld1.8	{@XMM[0]}, [$fp]		@ load result
+ 	veor	@XMM[0], @XMM[0], @XMM[4]	@ ^= IV
+ 	vmov	@XMM[15], @XMM[5]		@ @XMM[5] holds input
+ 	vst1.8	{@XMM[0]}, [$rounds]		@ write output
+-- 
+2.12.2
 
