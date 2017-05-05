@@ -11,6 +11,20 @@ index 3f25192..de0eac5 100644
    endif
  endif
  
+diff --git a/src/host/buildvm_asm.c b/src/host/buildvm_asm.c
+index 28419c0..e9256b5 100644
+--- a/src/host/buildvm_asm.c
++++ b/src/host/buildvm_asm.c
+@@ -214,7 +214,8 @@ static void emit_asm_label(BuildCtx *ctx, const char *name, int size, int isfunc
+   case BUILD_machasm:
+     fprintf(ctx->fp,
+       "\n\t.private_extern %s\n"
+-      "%s:\n", name, name);
++      "\t.no_dead_strip %s\n"
++      "%s:\n", name, name, name);
+     break;
+   default:
+     break;
 diff --git a/src/luaconf.h b/src/luaconf.h
 index 4c24bb1..c633fd6 100644
 --- a/src/luaconf.h
