@@ -1,0 +1,1821 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 18a089a..47bb341 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -427,7 +427,7 @@ set (BULLET_CONFIG_CMAKE_PATH lib${LIB_SUFFIX}/cmake/bullet )
+ list (APPEND BULLET_LIBRARIES LinearMath)
+ list (APPEND BULLET_LIBRARIES BulletCollisions)
+ list (APPEND BULLET_LIBRARIES BulletDynamics)
+-list (APPEND BULLET_LIBRARIES BulletSoftBody)
++#list (APPEND BULLET_LIBRARIES BulletSoftBody)
+ set (BULLET_USE_FILE ${CMAKE_INSTALL_PREFIX}/${BULLET_CONFIG_CMAKE_PATH}/UseBullet.cmake)
+ configure_file ( ${CMAKE_SOURCE_DIR}/BulletConfig.cmake.in
+                  ${CMAKE_CURRENT_BINARY_DIR}/BulletConfig.cmake
+diff --git a/src/BulletCollision/CollisionShapes/btConvexHullShape.cpp b/src/BulletCollision/CollisionShapes/btConvexHullShape.cpp
+index 0623e35..ea7af60 100644
+--- a/src/BulletCollision/CollisionShapes/btConvexHullShape.cpp
++++ b/src/BulletCollision/CollisionShapes/btConvexHullShape.cpp
+@@ -206,7 +206,7 @@ const char*	btConvexHullShape::serialize(void* dataBuffer, btSerializer* seriali
+ 	return "btConvexHullShapeData";
+ }
+ 
+-void btConvexHullShape::project(const btTransform& trans, const btVector3& dir, btScalar& minProj, btScalar& maxProj, btVector3& witnesPtMin,btVector3& witnesPtMax) const
++void btConvexHullShape::project6(const btTransform& trans, const btVector3& dir, btScalar& minProj, btScalar& maxProj, btVector3& witnesPtMin,btVector3& witnesPtMax) const
+ {
+ #if 1
+ 	minProj = FLT_MAX;
+diff --git a/src/BulletCollision/CollisionShapes/btConvexHullShape.h b/src/BulletCollision/CollisionShapes/btConvexHullShape.h
+index 3bd598e..eb39398 100644
+--- a/src/BulletCollision/CollisionShapes/btConvexHullShape.h
++++ b/src/BulletCollision/CollisionShapes/btConvexHullShape.h
+@@ -73,7 +73,7 @@ public:
+ 	virtual void	batchedUnitVectorGetSupportingVertexWithoutMargin(const btVector3* vectors,btVector3* supportVerticesOut,int numVectors) const;
+ 	
+ 
+-	virtual void project(const btTransform& trans, const btVector3& dir, btScalar& minProj, btScalar& maxProj, btVector3& witnesPtMin,btVector3& witnesPtMax) const;
++	void project6(const btTransform& trans, const btVector3& dir, btScalar& minProj, btScalar& maxProj, btVector3& witnesPtMin,btVector3& witnesPtMax) const;
+ 
+ 
+ 	//debugging
+diff --git a/src/BulletMultiThreaded/GpuSoftBodySolvers/Shared/btSoftBodySolverData.h b/src/BulletMultiThreaded/GpuSoftBodySolvers/Shared/btSoftBodySolverData.h
+index e7d715b..ab6721f 100644
+--- a/src/BulletMultiThreaded/GpuSoftBodySolvers/Shared/btSoftBodySolverData.h
++++ b/src/BulletMultiThreaded/GpuSoftBodySolvers/Shared/btSoftBodySolverData.h
+@@ -1,748 +1,748 @@
+-/*
+-Bullet Continuous Collision Detection and Physics Library
+-Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
+-
+-This software is provided 'as-is', without any express or implied warranty.
+-In no event will the authors be held liable for any damages arising from the use of this software.
+-Permission is granted to anyone to use this software for any purpose, 
+-including commercial applications, and to alter it and redistribute it freely, 
+-subject to the following restrictions:
+-
+-1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+-2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+-3. This notice may not be removed or altered from any source distribution.
+-*/
+-
+-#ifndef BT_SOFT_BODY_SOLVER_DATA_H
+-#define BT_SOFT_BODY_SOLVER_DATA_H
+-
+-#include "BulletCollision/CollisionShapes/btTriangleIndexVertexArray.h"
+-#include "vectormath/vmInclude.h"
+-
+-
+-class btSoftBodyLinkData
+-{
+-public:
+-	/**
+-	 * Class representing a link as a set of three indices into the vertex array.
+-	 */
+-	class LinkNodePair
+-	{
+-	public:
+-		int vertex0;
+-		int vertex1;
+-
+-		LinkNodePair()
+-		{
+-			vertex0 = 0;
+-			vertex1 = 0;
+-		}
+-
+-		LinkNodePair( int v0, int v1 )
+-		{
+-			vertex0 = v0;
+-			vertex1 = v1;
+-		}
+-	};
+-
+-	/**
+-	 * Class describing a link for input into the system.
+-	 */
+-	class LinkDescription
+-	{
+-	protected:
+-		int m_vertex0;
+-		int m_vertex1;
+-		float m_linkLinearStiffness;
+-		float m_linkStrength;
+-
+-	public:
+-
+-		LinkDescription()
+-		{
+-			m_vertex0 = 0;
+-			m_vertex1 = 0;
+-			m_linkLinearStiffness = 1.0;
+-			m_linkStrength = 1.0;
+-		}
+-
+-		LinkDescription( int newVertex0, int newVertex1, float linkLinearStiffness )
+-		{
+-			m_vertex0 = newVertex0;
+-			m_vertex1 = newVertex1;
+-			m_linkLinearStiffness = linkLinearStiffness;
+-			m_linkStrength = 1.0;
+-		}
+-
+-		LinkNodePair getVertexPair() const
+-		{
+-			LinkNodePair nodes;
+-			nodes.vertex0 = m_vertex0;
+-			nodes.vertex1 = m_vertex1;
+-			return nodes;
+-		}
+-
+-		void setVertex0( int vertex )
+-		{
+-			m_vertex0 = vertex;
+-		}
+-
+-		void setVertex1( int vertex )
+-		{
+-			m_vertex1 = vertex;
+-		}
+-
+-		void setLinkLinearStiffness( float linearStiffness )
+-		{
+-			m_linkLinearStiffness = linearStiffness;
+-		}
+-
+-		void setLinkStrength( float strength )
+-		{
+-			m_linkStrength = strength;
+-		}
+-
+-		int getVertex0() const
+-		{
+-			return m_vertex0;
+-		}
+-
+-		int getVertex1() const
+-		{
+-			return m_vertex1;
+-		}
+-
+-		float getLinkStrength() const
+-		{
+-			return m_linkStrength;
+-		}
+-
+-		float getLinkLinearStiffness() const
+-		{
+-			return m_linkLinearStiffness;
+-		}
+-	};
+-
+-
+-protected:
+-	// NOTE:
+-	// Vertex reference data is stored relative to global array, not relative to individual cloth.
+-	// Values must be correct if being passed into single-cloth VBOs or when migrating from one solver
+-	// to another.
+-
+-	btAlignedObjectArray< LinkNodePair > m_links; // Vertex pair for the link
+-	btAlignedObjectArray< float >								m_linkStrength; // Strength of each link
+-	// (inverseMassA + inverseMassB)/ linear stiffness coefficient
+-	btAlignedObjectArray< float >								m_linksMassLSC; 
+-	btAlignedObjectArray< float >								m_linksRestLengthSquared; 
+-	// Current vector length of link
+-	btAlignedObjectArray< Vectormath::Aos::Vector3 >			m_linksCLength;
+-	// 1/(current length * current length * massLSC)
+-	btAlignedObjectArray< float >								m_linksLengthRatio; 
+-	btAlignedObjectArray< float >								m_linksRestLength;
+-	btAlignedObjectArray< float >								m_linksMaterialLinearStiffnessCoefficient;
+-
+-public:
+-	btSoftBodyLinkData()
+-	{
+-	}
+-
+-	virtual ~btSoftBodyLinkData()
+-	{
+-	}
+-
+-	virtual void clear()
+-	{
+-		m_links.resize(0);
+-		m_linkStrength.resize(0);
+-		m_linksMassLSC.resize(0);
+-		m_linksRestLengthSquared.resize(0);
+-		m_linksLengthRatio.resize(0);
+-		m_linksRestLength.resize(0);
+-		m_linksMaterialLinearStiffnessCoefficient.resize(0);
+-	}
+-
+-	int getNumLinks()
+-	{
+-		return m_links.size();
+-	}
+-
+-	/** Allocate enough space in all link-related arrays to fit numLinks links */
+-	virtual void createLinks( int numLinks )
+-	{
+-		int previousSize = m_links.size();
+-		int newSize = previousSize + numLinks;
+-
+-		// Resize all the arrays that store link data
+-		m_links.resize( newSize );
+-		m_linkStrength.resize( newSize );
+-		m_linksMassLSC.resize( newSize );
+-		m_linksRestLengthSquared.resize( newSize );
+-		m_linksCLength.resize( newSize );
+-		m_linksLengthRatio.resize( newSize );
+-		m_linksRestLength.resize( newSize );
+-		m_linksMaterialLinearStiffnessCoefficient.resize( newSize );
+-	}
+-	
+-	/** Insert the link described into the correct data structures assuming space has already been allocated by a call to createLinks */
+-	virtual void setLinkAt( const LinkDescription &link, int linkIndex )
+-	{
+-		m_links[linkIndex] = link.getVertexPair();
+-		m_linkStrength[linkIndex] = link.getLinkStrength();
+-		m_linksMassLSC[linkIndex] = 0.f;
+-		m_linksRestLengthSquared[linkIndex] = 0.f;
+-		m_linksCLength[linkIndex] = Vectormath::Aos::Vector3(0.f, 0.f, 0.f);
+-		m_linksLengthRatio[linkIndex] = 0.f;
+-		m_linksRestLength[linkIndex] = 0.f;
+-		m_linksMaterialLinearStiffnessCoefficient[linkIndex] = link.getLinkLinearStiffness();
+-	}
+-
+-
+-	/**
+-	 * Return true if data is on the accelerator.
+-	 * The CPU version of this class will return true here because
+-	 * the CPU is the same as the accelerator.
+-	 */
+-	virtual bool onAccelerator()
+-	{
+-		return true;
+-	}
+-	
+-	/**
+-	 * Move data from host memory to the accelerator.
+-	 * The CPU version will always return that it has moved it.
+-	 */
+-	virtual bool moveToAccelerator()
+-	{
+-		return true;
+-	}
+-
+-	/**
+-	 * Move data from host memory from the accelerator.
+-	 * The CPU version will always return that it has moved it.
+-	 */
+-	virtual bool moveFromAccelerator()
+-	{
+-		return true;
+-	}
+-
+-
+-
+-	/**
+-	 * Return reference to the vertex index pair for link linkIndex as stored on the host.
+-	 */
+-	LinkNodePair &getVertexPair( int linkIndex )
+-	{
+-		return m_links[linkIndex];
+-	}
+-
+-	/** 
+-	 * Return reference to strength of link linkIndex as stored on the host.
+-	 */
+-	float &getStrength( int linkIndex )
+-	{
+-		return m_linkStrength[linkIndex];
+-	}
+-
+-	/**
+-	 * Return a reference to the strength of the link corrected for link sorting.
+-	 * This is important if we are using data on an accelerator which has the data sorted in some fashion.
+-	 */
+-	virtual float &getStrengthCorrected( int linkIndex )
+-	{
+-		return getStrength( linkIndex );
+-	}
+-
+-	/**
+-	 * Return reference to the rest length of link linkIndex as stored on the host.
+-	 */
+-	float &getRestLength( int linkIndex )
+-	{
+-		return m_linksRestLength[linkIndex];
+-	}
+-
+-	/**
+-	 * Return reference to linear stiffness coefficient for link linkIndex as stored on the host.
+-	 */
+-	float &getLinearStiffnessCoefficient( int linkIndex )
+-	{
+-		return m_linksMaterialLinearStiffnessCoefficient[linkIndex];
+-	}
+-
+-	/**
+-	 * Return reference to the MassLSC value for link linkIndex as stored on the host.
+-	 */
+-	float &getMassLSC( int linkIndex )
+-	{
+-		return m_linksMassLSC[linkIndex];
+-	}
+-
+-	/**
+-	 * Return reference to rest length squared for link linkIndex as stored on the host.
+-	 */
+-	float &getRestLengthSquared( int linkIndex )
+-	{
+-		return m_linksRestLengthSquared[linkIndex];
+-	}
+-
+-	/**
+-	 * Return reference to current length of link linkIndex as stored on the host.
+-	 */
+-	Vectormath::Aos::Vector3 &getCurrentLength( int linkIndex )
+-	{
+-		return m_linksCLength[linkIndex];
+-	}
+-
+-	 /**
+-	  * Return the link length ratio from for link linkIndex as stored on the host.
+-	  */
+-	 float &getLinkLengthRatio( int linkIndex )
+-	 {
+-		 return m_linksLengthRatio[linkIndex];
+-	 }
+-};
+-
+-
+-
+-/**
+- * Wrapper for vertex data information.
+- * By wrapping it like this we stand a good chance of being able to optimise for storage format easily.
+- * It should also help us make sure all the data structures remain consistent.
+- */
+-class btSoftBodyVertexData
+-{
+-public:
+-	/**
+-	 * Class describing a vertex for input into the system.
+-	 */
+-	class VertexDescription
+-	{
+-	private:
+-		Vectormath::Aos::Point3 m_position;
+-		/** Inverse mass. If this is 0f then the mass was 0 because that simplifies calculations. */
+-		float m_inverseMass;
+-
+-	public:
+-		VertexDescription()
+-		{	
+-			m_position = Vectormath::Aos::Point3( 0.f, 0.f, 0.f );
+-			m_inverseMass = 0.f;
+-		}
+-
+-		VertexDescription( const Vectormath::Aos::Point3 &position, float mass )
+-		{
+-			m_position = position;
+-			if( mass > 0.f )
+-				m_inverseMass = 1.0f/mass;
+-			else
+-				m_inverseMass = 0.f;
+-		}
+-
+-		void setPosition( const Vectormath::Aos::Point3 &position )
+-		{
+-			m_position = position;
+-		}
+-
+-		void setInverseMass( float inverseMass )
+-		{
+-			m_inverseMass = inverseMass;
+-		}
+-
+-		void setMass( float mass )
+-		{
+-			if( mass > 0.f )
+-				m_inverseMass = 1.0f/mass;
+-			else
+-				m_inverseMass = 0.f;
+-		}
+-
+-		Vectormath::Aos::Point3 getPosition() const
+-		{
+-			return m_position;
+-		}
+-
+-		float getInverseMass() const
+-		{
+-			return m_inverseMass;
+-		}
+-
+-		float getMass() const
+-		{
+-			if( m_inverseMass == 0.f )
+-				return 0.f;
+-			else
+-				return 1.0f/m_inverseMass;
+-		}
+-	};
+-protected:
+-
+-	// identifier for the individual cloth
+-	// For the CPU we don't really need this as we can grab the cloths and iterate over only their vertices
+-	// For a parallel accelerator knowing on a per-vertex basis which cloth we're part of will help for obtaining
+-	// per-cloth data
+-	// For sorting etc it might also be helpful to be able to use in-array data such as this.
+-	btAlignedObjectArray< int >							m_clothIdentifier;
+-	btAlignedObjectArray< Vectormath::Aos::Point3 >		m_vertexPosition;			// vertex positions
+-	btAlignedObjectArray< Vectormath::Aos::Point3 >		m_vertexPreviousPosition;	// vertex positions
+-	btAlignedObjectArray< Vectormath::Aos::Vector3 >	m_vertexVelocity;			// Velocity
+-	btAlignedObjectArray< Vectormath::Aos::Vector3 >	m_vertexForceAccumulator;	// Force accumulator
+-	btAlignedObjectArray< Vectormath::Aos::Vector3 >	m_vertexNormal;				// Normals
+-	btAlignedObjectArray< float >						m_vertexInverseMass;		// Inverse mass
+-	btAlignedObjectArray< float >						m_vertexArea;				// Area controlled by the vertex
+-	btAlignedObjectArray< int >							m_vertexTriangleCount;		// Number of triangles touching this vertex
+-
+-public:
+-	btSoftBodyVertexData()
+-	{
+-	}
+-
+-	virtual ~btSoftBodyVertexData()
+-	{
+-	}
+-
+-	virtual void clear()
+-	{
+-		m_clothIdentifier.resize(0);
+-		m_vertexPosition.resize(0);
+-		m_vertexPreviousPosition.resize(0);
+-		m_vertexVelocity.resize(0);
+-		m_vertexForceAccumulator.resize(0);
+-		m_vertexNormal.resize(0);
+-		m_vertexInverseMass.resize(0);
+-		m_vertexArea.resize(0);
+-		m_vertexTriangleCount.resize(0);
+-	}
+-
+-	int getNumVertices()
+-	{
+-		return m_vertexPosition.size();
+-	}
+-
+-	int getClothIdentifier( int vertexIndex )
+-	{
+-		return m_clothIdentifier[vertexIndex];
+-	}
+-
+-	void setVertexAt( const VertexDescription &vertex, int vertexIndex )
+-	{
+-		m_vertexPosition[vertexIndex] = vertex.getPosition();
+-		m_vertexPreviousPosition[vertexIndex] = vertex.getPosition();
+-		m_vertexVelocity[vertexIndex] = Vectormath::Aos::Vector3(0.f, 0.f, 0.f);
+-		m_vertexForceAccumulator[vertexIndex] = Vectormath::Aos::Vector3(0.f, 0.f, 0.f);
+-		m_vertexNormal[vertexIndex] = Vectormath::Aos::Vector3(0.f, 0.f, 0.f);
+-		m_vertexInverseMass[vertexIndex] = vertex.getInverseMass();
+-		m_vertexArea[vertexIndex] = 0.f;
+-		m_vertexTriangleCount[vertexIndex] = 0;
+-	}
+-
+-	/** 
+-	 * Create numVertices new vertices for cloth clothIdentifier 
+-	 * maxVertices allows a buffer zone of extra vertices for alignment or tearing reasons.
+-	 */
+-	void createVertices( int numVertices, int clothIdentifier, int maxVertices = 0 )
+-	{
+-		int previousSize = m_vertexPosition.size();
+-		if( maxVertices == 0 )
+-			maxVertices = numVertices;
+-		int newSize = previousSize + maxVertices;
+-
+-		// Resize all the arrays that store vertex data
+-		m_clothIdentifier.resize( newSize );
+-		m_vertexPosition.resize( newSize );
+-		m_vertexPreviousPosition.resize( newSize );
+-		m_vertexVelocity.resize( newSize );
+-		m_vertexForceAccumulator.resize( newSize );
+-		m_vertexNormal.resize( newSize );
+-		m_vertexInverseMass.resize( newSize );
+-		m_vertexArea.resize( newSize );
+-		m_vertexTriangleCount.resize( newSize );
+-
+-		for( int vertexIndex = previousSize; vertexIndex < newSize; ++vertexIndex )
+-			m_clothIdentifier[vertexIndex] = clothIdentifier;
+-		for( int vertexIndex = (previousSize + numVertices); vertexIndex < newSize; ++vertexIndex )
+-			m_clothIdentifier[vertexIndex] = -1;
+-	}
+-
+-	// Get and set methods in header so they can be inlined
+-
+-	/**
+-	 * Return a reference to the position of vertex vertexIndex as stored on the host.
+-	 */
+-	Vectormath::Aos::Point3 &getPosition( int vertexIndex )
+-	{
+-		return m_vertexPosition[vertexIndex];
+-	}
+-
+-	Vectormath::Aos::Point3 getPosition( int vertexIndex ) const
+-	{
+-		return m_vertexPosition[vertexIndex];
+-	}
+-
+-	/**
+-	 * Return a reference to the previous position of vertex vertexIndex as stored on the host.
+-	 */
+-	Vectormath::Aos::Point3 &getPreviousPosition( int vertexIndex )
+-	{
+-		return m_vertexPreviousPosition[vertexIndex];
+-	}
+-
+-	/**
+-	 * Return a reference to the velocity of vertex vertexIndex as stored on the host.
+-	 */
+-	Vectormath::Aos::Vector3 &getVelocity( int vertexIndex )
+-	{
+-		return m_vertexVelocity[vertexIndex];
+-	}
+-
+-	/**
+-	 * Return a reference to the force accumulator of vertex vertexIndex as stored on the host.
+-	 */
+-	Vectormath::Aos::Vector3 &getForceAccumulator( int vertexIndex )
+-	{
+-		return m_vertexForceAccumulator[vertexIndex];
+-	}
+-
+-	/**
+-	 * Return a reference to the normal of vertex vertexIndex as stored on the host.
+-	 */
+-	Vectormath::Aos::Vector3 &getNormal( int vertexIndex )
+-	{
+-		return m_vertexNormal[vertexIndex];
+-	}
+-
+-	Vectormath::Aos::Vector3 getNormal( int vertexIndex ) const
+-	{
+-		return m_vertexNormal[vertexIndex];
+-	}
+-
+-	/**
+-	 * Return a reference to the inverse mass of vertex vertexIndex as stored on the host.
+-	 */
+-	float &getInverseMass( int vertexIndex )
+-	{
+-		return m_vertexInverseMass[vertexIndex];
+-	}
+-
+-	/**
+-	 * Get access to the area controlled by this vertex.
+-	 */
+-	float &getArea( int vertexIndex )
+-	{
+-		return m_vertexArea[vertexIndex];
+-	}
+-
+-	/**
+-	 * Get access to the array of how many triangles touch each vertex.
+-	 */
+-	int &getTriangleCount( int vertexIndex )
+-	{
+-		return m_vertexTriangleCount[vertexIndex];
+-	}
+-
+-
+-
+-	/**
+-	 * Return true if data is on the accelerator.
+-	 * The CPU version of this class will return true here because
+-	 * the CPU is the same as the accelerator.
+-	 */
+-	virtual bool onAccelerator()
+-	{
+-		return true;
+-	}
+-	
+-	/**
+-	 * Move data from host memory to the accelerator.
+-	 * The CPU version will always return that it has moved it.
+-	 */
+-	virtual bool moveToAccelerator()
+-	{
+-		return true;
+-	}
+-
+-	/**
+-	 * Move data to host memory from the accelerator if bCopy is false.
+-	 * If bCopy is true, copy data to host memory from the accelerator so that data 
+-	 * won't be moved to accelerator when moveToAccelerator() is called next time. 
+-	 * If bCopyMinimum is true, only vertex position and normal are copied.
+-	 * bCopyMinimum will be meaningful only if bCopy is true.
+-	 * The CPU version will always return that it has moved it.
+-	 */
+-	virtual bool moveFromAccelerator(bool bCopy = false, bool bCopyMinimum = true)
+-	{
+-		return true;
+-	}
+-
+-	btAlignedObjectArray< Vectormath::Aos::Point3 >	&getVertexPositions()
+-	{
+-		return m_vertexPosition;
+-	}
+-};
+-
+-
+-class btSoftBodyTriangleData
+-{
+-public:
+-	/**
+-	 * Class representing a triangle as a set of three indices into the
+-	 * vertex array.
+-	 */
+-	class TriangleNodeSet
+-	{
+-	public:
+-		int vertex0;
+-		int vertex1;
+-		int vertex2;
+-		int _padding;
+-
+-		TriangleNodeSet( )
+-		{
+-			vertex0 = 0;
+-			vertex1 = 0;
+-			vertex2 = 0;
+-			_padding = -1;
+-		}
+-
+-		TriangleNodeSet( int newVertex0, int newVertex1, int newVertex2 )
+-		{
+-			vertex0 = newVertex0;
+-			vertex1 = newVertex1;
+-			vertex2 = newVertex2;
+-		}
+-	};
+-
+-	class TriangleDescription
+-	{
+-	protected:
+-		int m_vertex0;
+-		int m_vertex1;
+-		int m_vertex2;
+-
+-	public:
+-		TriangleDescription()
+-		{
+-			m_vertex0 = 0;
+-			m_vertex1 = 0;
+-			m_vertex2 = 0;
+-		}
+-
+-		TriangleDescription( int newVertex0, int newVertex1, int newVertex2 )
+-		{
+-			m_vertex0 = newVertex0;
+-			m_vertex1 = newVertex1;
+-			m_vertex2 = newVertex2;
+-		}
+-
+-		TriangleNodeSet getVertexSet() const
+-		{
+-			btSoftBodyTriangleData::TriangleNodeSet nodes;
+-			nodes.vertex0 = m_vertex0;
+-			nodes.vertex1 = m_vertex1;
+-			nodes.vertex2 = m_vertex2;
+-			return nodes;
+-		}
+-	};
+-
+-protected:
+-	// NOTE:
+-	// Vertex reference data is stored relative to global array, not relative to individual cloth.
+-	// Values must be correct if being passed into single-cloth VBOs or when migrating from one solver
+-	// to another.
+-	btAlignedObjectArray< TriangleNodeSet > m_vertexIndices;
+-	btAlignedObjectArray< float > m_area;
+-	btAlignedObjectArray< Vectormath::Aos::Vector3 > m_normal;
+-
+-public:
+-	btSoftBodyTriangleData()
+-	{
+-	}
+-
+-	virtual ~btSoftBodyTriangleData()
+-	{
+-
+-	}
+-
+-	virtual void clear()
+-	{
+-		m_vertexIndices.resize(0);
+-		m_area.resize(0);
+-		m_normal.resize(0);
+-	}
+-
+-	int getNumTriangles()
+-	{
+-		return m_vertexIndices.size();
+-	}
+-
+-	virtual void setTriangleAt( const TriangleDescription &triangle, int triangleIndex )
+-	{
+-		m_vertexIndices[triangleIndex] = triangle.getVertexSet();
+-	}
+-
+-	virtual void createTriangles( int numTriangles )		
+-	{
+-		int previousSize = m_vertexIndices.size();
+-		int newSize = previousSize + numTriangles;
+-
+-		// Resize all the arrays that store triangle data
+-		m_vertexIndices.resize( newSize );
+-		m_area.resize( newSize );
+-		m_normal.resize( newSize );
+-	}
+-
+-	/**
+-	 * Return the vertex index set for triangle triangleIndex as stored on the host.
+-	 */
+-	const TriangleNodeSet &getVertexSet( int triangleIndex )
+-	{
+-		return m_vertexIndices[triangleIndex];
+-	}
+-
+-	/**
+-	 * Get access to the triangle area.
+-	 */
+-	float &getTriangleArea( int triangleIndex )
+-	{
+-		return m_area[triangleIndex];
+-	}
+-
+-	/**
+-	 * Get access to the normal vector for this triangle.
+-	 */
+-	Vectormath::Aos::Vector3 &getNormal( int triangleIndex )
+-	{
+-		return m_normal[triangleIndex];
+-	}
+-
+-	/**
+-	 * Return true if data is on the accelerator.
+-	 * The CPU version of this class will return true here because
+-	 * the CPU is the same as the accelerator.
+-	 */
+-	virtual bool onAccelerator()
+-	{
+-		return true;
+-	}
+-	
+-	/**
+-	 * Move data from host memory to the accelerator.
+-	 * The CPU version will always return that it has moved it.
+-	 */
+-	virtual bool moveToAccelerator()
+-	{
+-		return true;
+-	}
+-
+-	/**
+-	 * Move data from host memory from the accelerator.
+-	 * The CPU version will always return that it has moved it.
+-	 */
+-	virtual bool moveFromAccelerator()
+-	{
+-		return true;
+-	}
+-};
+-
+-
+-#endif // #ifndef BT_SOFT_BODY_SOLVER_DATA_H
+-
++/*
++Bullet Continuous Collision Detection and Physics Library
++Copyright (c) 2003-2006 Erwin Coumans  http://continuousphysics.com/Bullet/
++
++This software is provided 'as-is', without any express or implied warranty.
++In no event will the authors be held liable for any damages arising from the use of this software.
++Permission is granted to anyone to use this software for any purpose, 
++including commercial applications, and to alter it and redistribute it freely, 
++subject to the following restrictions:
++
++1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
++2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
++3. This notice may not be removed or altered from any source distribution.
++*/
++
++#ifndef BT_SOFT_BODY_SOLVER_DATA_H
++#define BT_SOFT_BODY_SOLVER_DATA_H
++
++#include "BulletCollision/CollisionShapes/btTriangleIndexVertexArray.h"
++#include "vectormath/vmInclude.h"
++
++
++class btSoftBodyLinkData
++{
++public:
++	/**
++	 * Class representing a link as a set of three indices into the vertex array.
++	 */
++	class LinkNodePair
++	{
++	public:
++		int vertex0;
++		int vertex1;
++
++		LinkNodePair()
++		{
++			vertex0 = 0;
++			vertex1 = 0;
++		}
++
++		LinkNodePair( int v0, int v1 )
++		{
++			vertex0 = v0;
++			vertex1 = v1;
++		}
++	};
++
++	/**
++	 * Class describing a link for input into the system.
++	 */
++	class LinkDescription
++	{
++	protected:
++		int m_vertex0;
++		int m_vertex1;
++		float m_linkLinearStiffness;
++		float m_linkStrength;
++
++	public:
++
++		LinkDescription()
++		{
++			m_vertex0 = 0;
++			m_vertex1 = 0;
++			m_linkLinearStiffness = 1.0;
++			m_linkStrength = 1.0;
++		}
++
++		LinkDescription( int newVertex0, int newVertex1, float linkLinearStiffness )
++		{
++			m_vertex0 = newVertex0;
++			m_vertex1 = newVertex1;
++			m_linkLinearStiffness = linkLinearStiffness;
++			m_linkStrength = 1.0;
++		}
++
++		LinkNodePair getVertexPair() const
++		{
++			LinkNodePair nodes;
++			nodes.vertex0 = m_vertex0;
++			nodes.vertex1 = m_vertex1;
++			return nodes;
++		}
++
++		void setVertex0( int vertex )
++		{
++			m_vertex0 = vertex;
++		}
++
++		void setVertex1( int vertex )
++		{
++			m_vertex1 = vertex;
++		}
++
++		void setLinkLinearStiffness( float linearStiffness )
++		{
++			m_linkLinearStiffness = linearStiffness;
++		}
++
++		void setLinkStrength( float strength )
++		{
++			m_linkStrength = strength;
++		}
++
++		int getVertex0() const
++		{
++			return m_vertex0;
++		}
++
++		int getVertex1() const
++		{
++			return m_vertex1;
++		}
++
++		float getLinkStrength() const
++		{
++			return m_linkStrength;
++		}
++
++		float getLinkLinearStiffness() const
++		{
++			return m_linkLinearStiffness;
++		}
++	};
++
++
++protected:
++	// NOTE:
++	// Vertex reference data is stored relative to global array, not relative to individual cloth.
++	// Values must be correct if being passed into single-cloth VBOs or when migrating from one solver
++	// to another.
++
++	btAlignedObjectArray< LinkNodePair > m_links; // Vertex pair for the link
++	btAlignedObjectArray< float >								m_linkStrength; // Strength of each link
++	// (inverseMassA + inverseMassB)/ linear stiffness coefficient
++	btAlignedObjectArray< float >								m_linksMassLSC; 
++	btAlignedObjectArray< float >								m_linksRestLengthSquared; 
++	// Current vector length of link
++	btAlignedObjectArray< Vectormath::Aos::Vector3 >			m_linksCLength;
++	// 1/(current length * current length * massLSC)
++	btAlignedObjectArray< float >								m_linksLengthRatio; 
++	btAlignedObjectArray< float >								m_linksRestLength;
++	btAlignedObjectArray< float >								m_linksMaterialLinearStiffnessCoefficient;
++
++public:
++	btSoftBodyLinkData()
++	{
++	}
++
++	virtual ~btSoftBodyLinkData()
++	{
++	}
++
++	virtual void clear()
++	{
++		m_links.resize(0);
++		m_linkStrength.resize(0);
++		m_linksMassLSC.resize(0);
++		m_linksRestLengthSquared.resize(0);
++		m_linksLengthRatio.resize(0);
++		m_linksRestLength.resize(0);
++		m_linksMaterialLinearStiffnessCoefficient.resize(0);
++	}
++
++	int getNumLinks()
++	{
++		return m_links.size();
++	}
++
++	/** Allocate enough space in all link-related arrays to fit numLinks links */
++	virtual void createLinks( int numLinks )
++	{
++		int previousSize = m_links.size();
++		int newSize = previousSize + numLinks;
++
++		// Resize all the arrays that store link data
++		m_links.resize( newSize );
++		m_linkStrength.resize( newSize );
++		m_linksMassLSC.resize( newSize );
++		m_linksRestLengthSquared.resize( newSize );
++		m_linksCLength.resize( newSize );
++		m_linksLengthRatio.resize( newSize );
++		m_linksRestLength.resize( newSize );
++		m_linksMaterialLinearStiffnessCoefficient.resize( newSize );
++	}
++	
++	/** Insert the link described into the correct data structures assuming space has already been allocated by a call to createLinks */
++	virtual void setLinkAt( const LinkDescription &link, int linkIndex )
++	{
++		m_links[linkIndex] = link.getVertexPair();
++		m_linkStrength[linkIndex] = link.getLinkStrength();
++		m_linksMassLSC[linkIndex] = 0.f;
++		m_linksRestLengthSquared[linkIndex] = 0.f;
++		m_linksCLength[linkIndex] = Vectormath::Aos::Vector3(0.f, 0.f, 0.f);
++		m_linksLengthRatio[linkIndex] = 0.f;
++		m_linksRestLength[linkIndex] = 0.f;
++		m_linksMaterialLinearStiffnessCoefficient[linkIndex] = link.getLinkLinearStiffness();
++	}
++
++
++	/**
++	 * Return true if data is on the accelerator.
++	 * The CPU version of this class will return true here because
++	 * the CPU is the same as the accelerator.
++	 */
++	virtual bool onAccelerator()
++	{
++		return true;
++	}
++	
++	/**
++	 * Move data from host memory to the accelerator.
++	 * The CPU version will always return that it has moved it.
++	 */
++	virtual bool moveToAccelerator()
++	{
++		return true;
++	}
++
++	/**
++	 * Move data from host memory from the accelerator.
++	 * The CPU version will always return that it has moved it.
++	 */
++	virtual bool moveFromAccelerator()
++	{
++		return true;
++	}
++
++
++
++	/**
++	 * Return reference to the vertex index pair for link linkIndex as stored on the host.
++	 */
++	LinkNodePair &getVertexPair( int linkIndex )
++	{
++		return m_links[linkIndex];
++	}
++
++	/** 
++	 * Return reference to strength of link linkIndex as stored on the host.
++	 */
++	float &getStrength( int linkIndex )
++	{
++		return m_linkStrength[linkIndex];
++	}
++
++	/**
++	 * Return a reference to the strength of the link corrected for link sorting.
++	 * This is important if we are using data on an accelerator which has the data sorted in some fashion.
++	 */
++	virtual float &getStrengthCorrected( int linkIndex )
++	{
++		return getStrength( linkIndex );
++	}
++
++	/**
++	 * Return reference to the rest length of link linkIndex as stored on the host.
++	 */
++	float &getRestLength( int linkIndex )
++	{
++		return m_linksRestLength[linkIndex];
++	}
++
++	/**
++	 * Return reference to linear stiffness coefficient for link linkIndex as stored on the host.
++	 */
++	float &getLinearStiffnessCoefficient( int linkIndex )
++	{
++		return m_linksMaterialLinearStiffnessCoefficient[linkIndex];
++	}
++
++	/**
++	 * Return reference to the MassLSC value for link linkIndex as stored on the host.
++	 */
++	float &getMassLSC( int linkIndex )
++	{
++		return m_linksMassLSC[linkIndex];
++	}
++
++	/**
++	 * Return reference to rest length squared for link linkIndex as stored on the host.
++	 */
++	float &getRestLengthSquared( int linkIndex )
++	{
++		return m_linksRestLengthSquared[linkIndex];
++	}
++
++	/**
++	 * Return reference to current length of link linkIndex as stored on the host.
++	 */
++	Vectormath::Aos::Vector3 &getCurrentLength( int linkIndex )
++	{
++		return m_linksCLength[linkIndex];
++	}
++
++	 /**
++	  * Return the link length ratio from for link linkIndex as stored on the host.
++	  */
++	 float &getLinkLengthRatio( int linkIndex )
++	 {
++		 return m_linksLengthRatio[linkIndex];
++	 }
++};
++
++
++
++/**
++ * Wrapper for vertex data information.
++ * By wrapping it like this we stand a good chance of being able to optimise for storage format easily.
++ * It should also help us make sure all the data structures remain consistent.
++ */
++class btSoftBodyVertexData
++{
++public:
++	/**
++	 * Class describing a vertex for input into the system.
++	 */
++	class VertexDescription
++	{
++	private:
++		Vectormath::Aos::Point3 m_position;
++		/** Inverse mass. If this is 0f then the mass was 0 because that simplifies calculations. */
++		float m_inverseMass;
++
++	public:
++		VertexDescription()
++		{	
++			m_position = Vectormath::Aos::Point3( 0.f, 0.f, 0.f );
++			m_inverseMass = 0.f;
++		}
++
++		VertexDescription( const Vectormath::Aos::Point3 &position, float mass )
++		{
++			m_position = position;
++			if( mass > 0.f )
++				m_inverseMass = 1.0f/mass;
++			else
++				m_inverseMass = 0.f;
++		}
++
++		void setPosition( const Vectormath::Aos::Point3 &position )
++		{
++			m_position = position;
++		}
++
++		void setInverseMass( float inverseMass )
++		{
++			m_inverseMass = inverseMass;
++		}
++
++		void setMass( float mass )
++		{
++			if( mass > 0.f )
++				m_inverseMass = 1.0f/mass;
++			else
++				m_inverseMass = 0.f;
++		}
++
++		Vectormath::Aos::Point3 getPosition() const
++		{
++			return m_position;
++		}
++
++		float getInverseMass() const
++		{
++			return m_inverseMass;
++		}
++
++		float getMass() const
++		{
++			if( m_inverseMass == 0.f )
++				return 0.f;
++			else
++				return 1.0f/m_inverseMass;
++		}
++	};
++protected:
++
++	// identifier for the individual cloth
++	// For the CPU we don't really need this as we can grab the cloths and iterate over only their vertices
++	// For a parallel accelerator knowing on a per-vertex basis which cloth we're part of will help for obtaining
++	// per-cloth data
++	// For sorting etc it might also be helpful to be able to use in-array data such as this.
++	btAlignedObjectArray< int >							m_clothIdentifier;
++	btAlignedObjectArray< Vectormath::Aos::Point3 >		m_vertexPosition;			// vertex positions
++	btAlignedObjectArray< Vectormath::Aos::Point3 >		m_vertexPreviousPosition;	// vertex positions
++	btAlignedObjectArray< Vectormath::Aos::Vector3 >	m_vertexVelocity;			// Velocity
++	btAlignedObjectArray< Vectormath::Aos::Vector3 >	m_vertexForceAccumulator;	// Force accumulator
++	btAlignedObjectArray< Vectormath::Aos::Vector3 >	m_vertexNormal;				// Normals
++	btAlignedObjectArray< float >						m_vertexInverseMass;		// Inverse mass
++	btAlignedObjectArray< float >						m_vertexArea;				// Area controlled by the vertex
++	btAlignedObjectArray< int >							m_vertexTriangleCount;		// Number of triangles touching this vertex
++
++public:
++	btSoftBodyVertexData()
++	{
++	}
++
++	virtual ~btSoftBodyVertexData()
++	{
++	}
++
++	virtual void clear()
++	{
++		m_clothIdentifier.resize(0);
++		m_vertexPosition.resize(0);
++		m_vertexPreviousPosition.resize(0);
++		m_vertexVelocity.resize(0);
++		m_vertexForceAccumulator.resize(0);
++		m_vertexNormal.resize(0);
++		m_vertexInverseMass.resize(0);
++		m_vertexArea.resize(0);
++		m_vertexTriangleCount.resize(0);
++	}
++
++	int getNumVertices()
++	{
++		return m_vertexPosition.size();
++	}
++
++	int getClothIdentifier( int vertexIndex )
++	{
++		return m_clothIdentifier[vertexIndex];
++	}
++
++	void setVertexAt( const VertexDescription &vertex, int vertexIndex )
++	{
++		m_vertexPosition[vertexIndex] = vertex.getPosition();
++		m_vertexPreviousPosition[vertexIndex] = vertex.getPosition();
++		m_vertexVelocity[vertexIndex] = Vectormath::Aos::Vector3(0.f, 0.f, 0.f);
++		m_vertexForceAccumulator[vertexIndex] = Vectormath::Aos::Vector3(0.f, 0.f, 0.f);
++		m_vertexNormal[vertexIndex] = Vectormath::Aos::Vector3(0.f, 0.f, 0.f);
++		m_vertexInverseMass[vertexIndex] = vertex.getInverseMass();
++		m_vertexArea[vertexIndex] = 0.f;
++		m_vertexTriangleCount[vertexIndex] = 0;
++	}
++
++	/** 
++	 * Create numVertices new vertices for cloth clothIdentifier 
++	 * maxVertices allows a buffer zone of extra vertices for alignment or tearing reasons.
++	 */
++	void createVertices( int numVertices, int clothIdentifier, int maxVertices = 0 )
++	{
++		int previousSize = m_vertexPosition.size();
++		if( maxVertices == 0 )
++			maxVertices = numVertices;
++		int newSize = previousSize + maxVertices;
++
++		// Resize all the arrays that store vertex data
++		m_clothIdentifier.resize( newSize );
++		m_vertexPosition.resize( newSize );
++		m_vertexPreviousPosition.resize( newSize );
++		m_vertexVelocity.resize( newSize );
++		m_vertexForceAccumulator.resize( newSize );
++		m_vertexNormal.resize( newSize );
++		m_vertexInverseMass.resize( newSize );
++		m_vertexArea.resize( newSize );
++		m_vertexTriangleCount.resize( newSize );
++
++		for( int vertexIndex = previousSize; vertexIndex < newSize; ++vertexIndex )
++			m_clothIdentifier[vertexIndex] = clothIdentifier;
++		for( int vertexIndex = (previousSize + numVertices); vertexIndex < newSize; ++vertexIndex )
++			m_clothIdentifier[vertexIndex] = -1;
++	}
++
++	// Get and set methods in header so they can be inlined
++
++	/**
++	 * Return a reference to the position of vertex vertexIndex as stored on the host.
++	 */
++	Vectormath::Aos::Point3 &getPosition( int vertexIndex )
++	{
++		return m_vertexPosition[vertexIndex];
++	}
++
++	Vectormath::Aos::Point3 getPosition( int vertexIndex ) const
++	{
++		return m_vertexPosition[vertexIndex];
++	}
++
++	/**
++	 * Return a reference to the previous position of vertex vertexIndex as stored on the host.
++	 */
++	Vectormath::Aos::Point3 &getPreviousPosition( int vertexIndex )
++	{
++		return m_vertexPreviousPosition[vertexIndex];
++	}
++
++	/**
++	 * Return a reference to the velocity of vertex vertexIndex as stored on the host.
++	 */
++	Vectormath::Aos::Vector3 &getVelocity( int vertexIndex )
++	{
++		return m_vertexVelocity[vertexIndex];
++	}
++
++	/**
++	 * Return a reference to the force accumulator of vertex vertexIndex as stored on the host.
++	 */
++	Vectormath::Aos::Vector3 &getForceAccumulator( int vertexIndex )
++	{
++		return m_vertexForceAccumulator[vertexIndex];
++	}
++
++	/**
++	 * Return a reference to the normal of vertex vertexIndex as stored on the host.
++	 */
++	Vectormath::Aos::Vector3 &getNormal( int vertexIndex )
++	{
++		return m_vertexNormal[vertexIndex];
++	}
++
++	Vectormath::Aos::Vector3 getNormal( int vertexIndex ) const
++	{
++		return m_vertexNormal[vertexIndex];
++	}
++
++	/**
++	 * Return a reference to the inverse mass of vertex vertexIndex as stored on the host.
++	 */
++	float &getInverseMass( int vertexIndex )
++	{
++		return m_vertexInverseMass[vertexIndex];
++	}
++
++	/**
++	 * Get access to the area controlled by this vertex.
++	 */
++	float &getArea( int vertexIndex )
++	{
++		return m_vertexArea[vertexIndex];
++	}
++
++	/**
++	 * Get access to the array of how many triangles touch each vertex.
++	 */
++	int &getTriangleCount( int vertexIndex )
++	{
++		return m_vertexTriangleCount[vertexIndex];
++	}
++
++
++
++	/**
++	 * Return true if data is on the accelerator.
++	 * The CPU version of this class will return true here because
++	 * the CPU is the same as the accelerator.
++	 */
++	virtual bool onAccelerator()
++	{
++		return true;
++	}
++	
++	/**
++	 * Move data from host memory to the accelerator.
++	 * The CPU version will always return that it has moved it.
++	 */
++	virtual bool moveToAccelerator()
++	{
++		return true;
++	}
++
++	/**
++	 * Move data to host memory from the accelerator if bCopy is false.
++	 * If bCopy is true, copy data to host memory from the accelerator so that data 
++	 * won't be moved to accelerator when moveToAccelerator() is called next time. 
++	 * If bCopyMinimum is true, only vertex position and normal are copied.
++	 * bCopyMinimum will be meaningful only if bCopy is true.
++	 * The CPU version will always return that it has moved it.
++	 */
++	virtual bool moveFromAccelerator(bool bCopy = false, bool bCopyMinimum = true)
++	{
++		return true;
++	}
++
++	btAlignedObjectArray< Vectormath::Aos::Point3 >	&getVertexPositions()
++	{
++		return m_vertexPosition;
++	}
++};
++
++
++class btSoftBodyTriangleData
++{
++public:
++	/**
++	 * Class representing a triangle as a set of three indices into the
++	 * vertex array.
++	 */
++	class TriangleNodeSet
++	{
++	public:
++		int vertex0;
++		int vertex1;
++		int vertex2;
++		int _padding;
++
++		TriangleNodeSet( )
++		{
++			vertex0 = 0;
++			vertex1 = 0;
++			vertex2 = 0;
++			_padding = -1;
++		}
++
++		TriangleNodeSet( int newVertex0, int newVertex1, int newVertex2 )
++		{
++			vertex0 = newVertex0;
++			vertex1 = newVertex1;
++			vertex2 = newVertex2;
++		}
++	};
++
++	class TriangleDescription
++	{
++	protected:
++		int m_vertex0;
++		int m_vertex1;
++		int m_vertex2;
++
++	public:
++		TriangleDescription()
++		{
++			m_vertex0 = 0;
++			m_vertex1 = 0;
++			m_vertex2 = 0;
++		}
++
++		TriangleDescription( int newVertex0, int newVertex1, int newVertex2 )
++		{
++			m_vertex0 = newVertex0;
++			m_vertex1 = newVertex1;
++			m_vertex2 = newVertex2;
++		}
++
++		TriangleNodeSet getVertexSet() const
++		{
++			btSoftBodyTriangleData::TriangleNodeSet nodes;
++			nodes.vertex0 = m_vertex0;
++			nodes.vertex1 = m_vertex1;
++			nodes.vertex2 = m_vertex2;
++			return nodes;
++		}
++	};
++
++protected:
++	// NOTE:
++	// Vertex reference data is stored relative to global array, not relative to individual cloth.
++	// Values must be correct if being passed into single-cloth VBOs or when migrating from one solver
++	// to another.
++	btAlignedObjectArray< TriangleNodeSet > m_vertexIndices;
++	btAlignedObjectArray< float > m_area;
++	btAlignedObjectArray< Vectormath::Aos::Vector3 > m_normal;
++
++public:
++	btSoftBodyTriangleData()
++	{
++	}
++
++	virtual ~btSoftBodyTriangleData()
++	{
++
++	}
++
++	virtual void clear()
++	{
++		m_vertexIndices.resize(0);
++		m_area.resize(0);
++		m_normal.resize(0);
++	}
++
++	int getNumTriangles()
++	{
++		return m_vertexIndices.size();
++	}
++
++	virtual void setTriangleAt( const TriangleDescription &triangle, int triangleIndex )
++	{
++		m_vertexIndices[triangleIndex] = triangle.getVertexSet();
++	}
++
++	virtual void createTriangles( int numTriangles )		
++	{
++		int previousSize = m_vertexIndices.size();
++		int newSize = previousSize + numTriangles;
++
++		// Resize all the arrays that store triangle data
++		m_vertexIndices.resize( newSize );
++		m_area.resize( newSize );
++		m_normal.resize( newSize );
++	}
++
++	/**
++	 * Return the vertex index set for triangle triangleIndex as stored on the host.
++	 */
++	const TriangleNodeSet &getVertexSet( int triangleIndex )
++	{
++		return m_vertexIndices[triangleIndex];
++	}
++
++	/**
++	 * Get access to the triangle area.
++	 */
++	float &getTriangleArea( int triangleIndex )
++	{
++		return m_area[triangleIndex];
++	}
++
++	/**
++	 * Get access to the normal vector for this triangle.
++	 */
++	Vectormath::Aos::Vector3 &getNormal( int triangleIndex )
++	{
++		return m_normal[triangleIndex];
++	}
++
++	/**
++	 * Return true if data is on the accelerator.
++	 * The CPU version of this class will return true here because
++	 * the CPU is the same as the accelerator.
++	 */
++	virtual bool onAccelerator()
++	{
++		return true;
++	}
++	
++	/**
++	 * Move data from host memory to the accelerator.
++	 * The CPU version will always return that it has moved it.
++	 */
++	virtual bool moveToAccelerator()
++	{
++		return true;
++	}
++
++	/**
++	 * Move data from host memory from the accelerator.
++	 * The CPU version will always return that it has moved it.
++	 */
++	virtual bool moveFromAccelerator()
++	{
++		return true;
++	}
++};
++
++
++#endif // #ifndef BT_SOFT_BODY_SOLVER_DATA_H
++
+diff --git a/src/BulletMultiThreaded/PlatformDefinitions.h b/src/BulletMultiThreaded/PlatformDefinitions.h
+index 9bf8c96..9d2c747 100644
+--- a/src/BulletMultiThreaded/PlatformDefinitions.h
++++ b/src/BulletMultiThreaded/PlatformDefinitions.h
+@@ -40,6 +40,8 @@ typedef union
+ #ifndef __BT_SKIP_UINT64_H
+ #if defined(_WIN64) && defined(_MSC_VER)
+ 		typedef unsigned __int64 uint64_t;
++#elif defined(_M_ARM)
++        typedef unsigned __int64 uint64_t;
+ #else
+ 		typedef unsigned long int uint64_t;
+ #endif
+diff --git a/src/BulletMultiThreaded/SequentialThreadSupport.cpp b/src/BulletMultiThreaded/SequentialThreadSupport.cpp
+index 1999277..09bdd2f 100644
+--- a/src/BulletMultiThreaded/SequentialThreadSupport.cpp
++++ b/src/BulletMultiThreaded/SequentialThreadSupport.cpp
+@@ -116,7 +116,11 @@ public:
+ 	virtual int  getMaxCount() {return 1;}
+ };
+ 
++#ifdef WINRT
++__declspec(align(16)) class btDummyCriticalSection : public btCriticalSection
++#else
+ class btDummyCriticalSection : public btCriticalSection
++#endif
+ {
+ 	
+ public:
+@@ -128,6 +132,18 @@ public:
+ 	{
+ 	}
+ 	
++#ifdef WINRT
++    void* operator new(size_t i)
++    {
++        return _aligned_malloc(i, 16);
++    }
++
++    void operator delete(void* p)
++    {
++        _aligned_free(p);
++    }
++#endif
++
+ 	unsigned int getSharedParam(int i)
+ 	{
+ 		btAssert(i>=0&&i<31);
+diff --git a/src/BulletMultiThreaded/SpuSampleTask/SpuSampleTask.cpp b/src/BulletMultiThreaded/SpuSampleTask/SpuSampleTask.cpp
+index fe61955..e0ea804 100644
+--- a/src/BulletMultiThreaded/SpuSampleTask/SpuSampleTask.cpp
++++ b/src/BulletMultiThreaded/SpuSampleTask/SpuSampleTask.cpp
+@@ -29,11 +29,26 @@ subject to the following restrictions:
+ 
+ #define MAX_NUM_BODIES 8192
+ 
++#ifdef WINRT
++__declspec(align(16)) struct SampleTask_LocalStoreMemory
++#else
+ struct SampleTask_LocalStoreMemory
++#endif
+ {
+ 	ATTRIBUTE_ALIGNED16(char gLocalRigidBody [sizeof(btRigidBody)+16]);
+ 	ATTRIBUTE_ALIGNED16(void* gPointerArray[MAX_NUM_BODIES]);
+ 
++#ifdef WINRT
++    void* operator new(size_t i)
++    {
++        return _aligned_malloc(i, 16);
++    }
++
++    void operator delete(void* p)
++    {
++        _aligned_free(p);
++    }
++#endif
+ };
+ 
+ 
+diff --git a/src/BulletMultiThreaded/Win32ThreadSupport.cpp b/src/BulletMultiThreaded/Win32ThreadSupport.cpp
+index ae224b5..a6e5f95 100644
+--- a/src/BulletMultiThreaded/Win32ThreadSupport.cpp
++++ b/src/BulletMultiThreaded/Win32ThreadSupport.cpp
+@@ -23,7 +23,11 @@ subject to the following restrictions:
+ 
+ #include "SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h"
+ 
+-
++#ifdef WINRT
++#define InitializeCriticalSection(arg0) InitializeCriticalSectionEx(arg0, 0, 0)
++#define WaitForSingleObject(arg0, arg1) WaitForSingleObjectEx(arg0, arg1, false);
++#define WaitForMultipleObjects(arg0, arg1, arg2, arg3) WaitForMultipleObjectsEx(arg0, arg1, arg2, arg3, false);
++#endif
+ 
+ ///The number of threads should be equal to the number of available cores
+ ///@todo: each worker should be linked to a single core, using SetThreadIdealProcessor.
+@@ -223,7 +227,6 @@ bool Win32ThreadSupport::isTaskCompleted(unsigned int *puiArgument0, unsigned in
+ 	return false;
+ }
+ 
+-
+ void Win32ThreadSupport::startThreads(const Win32ThreadConstructionInfo& threadConstructionInfo)
+ {
+ 
+@@ -248,10 +251,21 @@ void Win32ThreadSupport::startThreads(const Win32ThreadConstructionInfo& threadC
+ 		spuStatus.m_userPtr=0;
+ 
+ 		sprintf(spuStatus.m_eventStartHandleName,"eventStart%s%d",threadConstructionInfo.m_uniqueName,i);
++#ifdef WINRT
++        WCHAR wszBuf[MAX_PATH] = { 0 };
++        MultiByteToWideChar(CP_UTF8, 0, spuStatus.m_eventStartHandleName, -1, wszBuf, sizeof(wszBuf));
++        spuStatus.m_eventStartHandle = CreateEventEx(NULL, wszBuf, 0, EVENT_ALL_ACCESS);
++#else
+ 		spuStatus.m_eventStartHandle = CreateEventA (0,false,false,spuStatus.m_eventStartHandleName);
++#endif
+ 
+ 		sprintf(spuStatus.m_eventCompletetHandleName,"eventComplete%s%d",threadConstructionInfo.m_uniqueName,i);
+-		spuStatus.m_eventCompletetHandle = CreateEventA (0,false,false,spuStatus.m_eventCompletetHandleName);
++#ifdef WINRT
++        MultiByteToWideChar(CP_UTF8, 0, spuStatus.m_eventCompletetHandleName, -1, wszBuf, sizeof(wszBuf));
++        spuStatus.m_eventCompletetHandle = CreateEventEx(NULL, wszBuf, 0, EVENT_ALL_ACCESS);
++#else
++        spuStatus.m_eventCompletetHandle = CreateEventA (0,false,false,spuStatus.m_eventCompletetHandleName);
++#endif
+ 
+ 		m_completeHandles[i] = spuStatus.m_eventCompletetHandle;
+ 
+@@ -259,8 +273,9 @@ void Win32ThreadSupport::startThreads(const Win32ThreadConstructionInfo& threadC
+ 		SetThreadPriority(handle,THREAD_PRIORITY_HIGHEST);
+ 		//SetThreadPriority(handle,THREAD_PRIORITY_TIME_CRITICAL);
+ 
+-		SetThreadAffinityMask(handle, 1<<i);
+-
++#ifndef WINRT
++        SetThreadAffinityMask(handle, 1<<i);
++#endif
+ 		spuStatus.m_taskId = i;
+ 		spuStatus.m_commandId = 0;
+ 		spuStatus.m_status = 0;
+@@ -326,8 +341,13 @@ public:
+ 		mEnableCounter = 0;
+ 		InitializeCriticalSection(&mExternalCriticalSection);
+ 		InitializeCriticalSection(&mLocalCriticalSection);
+-		mRunEvent = CreateEvent(NULL,TRUE,FALSE,NULL);
+-		mNotifyEvent = CreateEvent(NULL,TRUE,FALSE,NULL);
++#ifdef WINRT
++        mRunEvent = CreateEventEx(NULL, NULL, CREATE_EVENT_MANUAL_RESET, EVENT_ALL_ACCESS);
++        mNotifyEvent = CreateEventEx(NULL, NULL, CREATE_EVENT_MANUAL_RESET, EVENT_ALL_ACCESS);
++#else
++        mRunEvent = CreateEvent(NULL,TRUE,FALSE,NULL);
++        mNotifyEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
++#endif
+ 	}
+ 
+ 	virtual ~btWin32Barrier()
+diff --git a/src/BulletMultiThreaded/btParallelConstraintSolver.h b/src/BulletMultiThreaded/btParallelConstraintSolver.h
+index b5b475a..d5f4cfe 100644
+--- a/src/BulletMultiThreaded/btParallelConstraintSolver.h
++++ b/src/BulletMultiThreaded/btParallelConstraintSolver.h
+@@ -251,6 +251,28 @@ ATTRIBUTE_ALIGNED16(struct) btConstraintSolverIO {
+ 	uint32_t barrierAddr2;
+ 	uint32_t criticalsectionAddr2;
+ 	uint32_t maxTasks1;
++
++#ifdef WINRT
++    void* operator new(size_t i)
++    {
++        return _aligned_malloc(i, 16);
++    }
++
++    void operator delete(void* p)
++    {
++        _aligned_free(p);
++    }
++
++    void* operator new[](size_t i)
++    {
++        return _aligned_malloc(i, 16);
++    }
++
++    void operator delete[](void* p)
++    {
++        _aligned_free(p);
++    }
++#endif
+ };
+ 
+ 
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 3a736b4..41fd743 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -1,4 +1,4 @@
+-SUBDIRS(  BulletSoftBody BulletCollision BulletDynamics LinearMath )
++SUBDIRS( BulletCollision BulletDynamics LinearMath )
+ 
+ IF(BUILD_MULTITHREADING)
+ 	SUBDIRS(MiniCL BulletMultiThreaded)
+diff --git a/src/LinearMath/btQuickprof.cpp b/src/LinearMath/btQuickprof.cpp
+index 544aee8..ecd7abf 100644
+--- a/src/LinearMath/btQuickprof.cpp
++++ b/src/LinearMath/btQuickprof.cpp
+@@ -39,6 +39,10 @@ static btClock gProfileClock;
+ #define NOMCX
+ #define NOIME 
+ 
++#ifdef WINRT
++#define GetTickCount GetTickCount64
++#endif
++
+ #ifdef _XBOX
+ 	#include <Xtl.h>
+ #else //_XBOX
+@@ -59,7 +63,11 @@ struct btClockData
+ 
+ #ifdef BT_USE_WINDOWS_TIMERS
+ 	LARGE_INTEGER mClockFrequency;
++#ifdef WINRT
++    LONGLONG mStartTick;
++#else
+ 	DWORD mStartTick;
++#endif
+ 	LONGLONG mPrevElapsedTime;
+ 	LARGE_INTEGER mStartTime;
+ #else
+@@ -136,7 +144,7 @@ unsigned long int btClock::getTimeMilliseconds()
+ 		// Check for unexpected leaps in the Win32 performance counter.  
+ 	// (This is caused by unexpected data across the PCI to ISA 
+ 		// bridge, aka south bridge.  See Microsoft KB274323.)
+-		unsigned long elapsedTicks = GetTickCount() - m_data->mStartTick;
++		unsigned long elapsedTicks = static_cast<unsigned long>(GetTickCount() - m_data->mStartTick);
+ 		signed long msecOff = (signed long)(msecTicks - elapsedTicks);
+ 		if (msecOff < -100 || msecOff > 100)
+ 		{
+@@ -194,7 +202,7 @@ unsigned long int btClock::getTimeMicroseconds()
+ 		// Check for unexpected leaps in the Win32 performance counter.  
+ 		// (This is caused by unexpected data across the PCI to ISA 
+ 		// bridge, aka south bridge.  See Microsoft KB274323.)
+-		unsigned long elapsedTicks = GetTickCount() - m_data->mStartTick;
++        unsigned long elapsedTicks = static_cast<unsigned long>(GetTickCount() - m_data->mStartTick);
+ 		signed long msecOff = (signed long)(msecTicks - elapsedTicks);
+ 		if (msecOff < -100 || msecOff > 100)
+ 		{
+diff --git a/src/LinearMath/btScalar.h b/src/LinearMath/btScalar.h
+index 37c6dec..3d5f0eb 100644
+--- a/src/LinearMath/btScalar.h
++++ b/src/LinearMath/btScalar.h
+@@ -48,6 +48,11 @@ inline int	btGetVersion()
+ 			#define ATTRIBUTE_ALIGNED16(a) a
+ 			#define ATTRIBUTE_ALIGNED64(a) a
+ 			#define ATTRIBUTE_ALIGNED128(a) a
++        #elif (_M_ARM)
++            #define SIMD_FORCE_INLINE __forceinline
++            #define ATTRIBUTE_ALIGNED16(a) __declspec() a
++            #define ATTRIBUTE_ALIGNED64(a) __declspec() a
++            #define ATTRIBUTE_ALIGNED128(a) __declspec () a
+ 		#else
+ 			//#define BT_HAS_ALIGNED_ALLOCATOR
+ 			#pragma warning(disable : 4324) // disable padding warning
+@@ -180,7 +185,7 @@ inline int	btGetVersion()
+                 #include <emmintrin.h>
+             #endif
+         #endif //BT_USE_SSE
+-    #elif defined( __ARM_NEON__ )
++    #elif defined( __ARM_NEON__ ) && (!defined( __arm64__ ))
+         #ifdef __clang__
+             #define BT_USE_NEON 1
+ 			#define BT_USE_SIMD_VECTOR3
+diff --git a/src/vectormath/sse/vec_aos.h b/src/vectormath/sse/vec_aos.h
+index 35aeeaf..72890bf 100644
+--- a/src/vectormath/sse/vec_aos.h
++++ b/src/vectormath/sse/vec_aos.h
+@@ -577,7 +577,7 @@ VECTORMATH_FORCE_INLINE const Vector3 Vector3::operator -( ) const
+ {
+ 	//return Vector3(_mm_sub_ps( _mm_setzero_ps(), mVec128 ) );
+ 
+-	VM_ATTRIBUTE_ALIGN16 static const int array[] = {0x80000000, 0x80000000, 0x80000000, 0x80000000};
++	VM_ATTRIBUTE_ALIGN16 static const int array[] = {(int)0x80000000, (int)0x80000000, (int)0x80000000, (int)0x80000000};
+ 	__m128 NEG_MASK = SSEFloat(*(const vec_float4*)array).vf;
+ 	return Vector3(_mm_xor_ps(get128(),NEG_MASK));
+ }
