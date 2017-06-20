@@ -240,26 +240,38 @@ check_invalid_build_mode $build_mode
 function create_fat_library()
 {
     library_name=$1
+    copied_library_name=$2
+    if [ -z $copied_library_name ];then
+        copied_library_name=$library_name
+    fi
+
+    echo "creating fat library for lib$copied_library_name.a"
+    
     #strip & create fat library
     LIPO="xcrun -sdk iphoneos lipo"
     STRIP="xcrun -sdk iphoneos strip"
 
-    if [ -f $cfg_platform_name/$library_name/prebuilt/lib$library_name.a ]; then
+    fat_lib_path=$cfg_platform_name/$library_name/prebuilt/lib$copied_library_name.a
+
+    if [ -f $fat_lib_path ]; then
         echo "removing old fat library..."
-        rm $cfg_platform_name/$library_name/prebuilt/lib$library_name.a
+        rm $fat_lib_path
     fi
 
-    all_static_libs=$(find $cfg_platform_name/$library_name/prebuilt -type f -name "lib$library_name.a")
+    all_static_libs=$(find $cfg_platform_name/$library_name/prebuilt -type f -name "lib$copied_library_name.a")
+    if [ -z "$all_static_libs" ];then
+        echo "warning: lib$copied_library_name.a doesn't exist"
+        return
+    fi
 
-    echo "create fat library lib$library_name for $all_static_libs"
     $LIPO -create  $all_static_libs \
-          -output $cfg_platform_name/$library_name/prebuilt/lib$library_name.a
+          -output $fat_lib_path
 
     # rm $all_static_libs
 
     # remove debugging info don't strip
     # $STRIP -S $library_name/prebuilt/lib$library_name.a
-    $LIPO -info $cfg_platform_name/$library_name/prebuilt/lib$library_name.a
+    $LIPO -info $fat_lib_path
 }
 
 
@@ -404,7 +416,26 @@ do
         fi
 
         #copy .a archive from install-platform folder
-        cp $top_dir/contrib/$install_library_path/$arch/lib/lib$original_archive_name.a $local_library_install_path/lib$archive_name.a
+        if [ -f $top_dir/contrib/$install_library_path/$arch/lib/lib$original_archive_name.a ];then
+            cp $top_dir/contrib/$install_library_path/$arch/lib/lib$original_archive_name.a $local_library_install_path/lib$archive_name.a
+        fi
+
+        #copy archive list if exists
+        parse_archive_list=${lib}_archive_list
+        parse_archive_list=${!parse_archive_list}
+        if [ ! -z $parse_archive_list ];then
+            echo "copying archive list..."
+            echo $parse_archive_list
+            parse_archive_list=(${parse_archive_list//,/ })
+            echo $parse_archive_list
+
+            for archive_element in ${parse_archive_list[@]}
+            do
+                cp $top_dir/contrib/$install_library_path/$arch/lib/lib${archive_element}.a $local_library_install_path/lib${archive_element}.a
+
+            done
+        fi
+
 
         #copy dependent .a archive
         parse_dependent_archive_list=${lib}_dependent_archive_list
@@ -439,6 +470,16 @@ do
     if [ $cfg_build_fat_library = "yes" ];then
 
         create_fat_library $archive_name
+
+        parse_archive_list=${lib}_archive_list
+        parse_archive_list=${!parse_archive_list}
+        if [ ! -z $parse_archive_list ];then
+            parse_archive_list=(${parse_archive_list//,/ })
+            for archive_element in ${parse_archive_list[@]}
+            do
+                create_fat_library $archive_name $archive_element
+            done
+        fi
 
         parse_dependent_archive_list=${lib}_dependent_archive_list
         original_dependent_archive_list=${!parse_dependent_archive_list}
