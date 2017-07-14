@@ -91,8 +91,14 @@ endif
 endif
 
 ifdef HAVE_ANDROID
+PATH := $(ANDROID_SYSROOT)/../bin:$(PATH)
+ifeq ($(ANDROID_CC_VERSION),4.9)
 CC :=  $(HOST)-gcc --sysroot=$(ANDROID_NDK)/platforms/$(ANDROID_API)/arch-$(PLATFORM_SHORT_ARCH)
 CXX := $(HOST)-g++ --sysroot=$(ANDROID_NDK)/platforms/$(ANDROID_API)/arch-$(PLATFORM_SHORT_ARCH)
+else
+CC :=  clang -target $(ANDROID_CLANG_TARGET) --sysroot=$(ANDROID_SYSROOT)
+CXX := clang++ -target $(ANDROID_CLANG_TARGET) --sysroot=$(ANDROID_SYSROOT)
+endif
 endif
 
 ifdef HAVE_TIZEN

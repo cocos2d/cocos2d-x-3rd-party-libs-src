@@ -296,6 +296,7 @@ check_android_sdk()
             add_make_enabled "HAVE_NEON"
             add_make_enabled "HAVE_ARMV7A"
             add_make "EXTRA_CFLAGS := -march=armv7-a -mfpu=neon -mfloat-abi=softfp  ${THUMB_FLAG} -fomit-frame-pointer -fno-strict-aliasing -DANDROID  -Wa,--noexecstack -Wformat "
+            add_make "ANDROID_CLANG_TARGET := armv7-none-linux-androideabi"
             if [ $BUILD_LIB = "webp" ]; then
                 add_make "EXTRA_LDFLAGS := -march=armv7-a -Wl,--fix-cortex-a8 -lcpufeatures"
             else
@@ -306,7 +307,9 @@ check_android_sdk()
 
 	if [ ${ANDROID_ABI} = "armeabi" -a -z "${NO_ARMV6}" ];then
             add_make_enabled "HAVE_ARMV6"
+
             add_make "EXTRA_CFLAGS := -ffunction-sections -funwind-tables -fstack-protector -no-canonical-prefixes  -march=armv5te -mtune=xscale -msoft-float ${THUMB_FLAG} -fomit-frame-pointer -fno-strict-aliasing -DANDROID  -Wa,--noexecstack -Wformat "
+            add_make "ANDROID_CLANG_TARGET := armv5te-none-linux-androideabi"
         fi
 
 	if [ ${ANDROID_ABI} = "arm64-v8a" ]; then
@@ -314,15 +317,30 @@ check_android_sdk()
             add_make_enabled "HAVE_ARMV8A"
             add_make "EXTRA_CFLAGS :=  -fpic -ffunction-sections  -funwind-tables  -fstack-protector  -no-canonical-prefixes"
             add_make "EXTRA_LDFLAGS := -no-canonical-prefixes"
+            add_make "ANDROID_CLANG_TARGET := aarch64-none-linux-android"
         fi
 
         if [ ${ANDROID_ABI} = "x86" ];then
             add_make_enabled "HAVE_x86"
             add_make "EXTRA_CFLAGS := -ffunction-sections -funwind-tables -fstack-protector -no-canonical-prefixes  -fomit-frame-pointer -fstrict-aliasing -DANDROID  -Wa,--noexecstack -Wformat "
+            add_make "ANDROID_CLANG_TARGET := i686-none-linux-android"
         fi
 
+        if [ ${ANDROID_ABI} = "x86_64" ];then
+            add_make "ANDROID_CLANG_TARGET := x86_64-none-linux-android"
+        fi
+
+        if [ ${ANDROID_ABI} = "mips" ];then
+            add_make "ANDROID_CLANG_TARGET := mipsel-none-linux-android"
+        fi
+
+        INSTALL_DIR="`pwd`/../toolchains/${ANDROID_ABI}"
+        mkdir -p `dirname $INSTALL_DIR`
         TOOLCHAIN="${toolchain_path_prefix}-${ANDROID_CC_VERSION}"
-        ${ANDROID_NDK}/build/tools/make-standalone-toolchain.sh --install-dir=./toolchain --toolchain=${TOOLCHAIN} --stl=${ANDROID_STL} --platform=${ANDROID_API}
+        if [ ! -d $INSTALL_DIR ];then
+            ${ANDROID_NDK}/build/tools/make-standalone-toolchain.sh --install-dir=${INSTALL_DIR} --toolchain=${TOOLCHAIN} --stl=${ANDROID_STL} --platform=${ANDROID_API}
+        fi
+        add_make "ANDROID_SYSROOT := ${INSTALL_DIR}/sysroot"
 }
 
 check_tizen_sdk()

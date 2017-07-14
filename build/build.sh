@@ -168,7 +168,7 @@ if [ $cfg_platform_name = "android" ];then
         exit 1
     fi
 
-    if [[ ! $build_gcc_version =~ ^[0-9]\.[0-9]+$ ]]; then
+    if [[ ! $build_gcc_version =~ ^[0-9]\.[0-9]+|clang$ ]]; then
         echo "Invalid gcc version number! Gcc version should be numerical numbers."
         usage
         exit 1
@@ -464,6 +464,7 @@ do
         if [ $cfg_is_cleanup_after_build = "yes" ];then
             rm -rf $top_dir/contrib/$install_library_path
             rm -rf $top_dir/contrib/$build_library_path-$arch
+            rm -rf $top_dir/contrib/toolchains
         fi
     done
 
