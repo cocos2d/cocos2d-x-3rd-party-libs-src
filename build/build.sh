@@ -108,7 +108,7 @@ do
         fi
         source $platform_config_file
         [[ -z "${build_api}" ]] && build_api=$cfg_default_build_api
-        [[ -z "${build_gcc_version}" ]] && build_gcc_version=$cfg_default_gcc_version
+        [[ -z "${build_gcc_version}" ]] && build_gcc_version=$cfg_default_cc_version
     fi
 done
 
