@@ -360,12 +360,13 @@ do
         fi
 
         if [ $cfg_platform_name = "android" ];then
-            export ANDROID_GCC_VERSION=$build_gcc_version
+            export ANDROID_CC_VERSION=$build_gcc_version
             if [ $MY_TARGET_ARCH = "arm64-v8a" ];then
                 export ANDROID_API=android-$cfg_default_arm64_build_api
             else
                 export ANDROID_API=android-$build_api
             fi
+            export ANDROID_STL=$cfg_default_build_stl
         fi
         echo "build api is $ANDROID_API."
 

@@ -269,8 +269,8 @@ check_android_sdk()
         
 	[ -z "${ANDROID_NDK}" ] && echo "You must set ANDROID_NDK environment variable" && exit 1
 	add_make "ANDROID_NDK := ${ANDROID_NDK}"
-	[ -z "${ANDROID_GCC_VERSION}" ] && echo "You must set ANDROID_GCC_VERSION environment variable" && exit 1
-	add_make "ANDROID_GCC_VERSION := ${ANDROID_GCC_VERSION}"
+	[ -z "${ANDROID_CC_VERSION}" ] && echo "You must set ANDROID_CC_VERSION environment variable" && exit 1
+	add_make "ANDROID_CC_VERSION := ${ANDROID_CC_VERSION}"
 	[ -z "${ANDROID_ABI}" ] && echo "You must set ANDROID_ABI environment variable" && exit 1
 	add_make "ANDROID_ABI := ${ANDROID_ABI}"
 	[ -z "${ANDROID_API}" ] && echo "You should set ANDROID_API environment variable (using default android-9)" && ANDROID_API := android-9
@@ -283,20 +283,6 @@ check_android_sdk()
             toolchain_path_prefix=aarch64-linux-android
         else
             toolchain_path_prefix=arm-linux-androideabi
-        fi
-
-        # check whether sysroot is exists
-        if [ $ANDROID_ABI = "arm64-v8a" ]; then
-            if [ ! -d ${ANDROID_NDK}/platforms/${ANDROID_API}/arch-arm64 ];then
-                echo "${ANDROID_NDK} ${ANDROID_API} doesn't support build arm64 architecture!"
-                exit $? 
-            fi
-        fi
-        
-        # check whether gcc version is exists
-        if [ ! -d ${ANDROID_NDK}/toolchains/${toolchain_path_prefix}-${ANDROID_GCC_VERSION} ] ;then
-            echo "${ANDROID_NDK} Invalid GCC ${ANDROID_GCC_VERSION} version!"
-            exit 1
         fi
 
         THUMB_FLAG=""
@@ -317,7 +303,7 @@ check_android_sdk()
             fi
 
         fi
-        
+
 	if [ ${ANDROID_ABI} = "armeabi" -a -z "${NO_ARMV6}" ];then
             add_make_enabled "HAVE_ARMV6"
             add_make "EXTRA_CFLAGS := -ffunction-sections -funwind-tables -fstack-protector -no-canonical-prefixes  -march=armv5te -mtune=xscale -msoft-float ${THUMB_FLAG} -fomit-frame-pointer -fno-strict-aliasing -DANDROID  -Wa,--noexecstack -Wformat "
@@ -335,12 +321,8 @@ check_android_sdk()
             add_make "EXTRA_CFLAGS := -ffunction-sections -funwind-tables -fstack-protector -no-canonical-prefixes  -fomit-frame-pointer -fstrict-aliasing -DANDROID  -Wa,--noexecstack -Wformat "
         fi
 
-        if [ ${ANDROID_STL_VERSION} = "gnu" ];then
-            add_make_enabled "HAVE_STL_GUN"
-        else
-            add_make_enabled "HAVE_STL_CLANG"
-        fi
-        
+        TOOLCHAIN="${toolchain_path_prefix}-${ANDROID_CC_VERSION}"
+        ${ANDROID_NDK}/build/tools/make-standalone-toolchain.sh --install-dir=./toolchain --toolchain=${TOOLCHAIN} --stl=${ANDROID_STL} --platform=${ANDROID_API}
 }
 
 check_tizen_sdk()
