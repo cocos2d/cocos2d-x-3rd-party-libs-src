@@ -22,7 +22,7 @@ EX_ECFLAGS = -fPIC
 endif
 
 .box2d: box2d toolchain.cmake
-	cd $< &&  CXXFLAGS="$(CXXFLAGS) $(EX_ECFLAGS)" CFLAGS="$(CFLAGS) $(EX_ECFLAGS)" $(CMAKE)
+	cd $< &&  CXXFLAGS="$(CXXFLAGS) $(EX_ECFLAGS) -fpermissive" CFLAGS="$(CFLAGS) $(EX_ECFLAGS)" $(CMAKE)
 	cd $< && $(MAKE)
 	cd $< && $(MAKE) VERBOSE=1 install
 	touch $@
