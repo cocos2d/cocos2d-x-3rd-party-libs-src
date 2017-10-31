@@ -1,0 +1,40 @@
+From 6c79b015e19298cdde5a272ec07d7462e6145eaa Mon Sep 17 00:00:00 2001
+From: minggo <ming@cocos2d-x.org>
+Date: Fri, 27 Oct 2017 16:15:01 +0800
+Subject: [PATCH] add cmake files
+
+---
+ CMakeLists.txt | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+ create mode 100644 CMakeLists.txt
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+new file mode 100644
+index 0000000..60dd895
+--- /dev/null
++++ b/CMakeLists.txt
+@@ -0,0 +1,20 @@
++cmake_minimum_required(VERSION 3.0)
++
++file(GLOB_RECURSE SOURCE_FILES "Box2D/Box2D/*.cpp")
++include_directories(Box2D)
++add_library(box2d STATIC ${SOURCE_FILES})
++
++INSTALL(
++    DIRECTORY
++    "./Box2D/Box2D"
++    DESTINATION
++    "${CMAKE_INSTALL_PREFIX}/include"
++    FILES_MATCHING
++    PATTERN
++    "*.h"
++)
++
++INSTALL(
++    TARGETS box2d
++    DESTINATION ./lib
++)
+\ No newline at end of file
+-- 
+2.6.2
+
