@@ -156,7 +156,7 @@ cd build
 
 1. Download Android NDK r10c+ and set the ANDROID_NDK to point to the Android NDK path. Don't forget to `source ~/.bash_profile`.
 
-2. Make sure the `cfg_default_arm64_build_api` is 21+(The default is 21) and `cfg_default_gcc_version` is 4.9 in  android.ini config.
+2. Make sure the `cfg_default_arm64_build_api` is 21+(The default is 21) and `cfg_default_cc_version` is 4.9 in  android.ini config.
 
 3. Pass `--arch=arm64` to build the libraries with arm64 support.
 

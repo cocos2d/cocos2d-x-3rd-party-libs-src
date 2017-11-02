@@ -1,0 +1,35 @@
+diff --git a/Configurations/10-main.conf b/Configurations/10-main.conf
+index 5c04009..0286278 100644
+--- a/Configurations/10-main.conf
++++ b/Configurations/10-main.conf
+@@ -887,7 +887,7 @@ sub vms_info {
+         # systems are perfectly capable of executing binaries targeting
+         # Froyo. Keep in mind that in the nutshell Android builds are
+         # about JNI, i.e. shared libraries, not applications.
+-        cflags           => add(picker(default => "-mandroid -fPIC --sysroot=\$(CROSS_SYSROOT) -Wa,--noexecstack")),
++        cflags           => add(picker(default => "-fPIC --sysroot=\$(CROSS_SYSROOT) -Wa,--noexecstack")),
+         bin_cflags       => "-pie",
+     },
+     "android-x86" => {
+@@ -927,7 +927,7 @@ sub vms_info {
+ 
+     "android64" => {
+         inherit_from     => [ "linux-generic64" ],
+-        cflags           => add(picker(default => "-mandroid -fPIC --sysroot=\$(CROSS_SYSROOT) -Wa,--noexecstack")),
++        cflags           => add(picker(default => "-fPIC --sysroot=\$(CROSS_SYSROOT) -Wa,--noexecstack")),
+         bin_cflags       => "-pie",
+     },
+     "android64-aarch64" => {
+diff --git a/crypto/threads_pthread.c b/crypto/threads_pthread.c
+index 5cc48af..f79897d 100644
+--- a/crypto/threads_pthread.c
++++ b/crypto/threads_pthread.c
+@@ -109,7 +109,7 @@ int CRYPTO_THREAD_compare_id(CRYPTO_THREAD_ID a, CRYPTO_THREAD_ID b)
+ 
+ int CRYPTO_atomic_add(int *val, int amount, int *ret, CRYPTO_RWLOCK *lock)
+ {
+-# if defined(__GNUC__) && defined(__ATOMIC_ACQ_REL)
++# if defined(__GNUC__) && defined(__ATOMIC_ACQ_REL) && __ARM_ARCH !=5
+     if (__atomic_is_lock_free(sizeof(*val), val)) {
+         *ret = __atomic_add_fetch(val, amount, __ATOMIC_ACQ_REL);
+         return 1;

@@ -108,7 +108,7 @@ do
         fi
         source $platform_config_file
         [[ -z "${build_api}" ]] && build_api=$cfg_default_build_api
-        [[ -z "${build_gcc_version}" ]] && build_gcc_version=$cfg_default_gcc_version
+        [[ -z "${build_gcc_version}" ]] && build_gcc_version=$cfg_default_cc_version
     fi
 done
 
@@ -168,7 +168,7 @@ if [ $cfg_platform_name = "android" ];then
         exit 1
     fi
 
-    if [[ ! $build_gcc_version =~ ^[0-9]\.[0-9]+$ ]]; then
+    if [[ ! $build_gcc_version =~ ^[0-9]\.[0-9]+|clang$ ]]; then
         echo "Invalid gcc version number! Gcc version should be numerical numbers."
         usage
         exit 1
@@ -360,12 +360,13 @@ do
         fi
 
         if [ $cfg_platform_name = "android" ];then
-            export ANDROID_GCC_VERSION=$build_gcc_version
+            export ANDROID_CC_VERSION=$build_gcc_version
             if [ $MY_TARGET_ARCH = "arm64-v8a" ];then
                 export ANDROID_API=android-$cfg_default_arm64_build_api
             else
                 export ANDROID_API=android-$build_api
             fi
+            export ANDROID_STL=$cfg_default_build_stl
         fi
         echo "build api is $ANDROID_API."
 
@@ -463,6 +464,7 @@ do
         if [ $cfg_is_cleanup_after_build = "yes" ];then
             rm -rf $top_dir/contrib/$install_library_path
             rm -rf $top_dir/contrib/$build_library_path-$arch
+            rm -rf $top_dir/contrib/toolchains
         fi
     done
 

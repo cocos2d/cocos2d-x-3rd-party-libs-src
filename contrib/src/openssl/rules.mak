@@ -41,22 +41,33 @@ endif
 endif
 
 ifdef HAVE_ANDROID
-export ANDROID_SYSROOT=$(ANDROID_NDK)/platforms/$(ANDROID_API)/arch-$(PLATFORM_SHORT_ARCH)
 export SYSROOT=$(ANDROID_SYSROOT)
 export NDK_SYSROOT=$(ANDROID_SYSROOT)
 export ANDROID_NDK_SYSROOT=$(ANDROID_SYSROOT)
 export CROSS_SYSROOT=$(ANDROID_SYSROOT)
 
 ifeq ($(MY_TARGET_ARCH),arm64-v8a)
+ifeq ($(ANDROID_CC_VERSION),4.9)
 OPENSSL_CONFIG_VARS=android64-aarch64
+else
+OPENSSL_CONFIG_VARS=android64-aarch64 no-asm
+endif
 endif
 
 ifeq ($(MY_TARGET_ARCH),armeabi-v7a)
+ifeq ($(ANDROID_CC_VERSION),4.9)
 OPENSSL_CONFIG_VARS=android-armeabi
+else
+OPENSSL_CONFIG_VARS=android-armeabi no-asm
+endif
 endif
 
 ifeq ($(MY_TARGET_ARCH),armeabi)
+ifeq ($(ANDROID_CC_VERSION),4.9)
 OPENSSL_CONFIG_VARS=android-armeabi
+else
+OPENSSL_CONFIG_VARS=android-armeabi no-asm
+endif
 endif
 
 ifeq ($(MY_TARGET_ARCH),x86)
@@ -137,6 +148,10 @@ $(TARBALLS)/openssl-$(OPENSSL_VERSION).tar.gz:
 
 openssl: openssl-$(OPENSSL_VERSION).tar.gz .sum-openssl
 	$(UNPACK)
+
+ifdef HAVE_ANDROID
+	$(APPLY) $(SRC)/openssl/android-clang.patch
+endif
 ifdef HAVE_IOS
 	$(APPLY) $(SRC)/openssl/ios-armv7-crash.patch
 endif
@@ -162,5 +177,5 @@ ifdef HAVE_MACOSX
 	cd $< && perl -i -pe "s|^CFLAGS=(.*) -DNDEBUG (.*)-O3|CFLAGS=\\1 \\2 ${OPTIM}|g" Makefile
 	cd $< && perl -i -pe "s|^CFLAGS_Q=(.*) -DNDEBUG (.*)|CFLAGS_Q=\\1 \\2 ${OPTIM}|g" Makefile
 endif
-	cd $< && $(MAKE) install_sw
+	cd $< && $(MAKE) build_libs install_dev
 	touch $@

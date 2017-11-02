@@ -51,6 +51,7 @@
 /contrib/ios-x86_64/
 /contrib/mac-x86_64/
 /contrib/src copy/
+/contrib/toolchains
 **/winrt/install
 **/winrt/temp
 **/winrt/cmake/install
