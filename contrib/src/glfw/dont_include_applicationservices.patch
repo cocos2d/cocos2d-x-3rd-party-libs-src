@@ -1,5 +1,14 @@
+From 40dca1b511f91310a0282b7edb4b4f93bb69dcb2 Mon Sep 17 00:00:00 2001
+From: minggo <ming@cocos2d-x.org>
+Date: Thu, 2 Nov 2017 09:49:46 +0800
+Subject: [PATCH] generate patch
+
+---
+ include/GLFW/glfw3native.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
 diff --git a/include/GLFW/glfw3native.h b/include/GLFW/glfw3native.h
-index 30e1a57..90ef43b 100644
+index 30e1a57..d5c443d 100644
 --- a/include/GLFW/glfw3native.h
 +++ b/include/GLFW/glfw3native.h
 @@ -87,7 +87,7 @@ extern "C" {
@@ -7,7 +16,7 @@ index 30e1a57..90ef43b 100644
   #include <windows.h>
  #elif defined(GLFW_EXPOSE_NATIVE_COCOA)
 - #include <ApplicationServices/ApplicationServices.h>
-+// #include <ApplicationServices/ApplicationServices.h>
++ //#include <ApplicationServices/ApplicationServices.h>
   #if defined(__OBJC__)
    #import <Cocoa/Cocoa.h>
   #else
@@ -20,3 +29,6 @@ index 30e1a57..90ef43b 100644
  
  /*! @brief Returns the `NSWindow` of the specified window.
   *
+-- 
+2.6.2
+

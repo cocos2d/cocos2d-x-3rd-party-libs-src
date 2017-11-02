@@ -1,14 +1,15 @@
 # GLFW
-GLFW_VERSION := 3.2
-GLFW_URL := $(GITHUB)/glfw/glfw/releases/download/$(GLFW_VERSION)/glfw-$(GLFW_VERSION).zip
+GLFW_VERSION := 3.2.1
+#GLFW_URL := $(GITHUB)/glfw/glfw/releases/download/$(GLFW_VERSION)/glfw-$(GLFW_VERSION).zip
+GLFW_URL := https://codeload.github.com/glfw/glfw/tar.gz/$(GLFW_VERSION)
 
 
-$(TARBALLS)/glfw-$(GLFW_VERSION).zip:
+$(TARBALLS)/glfw-$(GLFW_VERSION).tar.gz:
 	$(call download,$(GLFW_URL))
 
-.sum-glfw: glfw-$(GLFW_VERSION).zip
+.sum-glfw: glfw-$(GLFW_VERSION).tar.gz
 
-glfw: glfw-$(GLFW_VERSION).zip .sum-glfw
+glfw: glfw-$(GLFW_VERSION).tar.gz .sum-glfw
 	$(UNPACK)
 	$(APPLY) $(SRC)/glfw/fix-mac-os-10-12.patch
 	$(APPLY) $(SRC)/glfw/dont_include_applicationservices.patch
