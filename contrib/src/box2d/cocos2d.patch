@@ -1,13 +1,27 @@
-From 6c79b015e19298cdde5a272ec07d7462e6145eaa Mon Sep 17 00:00:00 2001
+From 2ec8402696e9f63e1bbfdda1f165abb842021560 Mon Sep 17 00:00:00 2001
 From: minggo <ming@cocos2d-x.org>
-Date: Fri, 27 Oct 2017 16:15:01 +0800
-Subject: [PATCH] add cmake files
+Date: Fri, 17 Nov 2017 11:22:57 +0800
+Subject: [PATCH] diff
 
 ---
- CMakeLists.txt | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ Box2D/Box2D/Dynamics/Joints/b2DistanceJoint.h |  2 +-
+ CMakeLists.txt                                | 20 ++++++++++++++++++++
+ 2 files changed, 21 insertions(+), 1 deletion(-)
  create mode 100644 CMakeLists.txt
 
+diff --git a/Box2D/Box2D/Dynamics/Joints/b2DistanceJoint.h b/Box2D/Box2D/Dynamics/Joints/b2DistanceJoint.h
+index b52392c..1c7f527 100644
+--- a/Box2D/Box2D/Dynamics/Joints/b2DistanceJoint.h
++++ b/Box2D/Box2D/Dynamics/Joints/b2DistanceJoint.h
+@@ -99,7 +99,7 @@ public:
+ 	float32 GetDampingRatio() const;
+ 
+ 	/// Dump joint to dmLog
+-	void Dump();
++	void Dump() override;
+ 
+ protected:
+ 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
 new file mode 100644
 index 0000000..60dd895
