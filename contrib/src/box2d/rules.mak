@@ -1,14 +1,11 @@
 # box2d
 
-BOX2D_VERSION := 2.3.1
-BOX2D_URL := https://codeload.github.com/erincatto/Box2D/tar.gz/v$(BOX2D_VERSION)
+BOX2D_GITURL := https://github.com/erincatto/Box2D
 
-$(TARBALLS)/Box2D-${BOX2D_VERSION}.tar.gz:
-	$(call download,$(BOX2D_URL))
+$(TARBALLS)/libbox2d-git.tar.xz:
+	$(call download_git,$(BOX2D_GITURL),master,f655c603ba9d83f07fc566d38d2654ba35739102)
 
-.sum-box2d: Box2D-${BOX2D_VERSION}.tar.gz
-
-box2d: Box2D-${BOX2D_VERSION}.tar.gz .sum-box2d
+box2d: libbox2d-git.tar.xz
 	$(UNPACK)
 	$(APPLY) $(SRC)/box2d/cocos2d.patch
 	$(MOVE)
@@ -22,9 +19,8 @@ BOX2D_EXFLAGS += -fPIC
 endif
 
 
-
 .box2d: box2d toolchain.cmake
-	cd $< &&  CXXFLAGS="$(CXXFLAGS) $(BOX2D_EXFLAGS)" CFLAGS="$(CFLAGS) $(BOX2D_EXFLAGS)" $(CMAKE)
+	cd $< &&  CXXFLAGS="$(CXXFLAGS) $(BOX2D_EXFLAGS) -std=c++11" CFLAGS="$(CFLAGS) $(BOX2D_EXFLAGS)" $(CMAKE)
 	cd $< && $(MAKE)
 	cd $< && $(MAKE) VERBOSE=1 install
 	touch $@
