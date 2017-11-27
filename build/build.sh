@@ -15,6 +15,8 @@ build_gcc_version=""
 build_platform=""
 build_list_all_libraries=no
 build_show_help_message=no
+toolchain_path=""
+
 
 function contains() {
     local n=$#
@@ -168,11 +170,11 @@ if [ $cfg_platform_name = "android" ];then
         exit 1
     fi
 
-    if [[ ! $build_gcc_version =~ ^[0-9]\.[0-9]+$ ]]; then
-        echo "Invalid gcc version number! Gcc version should be numerical numbers."
-        usage
-        exit 1
-    fi
+    # if [[ ! $build_gcc_version =~ ^[0-9]\.[0-9]+$ ]]; then
+    #     echo "Invalid gcc version number! Gcc version should be numerical numbers."
+    #     usage
+    #     exit 1
+    # fi
 
 fi
 
@@ -287,6 +289,32 @@ if [ $cfg_platform_name = "mac" ];then
     export MIN_MACOSX_TARGET=$cfg_min_macosx_deoply_tartget
 fi
 
+function generate_android_standalone_toolchain()
+{
+    arch=$1
+    if [ $arch == "armeabi" ] || [ $arch == "armeabi-v7a" ]; then
+        arch="arm"
+    fi
+
+    if [ $arch == "arm64-v8a" ]; then
+        arch="arm64" 
+    fi
+
+    api_level=$2
+    toolchain_path="${current_dir}/android-toolchain-${arch}"
+
+    echo "generating android standalone toolchain for ${arch}"
+
+    if [ -e ${toolchain_path} ]; then
+        return
+    fi
+
+    "$ANDROID_NDK/build/tools/make-standalone-toolchain.sh" \
+      --arch="${arch}" \
+      --platform="${api_level}" \
+      --stl=libc++ \
+      --install-dir="${toolchain_path}"
+}
 
 # build all the libraries for different arches
 for lib in "${build_library[@]}"
@@ -344,12 +372,6 @@ do
         MY_TARGET_ARCH=$original_arch_name
         export MY_TARGET_ARCH
 
-        if [ ${cfg_is_cross_compile} = "yes" ];then
-            cross_compile_toolchain_path=cfg_${arch}_toolchain_bin
-            echo "toolchain path is ${!cross_compile_toolchain_path}"
-            export PATH="${!cross_compile_toolchain_path}:${PATH}"
-        fi
-
         # TODO: add more build and target options here
         if [ $cfg_platform_name = "ios" ];then
             export BUILDFORIOS="yes"
@@ -360,12 +382,15 @@ do
         fi
 
         if [ $cfg_platform_name = "android" ];then
-            export ANDROID_GCC_VERSION=$build_gcc_version
             if [ $MY_TARGET_ARCH = "arm64-v8a" ];then
                 export ANDROID_API=android-$cfg_default_arm64_build_api
             else
                 export ANDROID_API=android-$build_api
             fi
+
+            generate_android_standalone_toolchain $MY_TARGET_ARCH $ANDROID_API
+            export ANDROID_TOOLCHAIN_PATH="${toolchain_path}"
+            export PATH="${toolchain_path}/bin:${PATH}"
         fi
         echo "build api is $ANDROID_API."
 
