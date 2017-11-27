@@ -169,13 +169,6 @@ if [ $cfg_platform_name = "android" ];then
         usage
         exit 1
     fi
-
-    # if [[ ! $build_gcc_version =~ ^[0-9]\.[0-9]+$ ]]; then
-    #     echo "Invalid gcc version number! Gcc version should be numerical numbers."
-    #     usage
-    #     exit 1
-    # fi
-
 fi
 
 current_dir=`pwd`
