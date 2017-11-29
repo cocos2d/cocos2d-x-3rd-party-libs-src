@@ -97,6 +97,7 @@ AR := $(HOST)-ar
 AS := clang
 LD := $(HOST)-ld
 STRIP := $(HOST)-strip
+RANLIB := $(HOST)-gcc-ranlib
 EXTRA_CFLAGS += --sysroot=$(ANDROID_TOOLCHAIN_PATH)/sysroot
 endif
 
