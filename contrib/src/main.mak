@@ -436,15 +436,8 @@ ifdef HAVE_ANDROID
 	echo "set(CMAKE_SYSTEM_NAME Linux)" >> $@
 	echo "set(CMAKE_CXX_SYSROOT_FLAG $(ANDROID_TOOLCHAIN_PATH)/sysroot)" >> $@
 	echo "set(CMAKE_C_SYSROOT_FLAG $(ANDROID_TOOLCHAIN_PATH)/sysroot)" >> $@
-# ifdef HAVE_STL_GUN
-	echo "include_directories($(ANDROID_TOOLCHAIN_PATH)/include/c++/4.9.x  \
-	    $(ANDROID_TOOLCHAIN_PATH)/include/llvm-libc++abi/include)"  >> $@
-# endif
-# ifdef HAVE_STL_CLANG
-# 	echo "include_directories($(ANDROID_NDK)/sources/android/support/include \
-# 	 	$(ANDROID_NDK)/sources/cxx-stl/llvm-libc++/include)"  >> $@
-# endif
-
+	echo "include_directories($(ANDROID_TOOLCHAIN_PATH)/include/c++/4.9.x \
+	 	$(ANDROID_TOOLCHAIN_PATH)/include/llvm-libc++abi/include)"  >> $@
 endif  #end of HAVE_ANDROID
 
 ifdef HAVE_TIZEN
