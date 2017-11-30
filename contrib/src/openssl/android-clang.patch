@@ -1,0 +1,34 @@
+From afd603618741153037efc94a32cee0c655dc945c Mon Sep 17 00:00:00 2001
+From: minggo <ming@cocos2d-x.org>
+Date: Thu, 30 Nov 2017 14:47:47 +0800
+Subject: [PATCH] remove android flag
+
+---
+ Configurations/10-main.conf | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/Configurations/10-main.conf b/Configurations/10-main.conf
+index 5c04009..0286278 100644
+--- a/Configurations/10-main.conf
++++ b/Configurations/10-main.conf
+@@ -887,7 +887,7 @@ sub vms_info {
+         # systems are perfectly capable of executing binaries targeting
+         # Froyo. Keep in mind that in the nutshell Android builds are
+         # about JNI, i.e. shared libraries, not applications.
+-        cflags           => add(picker(default => "-mandroid -fPIC --sysroot=\$(CROSS_SYSROOT) -Wa,--noexecstack")),
++        cflags           => add(picker(default => "-fPIC --sysroot=\$(CROSS_SYSROOT) -Wa,--noexecstack")),
+         bin_cflags       => "-pie",
+     },
+     "android-x86" => {
+@@ -927,7 +927,7 @@ sub vms_info {
+ 
+     "android64" => {
+         inherit_from     => [ "linux-generic64" ],
+-        cflags           => add(picker(default => "-mandroid -fPIC --sysroot=\$(CROSS_SYSROOT) -Wa,--noexecstack")),
++        cflags           => add(picker(default => "-fPIC --sysroot=\$(CROSS_SYSROOT) -Wa,--noexecstack")),
+         bin_cflags       => "-pie",
+     },
+     "android64-aarch64" => {
+-- 
+2.6.2
+
