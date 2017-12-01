@@ -44,7 +44,7 @@ If you have an old version autoconf installed, you may need uninstall it first, 
 - If you want to build static libraries for iOS and Mac, you should install the latest version of XCode.  You should also install the `Command Line Tools` bundled with XCode.
 
 
-- If you want to build static libraries for Android, you should install [NDK](https://developer.android.com/tools/sdk/ndk/index.html). NDK r9d is required at the moment and you should also specify the ANDROID_NDK environment variable in your shell.
+- If you want to build static libraries for Android, you should install [NDK](https://developer.android.com/tools/sdk/ndk/index.html). NDK r16 is required at the moment and you should also specify the ANDROID_NDK environment variable in your shell.
 
 - If you want to build static libraries for Tizen, you should download and install [Tizen SDK](https://developer.tizen.org/downloads/tizen-sdk). And you should also add a environment variable named `TIZEN_SDK` in your shell.
 
