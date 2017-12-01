@@ -41,7 +41,7 @@ endif
 endif
 
 ifdef HAVE_ANDROID
-export ANDROID_SYSROOT=$(ANDROID_NDK)/platforms/$(ANDROID_API)/arch-$(PLATFORM_SHORT_ARCH)
+export ANDROID_SYSROOT=$(ANDROID_TOOLCHAIN_PATH)/sysroot
 export SYSROOT=$(ANDROID_SYSROOT)
 export NDK_SYSROOT=$(ANDROID_SYSROOT)
 export ANDROID_NDK_SYSROOT=$(ANDROID_SYSROOT)
@@ -137,6 +137,9 @@ $(TARBALLS)/openssl-$(OPENSSL_VERSION).tar.gz:
 
 openssl: openssl-$(OPENSSL_VERSION).tar.gz .sum-openssl
 	$(UNPACK)
+ifdef HAVE_ANDROID
+	$(APPLY) $(SRC)/openssl/android-clang.patch
+endif
 ifdef HAVE_IOS
 	$(APPLY) $(SRC)/openssl/ios-armv7-crash.patch
 endif

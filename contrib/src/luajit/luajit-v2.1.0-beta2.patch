@@ -1,16 +1,3 @@
-diff --git a/src/Makefile b/src/Makefile
-index 3f25192..de0eac5 100644
---- a/src/Makefile
-+++ b/src/Makefile
-@@ -168,7 +168,7 @@ else
-   endif
-   # Use Clang for OSX host.
-   ifeq (Darwin,$(HOST_SYS))
--    DEFAULT_CC= clang
-+    DEFAULT_CC= gcc
-   endif
- endif
- 
 diff --git a/src/host/buildvm_asm.c b/src/host/buildvm_asm.c
 index 28419c0..e9256b5 100644
 --- a/src/host/buildvm_asm.c

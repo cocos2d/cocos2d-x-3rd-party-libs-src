@@ -91,8 +91,14 @@ endif
 endif
 
 ifdef HAVE_ANDROID
-CC :=  $(HOST)-gcc --sysroot=$(ANDROID_NDK)/platforms/$(ANDROID_API)/arch-$(PLATFORM_SHORT_ARCH)
-CXX := $(HOST)-g++ --sysroot=$(ANDROID_NDK)/platforms/$(ANDROID_API)/arch-$(PLATFORM_SHORT_ARCH)
+CC :=  clang
+CXX := clang++
+AR := $(HOST)-ar
+AS := clang
+LD := $(HOST)-ld
+STRIP := $(HOST)-strip
+RANLIB := $(HOST)-gcc-ranlib
+EXTRA_CFLAGS += --sysroot=$(ANDROID_TOOLCHAIN_PATH)/sysroot
 endif
 
 ifdef HAVE_TIZEN
@@ -428,18 +434,10 @@ ifdef HAVE_ANDROID
 # cmake will overwrite our --sysroot with a native (host) one on Darwin
 # Set it to "" right away to short-circuit this behaviour
 	echo "set(CMAKE_SYSTEM_NAME Linux)" >> $@
-	echo "set(CMAKE_CXX_SYSROOT_FLAG \"\")" >> $@
-	echo "set(CMAKE_C_SYSROOT_FLAG \"\")" >> $@
-ifdef HAVE_STL_GUN
-	echo "include_directories($(ANDROID_NDK)/sources/cxx-stl/gnu-libstdc++/4.9/include  \
-	    $(ANDROID_NDK)/sources/cxx-stl/gnu-libstdc++/4.9/libs/$(MY_TARGET_ARCH)/include \
-            $(ANDROID_NDK)/sources/cxx-stl/gnu-libstdc++/4.9/include/backward)"  >> $@
-endif
-ifdef HAVE_STL_CLANG
-	echo "include_directories($(ANDROID_NDK)/sources/android/support/include \
-	 	$(ANDROID_NDK)/sources/cxx-stl/llvm-libc++/libcxx/include)"  >> $@
-endif
-
+	echo "set(CMAKE_CXX_SYSROOT_FLAG $(ANDROID_TOOLCHAIN_PATH)/sysroot)" >> $@
+	echo "set(CMAKE_C_SYSROOT_FLAG $(ANDROID_TOOLCHAIN_PATH)/sysroot)" >> $@
+	echo "include_directories($(ANDROID_TOOLCHAIN_PATH)/include/c++/4.9.x \
+	 	$(ANDROID_TOOLCHAIN_PATH)/include/llvm-libc++abi/include)"  >> $@
 endif  #end of HAVE_ANDROID
 
 ifdef HAVE_TIZEN
