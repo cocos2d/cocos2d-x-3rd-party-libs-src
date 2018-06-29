@@ -3,7 +3,7 @@
 WEBSOCKETS_GITURL := https://github.com/warmcat/libwebsockets
 
 $(TARBALLS)/libwebsockets-git.tar.xz:
-	$(call download_git,$(WEBSOCKETS_GITURL),master,7355750)
+	$(call download_git,$(WEBSOCKETS_GITURL),master,855114e39)
 
 .sum-websockets: libwebsockets-git.tar.xz
 	$(warning $@ not implemented)
