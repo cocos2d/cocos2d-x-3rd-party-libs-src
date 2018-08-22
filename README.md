@@ -59,11 +59,12 @@ sudo apt-get install libtool
 sudo apt-get install git
 ```
 
-- If you want to build 32-bit libs on a 64-bit linux system, you should install *gcc-multilib*
+- If you want to build 32-bit libs on a 64-bit linux system, you should install *gcc-multilib* and *g++-multilib*
 
 ```
 sudo apt-get update
 sudo apt-get install gcc-multilib
+sudo apt-get install g++-multilib
 ```
 Then use command as follow to build 32-bit libs
 
