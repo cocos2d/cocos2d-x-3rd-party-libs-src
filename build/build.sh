@@ -472,7 +472,7 @@ do
         fi
 
 
-        echo "Copying needed heder files"
+        echo "Copying needed header files"
         copy_include_file_path=${lib}_header_files
         cp  -r $top_dir/contrib/$install_library_path/$arch/include/${!copy_include_file_path} $cfg_platform_name/$archive_name/include
 
