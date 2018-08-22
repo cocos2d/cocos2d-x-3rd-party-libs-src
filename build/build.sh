@@ -464,16 +464,23 @@ do
 
             for dep_archive in ${original_dependent_archive_list[@]}
             do
+
+                dep_archive_alias=${dep_archive}_archive_alias
+                dep_archive_name=${!dep_archive_alias}
+                if [ -z $dep_archive_name ]; then
+                    dep_archive_name=$dep_archive
+                fi
+
                 local_library_install_path=$cfg_platform_name/${dep_archive}/prebuilt/$original_arch_name
                 mkdir -p $local_library_install_path
-                cp $top_dir/contrib/$install_library_path/$arch/lib/lib${dep_archive}.a $local_library_install_path/lib${dep_archive}.a
+                cp $top_dir/contrib/$install_library_path/$arch/lib/lib${dep_archive_name}.a $local_library_install_path/lib${dep_archive_name}.a
 
             done
         fi
 
 
         echo "Copying needed header files"
-        copy_include_file_path=${lib}_header_files
+        copy_include_file_path=${archive_name}_header_files
         cp  -r $top_dir/contrib/$install_library_path/$arch/include/${!copy_include_file_path} $cfg_platform_name/$archive_name/include
 
 
@@ -507,7 +514,12 @@ do
 
             for dep_archive in ${original_dependent_archive_list[@]}
             do
-                create_fat_library $dep_archive
+                dep_archive_alias=${dep_archive}_archive_alias
+                dep_archive_name=${!dep_archive_alias}
+                if [ -z $dep_archive_name ]; then
+                    dep_archive_name=$dep_archive
+                fi
+                create_fat_library $dep_archive_name
             done
         fi
     fi

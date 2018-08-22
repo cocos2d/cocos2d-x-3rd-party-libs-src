@@ -18,7 +18,7 @@
 
 # exit this script if any commmand fails
 set -e
-
+set -x
 #
 # Command line handling
 #
