@@ -480,9 +480,12 @@ do
 
 
         echo "Copying needed header files"
-        copy_include_file_path=${archive_name}_header_files
-        cp  -r $top_dir/contrib/$install_library_path/$arch/include/${!copy_include_file_path} $cfg_platform_name/$archive_name/include
-
+        copy_include_file_path=${lib}_header_files
+        copy_header_list=${!copy_include_file_path//,/ }
+        for copy_header_pattern in ${copy_header_list[@]}
+        do
+            cp  -rv $top_dir/contrib/$install_library_path/$arch/include/${copy_header_pattern} $cfg_platform_name/$archive_name/include
+        done
 
         echo "cleaning up"
         if [ $cfg_is_cleanup_after_build = "yes" ];then
@@ -519,7 +522,7 @@ do
                 if [ -z $dep_archive_name ]; then
                     dep_archive_name=$dep_archive
                 fi
-                create_fat_library $dep_archive_name
+                create_fat_library $dep_archive $dep_archive_name
             done
         fi
     fi
