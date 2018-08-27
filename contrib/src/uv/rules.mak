@@ -12,7 +12,7 @@ uv: libuv-git.tar.xz
 	$(MOVE)
 
 ifdef HAVE_ANDROID
-cmake_android_def = -DANDROID=1
+cmake_android_def = -DANDROID=1 -DCMAKE_SYSTEM_NAME=Android
 endif
 
 .uv: uv toolchain.cmake

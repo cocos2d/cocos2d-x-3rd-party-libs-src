@@ -1,8 +1,19 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 4f13efc8..2ae3ff83 100644
+index 4f13efc8..22242da1 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -327,6 +327,11 @@ if(CMAKE_SYSTEM_NAME MATCHES "Darwin|DragonFly|FreeBSD|Linux|NetBSD|OpenBSD")
+@@ -3,6 +3,10 @@ cmake_minimum_required(VERSION 3.0)
+ project(libuv)
+ enable_testing()
+ 
++if(ANDROID)
++  set(CMAKE_SYSTEM_NAME "Android")
++endif()
++
+ if(MSVC)
+   list(APPEND uv_cflags /W4)
+ elseif(CMAKE_C_COMPILER_ID MATCHES "AppleClang|Clang|GNU")
+@@ -327,6 +331,11 @@ if(CMAKE_SYSTEM_NAME MATCHES "Darwin|DragonFly|FreeBSD|Linux|NetBSD|OpenBSD")
    list(APPEND uv_test_libraries util)
  endif()
  
@@ -14,3 +25,16 @@ index 4f13efc8..2ae3ff83 100644
  add_library(uv SHARED ${uv_sources})
  target_compile_definitions(uv PRIVATE ${uv_defines} BUILDING_UV_SHARED=1)
  target_compile_options(uv PRIVATE ${uv_cflags})
+diff --git a/include/uv/win.h b/include/uv/win.h
+index d6b8b3a7..13b52d2a 100644
+--- a/include/uv/win.h
++++ b/include/uv/win.h
+@@ -23,7 +23,7 @@
+ # define _WIN32_WINNT   0x0600
+ #endif
+ 
+-#if !defined(_SSIZE_T_) && !defined(_SSIZE_T_DEFINED)
++#if !defined(_SSIZE_T_) && !defined(_SSIZE_T_DEFINED) && !defined(__SSIZE_T)
+ typedef intptr_t ssize_t;
+ # define _SSIZE_T_
+ # define _SSIZE_T_DEFINED
