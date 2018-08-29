@@ -1,19 +1,8 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 4f13efc8..22242da1 100644
+index 4f13efc8..2ae3ff83 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -3,6 +3,10 @@ cmake_minimum_required(VERSION 3.0)
- project(libuv)
- enable_testing()
- 
-+if(ANDROID)
-+  set(CMAKE_SYSTEM_NAME "Android")
-+endif()
-+
- if(MSVC)
-   list(APPEND uv_cflags /W4)
- elseif(CMAKE_C_COMPILER_ID MATCHES "AppleClang|Clang|GNU")
-@@ -327,6 +331,11 @@ if(CMAKE_SYSTEM_NAME MATCHES "Darwin|DragonFly|FreeBSD|Linux|NetBSD|OpenBSD")
+@@ -327,6 +327,11 @@ if(CMAKE_SYSTEM_NAME MATCHES "Darwin|DragonFly|FreeBSD|Linux|NetBSD|OpenBSD")
    list(APPEND uv_test_libraries util)
  endif()
  
