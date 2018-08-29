@@ -14,3 +14,16 @@ index 4f13efc8..2ae3ff83 100644
  add_library(uv SHARED ${uv_sources})
  target_compile_definitions(uv PRIVATE ${uv_defines} BUILDING_UV_SHARED=1)
  target_compile_options(uv PRIVATE ${uv_cflags})
+diff --git a/include/uv/win.h b/include/uv/win.h
+index d6b8b3a7..13b52d2a 100644
+--- a/include/uv/win.h
++++ b/include/uv/win.h
+@@ -23,7 +23,7 @@
+ # define _WIN32_WINNT   0x0600
+ #endif
+ 
+-#if !defined(_SSIZE_T_) && !defined(_SSIZE_T_DEFINED)
++#if !defined(_SSIZE_T_) && !defined(_SSIZE_T_DEFINED) && !defined(__SSIZE_T)
+ typedef intptr_t ssize_t;
+ # define _SSIZE_T_
+ # define _SSIZE_T_DEFINED
