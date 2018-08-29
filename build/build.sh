@@ -464,9 +464,16 @@ do
 
             for dep_archive in ${original_dependent_archive_list[@]}
             do
+
+                dep_archive_alias=${dep_archive}_archive_alias
+                dep_archive_name=${!dep_archive_alias}
+                if [ -z $dep_archive_name ]; then
+                    dep_archive_name=$dep_archive
+                fi
+
                 local_library_install_path=$cfg_platform_name/${dep_archive}/prebuilt/$original_arch_name
                 mkdir -p $local_library_install_path
-                cp $top_dir/contrib/$install_library_path/$arch/lib/lib${dep_archive}.a $local_library_install_path/lib${dep_archive}.a
+                cp $top_dir/contrib/$install_library_path/$arch/lib/lib${dep_archive_name}.a $local_library_install_path/lib${dep_archive_name}.a
 
             done
         fi
@@ -474,8 +481,11 @@ do
 
         echo "Copying needed header files"
         copy_include_file_path=${lib}_header_files
-        cp  -r $top_dir/contrib/$install_library_path/$arch/include/${!copy_include_file_path} $cfg_platform_name/$archive_name/include
-
+        copy_header_list=${!copy_include_file_path//,/ }
+        for copy_header_pattern in ${copy_header_list[@]}
+        do
+            cp  -rv $top_dir/contrib/$install_library_path/$arch/include/${copy_header_pattern} $cfg_platform_name/$archive_name/include
+        done
 
         echo "cleaning up"
         if [ $cfg_is_cleanup_after_build = "yes" ];then
@@ -507,7 +517,12 @@ do
 
             for dep_archive in ${original_dependent_archive_list[@]}
             do
-                create_fat_library $dep_archive
+                dep_archive_alias=${dep_archive}_archive_alias
+                dep_archive_name=${!dep_archive_alias}
+                if [ -z $dep_archive_name ]; then
+                    dep_archive_name=$dep_archive
+                fi
+                create_fat_library $dep_archive $dep_archive_name
             done
         fi
     fi
