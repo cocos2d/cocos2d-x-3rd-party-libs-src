@@ -54,3 +54,7 @@
 **/winrt/install
 **/winrt/temp
 **/winrt/cmake/install
+
+**/tarballs
+/build/android-toolchain*
+/contrib/android-*
