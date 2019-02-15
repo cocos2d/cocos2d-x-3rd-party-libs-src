@@ -312,7 +312,7 @@ HOSTVARS_PIC := $(HOSTTOOLS) \
 
 download_git = \
 	rm -Rf $(@:.tar.xz=) && \
-	$(GIT) clone $(2:%=--branch %) $(1) $(@:.tar.xz=) && \
+	$(GIT) clone --single-branch $(2:%=--branch %) $(1) $(@:.tar.xz=) && \
 	(cd $(@:.tar.xz=) && $(GIT) checkout $(3:%= %)) && \
 	rm -Rf $(@:%.tar.xz=%)/.git && \
 	(cd $(dir $@) && \

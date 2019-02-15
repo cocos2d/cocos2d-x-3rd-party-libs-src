@@ -1,0 +1,42 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index c058bef..2a29a83 100755
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -31,21 +31,28 @@ list(REMOVE_ITEM glsl_sources ${glsl_sources_remove})
+ add_library(glsl_optimizer ${glsl_sources})
+ target_link_libraries(glsl_optimizer glcpp-library mesa)
+ 
+-add_executable(glsl_compiler src/glsl/main.cpp)
+-target_link_libraries(glsl_compiler glsl_optimizer)
++#add_executable(glsl_compiler src/glsl/main.cpp)
++#target_link_libraries(glsl_compiler glsl_optimizer)
+ 
+-file(GLOB glsl_test_sources tests/*.cpp)
+-add_executable(glsl_test ${glsl_test_sources})
+-target_link_libraries(glsl_test glsl_optimizer)
+-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
++
++#file(GLOB glsl_test_sources tests/*.cpp)
++#add_executable(glsl_test ${glsl_test_sources})
++#target_link_libraries(glsl_test glsl_optimizer)
++#if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+     # OSX-specific build requirements
+-    find_library(OpenGL_LIBRARY OpenGL )
+-    target_link_libraries(glsl_test ${OpenGL_LIBRARY})
+-endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
++#    find_library(OpenGL_LIBRARY OpenGL )
++#    target_link_libraries(glsl_test ${OpenGL_LIBRARY})
++#endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+ 
+ file(GLOB glslopt_sources contrib/glslopt/*.cpp)
+ add_executable(glslopt ${glslopt_sources})
+ target_link_libraries(glslopt glsl_optimizer)
+ 
++install(TARGETS glsl_optimizer glcpp-library mesa
++    LIBRARY DESTINATION lib
++    ARCHIVE DESTINATION lib
++)
++
++install(FILES src/glsl/glsl_optimizer.h DESTINATION include/)
+ #add_executable(glcpp src/glsl/glcpp/glcpp.c)
+ #target_link_libraries(glcpp glsl_optimizer)
