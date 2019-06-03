@@ -4,7 +4,7 @@ RAPIDJSON_GITURL := https://github.com/miloyip/rapidjson
 
 
 $(TARBALLS)/librapidjson-git.tar.xz:
-	$(call download_git,$(RAPIDJSON_GITURL),master,3d5848a)
+	$(call download_git,$(RAPIDJSON_GITURL),master,f54b0e47)
 
 .sum-rapidjson: librapidjson-git.tar.xz
 	$(warning $@ not implemented)
