@@ -1,6 +1,6 @@
 # rapidjson
 
-RAPIDJSON_GITURL := https://github.com/miloyip/rapidjson
+RAPIDJSON_GITURL := https://github.com/Tencent/rapidjson 
 
 
 $(TARBALLS)/librapidjson-git.tar.xz:
