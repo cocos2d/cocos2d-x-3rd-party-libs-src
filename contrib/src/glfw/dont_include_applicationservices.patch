@@ -1,34 +1,22 @@
-From 40dca1b511f91310a0282b7edb4b4f93bb69dcb2 Mon Sep 17 00:00:00 2001
-From: minggo <ming@cocos2d-x.org>
-Date: Thu, 2 Nov 2017 09:49:46 +0800
-Subject: [PATCH] generate patch
-
----
- include/GLFW/glfw3native.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
 diff --git a/include/GLFW/glfw3native.h b/include/GLFW/glfw3native.h
-index 30e1a57..d5c443d 100644
+index 267e75c..26bf782 100644
 --- a/include/GLFW/glfw3native.h
 +++ b/include/GLFW/glfw3native.h
-@@ -87,7 +87,7 @@ extern "C" {
-  #undef APIENTRY
-  #include <windows.h>
- #elif defined(GLFW_EXPOSE_NATIVE_COCOA)
-- #include <ApplicationServices/ApplicationServices.h>
-+ //#include <ApplicationServices/ApplicationServices.h>
+@@ -94,7 +94,7 @@ extern "C" {
   #if defined(__OBJC__)
    #import <Cocoa/Cocoa.h>
   #else
-@@ -195,7 +195,7 @@ GLFWAPI HGLRC glfwGetWGLContext(GLFWwindow* window);
+-  #include <ApplicationServices/ApplicationServices.h>
++  //#include <ApplicationServices/ApplicationServices.h>
+   typedef void* id;
+  #endif
+ #elif defined(GLFW_EXPOSE_NATIVE_X11) || defined(GLFW_EXPOSE_NATIVE_GLX)
+@@ -200,7 +200,7 @@ GLFWAPI HGLRC glfwGetWGLContext(GLFWwindow* window);
   *
   *  @ingroup native
   */
 -GLFWAPI CGDirectDisplayID glfwGetCocoaMonitor(GLFWmonitor* monitor);
 +//GLFWAPI CGDirectDisplayID glfwGetCocoaMonitor(GLFWmonitor* monitor);
- 
+
  /*! @brief Returns the `NSWindow` of the specified window.
   *
--- 
-2.6.2
-
