@@ -1,6 +1,6 @@
 # luajit
 
-LUAJIT_VERSION := 2.1.0-beta2
+LUAJIT_VERSION := 2.1.0-beta3
 LUAJIT_URL := http://luajit.org/download/LuaJIT-$(LUAJIT_VERSION).tar.gz
 
 $(TARBALLS)/LuaJIT-$(LUAJIT_VERSION).tar.gz:
@@ -16,6 +16,9 @@ endif
 
 ifeq ($(LUAJIT_VERSION),2.1.0-beta2)
 	$(APPLY) $(SRC)/luajit/luajit-v2.1.0-beta2.patch
+endif
+ifeq ($(LUAJIT_VERSION),2.1.0-beta3)
+	$(APPLY) $(SRC)/luajit/luajit-v2.1.0-beta3.patch
 endif
 	$(MOVE)
 
@@ -68,7 +71,7 @@ endif
 
 .luajit: luajit
 ifdef HAVE_ANDROID
-	cd $< && $(MAKE) -j8 HOST_CC=$(LUAJIT_HOST_CC) CROSS=$(LUAJIT_CROSS_HOST) TARGET_SYS=Linux TARGET_FLAGS=$(LUAJIT_TARGET_FLAGS)
+	cd $< && $(MAKE) -j8 HOST_CC=$(LUAJIT_HOST_CC) CROSS=$(LUAJIT_CROSS_HOST) CC=clang TARGET_SYS=Linux TARGET_FLAGS=$(LUAJIT_TARGET_FLAGS)
 endif
 
 ifdef HAVE_MACOSX
