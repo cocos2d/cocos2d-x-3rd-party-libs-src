@@ -8,9 +8,17 @@ $(TARBALLS)/libwebp-$(WEBP_VERSION).tar.gz:
 
 .sum-webp: libwebp-$(WEBP_VERSION).tar.gz
 
+ifdef HAVE_ANDROID
+ifeq ($(MY_TARGET_ARCH),armeabi-v7a)
+	mkdir -p $(PREFIX)/lib
+	cp $(PREFIX)/../../src/webp/libcpufeatures.a $(PREFIX)/lib/
+endif
+endif
+
 webp: libwebp-$(WEBP_VERSION).tar.gz .sum-webp
 	$(UNPACK)
 	$(UPDATE_AUTOCONFIG)
+	$(APPLY) $(SRC)/webp/missing-cpu-feature.patch
 	$(MOVE)
 
 .webp: webp
